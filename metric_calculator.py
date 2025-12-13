@@ -4,84 +4,122 @@ import streamlit as st
 from math import sqrt
 
 # --------------------------------------------------------------
-# Helper Functions for Each Metric
+# Helper Function (Complex Logic Only)
 # --------------------------------------------------------------
 
-def calculate_cagr(series):
-    start, end = series.iloc[0], series.iloc[-1]
-    years = (series.index[-1] - series.index[0]).days / 365
-    return ((end / start) ** (1 / years)) - 1
-
-def calculate_volatility(series):
-    returns = series.pct_change().dropna()
-    return returns.std() * sqrt(252)
-
-def calculate_sharpe(series, risk_free_rate=0.06):
-    returns = series.pct_change().dropna()
-    excess_return = returns.mean() * 252 - risk_free_rate
-    return excess_return / (returns.std() * sqrt(252))
-
-def calculate_sortino(series, risk_free_rate=0.06):
-    returns = series.pct_change().dropna()
-    negative = returns[returns < 0]
-    downside_std = negative.std() * sqrt(252)
-    avg_return = returns.mean() * 252 - risk_free_rate
-    return avg_return / downside_std if downside_std != 0 else np.nan
-
-def calculate_calmar(series):
-    cagr = calculate_cagr(series)
-    mdd = calculate_max_drawdown(series)
-    return cagr / abs(mdd) if mdd != 0 else np.nan
-
-def calculate_max_drawdown(series):
-    cumulative_max = series.cummax()
-    drawdown = (series - cumulative_max) / cumulative_max
-    return drawdown.min()
-
-def calculate_beta(series, market_series):
-    # Align the series dates
-    common_idx = series.index.intersection(market_series.index)
-    series = series.loc[common_idx]
-    market_series = market_series.loc[common_idx]
+def calculate_recovery_days(series, cummax_series=None):
+    """
+    Calculates days to recover to All-Time High from the lowest point of the Max Drawdown.
+    """
+    if cummax_series is None:
+        cummax_series = series.cummax()
     
-    cov_matrix = np.cov(series.pct_change().dropna(), market_series.pct_change().dropna())
-    return cov_matrix[0, 1] / cov_matrix[1, 1]
-
-def calculate_recovery_days(series):
-    cummax = series.cummax()
-    dd = (series / cummax - 1)
-    drawdown_periods = dd[dd == dd.min()]
+    # Calculate drawdown percentage series
+    dd = (series / cummax_series - 1)
+    min_dd = dd.min()
+    
+    # If no drawdown or data is flat
+    if min_dd == 0:
+        return 0
+        
+    # Find the date of the absolute bottom (Max Drawdown)
+    drawdown_periods = dd[dd == min_dd]
     if drawdown_periods.empty:
         return 0
-    recovery_index = np.argmax(series >= cummax.max())
-    if recovery_index == 0:
+    date_of_bottom = drawdown_periods.index[-1]
+    
+    # Filter data to look only at dates AFTER the bottom
+    future_data = series.loc[date_of_bottom:]
+    
+    # Target price to beat is the highest price seen BEFORE or AT the bottom
+    target_price = cummax_series.loc[date_of_bottom]
+    
+    # Find days where price >= target
+    recovered_dates = future_data[future_data >= target_price]
+    
+    # If it never recovered
+    if len(recovered_dates) < 2: 
         return np.nan
-    recovery_time = (series.index[recovery_index] - drawdown_periods.index[-1]).days
-    return recovery_time
+        
+    # The first date it crossed the target
+    date_of_recovery = recovered_dates.index[0]
+    
+    # Return difference in days
+    return (date_of_recovery - date_of_bottom).days
 
 # --------------------------------------------------------------
-# Apply Metrics to All Stocks (Cached)
+# Main Computation Engine (Vectorized)
 # --------------------------------------------------------------
+
 @st.cache_data
 def compute_metrics(data, market_ticker):
-    # We pass the ticker string (e.g. "RELIANCE.NS") instead of the series
-    # so Streamlit can hash it easily.
-    market_series = data[market_ticker]
-    
+    """
+    Computes all financial metrics for all stocks in the provided dataframe efficiently.
+    """
+    if data.empty:
+        return pd.DataFrame()
+
+    # 1. VECTORIZED PRE-CALCULATION
+    daily_returns = data.pct_change().dropna()
+    cummax_df = data.cummax()
+    drawdown_df = (data / cummax_df) - 1
+    max_drawdowns = drawdown_df.min()
+
+    # Prepare Market Data for Beta
+    if market_ticker in daily_returns.columns:
+        market_ret = daily_returns[market_ticker]
+        market_var = market_ret.var()
+    else:
+        market_ret = pd.Series(np.ones(len(daily_returns)), index=daily_returns.index)
+        market_var = 1.0
+
+    RISK_FREE_RATE = 0.06
+    TRADING_DAYS = 252
     results = []
+
+    # 2. FAST LOOKUP LOOP
     for ticker in data.columns:
         series = data[ticker]
-        metrics = {
+        ret_series = daily_returns[ticker]
+        
+        # CAGR
+        start_val, end_val = series.iloc[0], series.iloc[-1]
+        years = (series.index[-1] - series.index[0]).days / 365.0
+        cagr = ((end_val / start_val) ** (1 / years)) - 1 if years > 0 else 0
+        
+        # Volatility
+        volatility = ret_series.std() * sqrt(TRADING_DAYS)
+        
+        # Sharpe
+        excess_return_daily = ret_series.mean() * TRADING_DAYS - RISK_FREE_RATE
+        sharpe = excess_return_daily / volatility if volatility != 0 else np.nan
+        
+        # Sortino
+        neg_rets = ret_series[ret_series < 0]
+        downside_std = neg_rets.std() * sqrt(TRADING_DAYS)
+        sortino = excess_return_daily / downside_std if downside_std != 0 else np.nan
+        
+        # Max Drawdown & Calmar
+        mdd = max_drawdowns[ticker]
+        calmar = cagr / abs(mdd) if mdd != 0 else np.nan
+        
+        # Beta
+        cov = ret_series.cov(market_ret)
+        beta = cov / market_var if market_var != 0 else np.nan
+
+        # Recovery Days
+        recovery = calculate_recovery_days(series, cummax_df[ticker])
+
+        results.append({
             "Ticker": ticker,
-            "CAGR": calculate_cagr(series),
-            "Volatility": calculate_volatility(series),
-            "Sharpe": calculate_sharpe(series),
-            "Sortino": calculate_sortino(series),
-            "Calmar": calculate_calmar(series),
-            "MaxDrawdown": calculate_max_drawdown(series),
-            "Beta": calculate_beta(series, market_series),
-            "RecoveryDays": calculate_recovery_days(series)
-        }
-        results.append(metrics)
-    df = pd.DataFrame(results)
-    return df
+            "CAGR": cagr,
+            "Volatility": volatility,
+            "Sharpe": sharpe,
+            "Sortino": sortino,
+            "Calmar": calmar,
+            "MaxDrawdown": mdd,
+            "Beta": beta,
+            "RecoveryDays": recovery
+        })
+
+    return pd.DataFrame(results)

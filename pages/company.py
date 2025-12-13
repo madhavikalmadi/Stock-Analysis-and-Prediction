@@ -1,8 +1,12 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import yfinance as yf
 from datetime import datetime, timedelta
+
+# --- IMPORT OPTIMIZED MODULES ---
+import data_fetch
+import metric_calculator
+import scoring_system
 
 # ==========================================
 # 1. PAGE CONFIGURATION
@@ -22,7 +26,7 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap');
     [data-testid="stSidebar"] { display: none; }
 
-    /* --- HIDE ANCHOR LINKS NEXT TO TITLES --- */
+    /* --- HIDE ANCHOR LINKS --- */
     [data-testid="stHeaderActionElements"] { display: none !important; visibility: hidden !important; }
     [data-testid="stHeaderAnchor"] { display: none !important; visibility: hidden !important; }
     h1 > a, h2 > a, h3 > a, h4 > a, h5 > a, h6 > a { display: none !important; content: none !important; pointer-events: none; color: transparent !important; }
@@ -69,7 +73,6 @@ st.markdown("""
 
     @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 40px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
 
-    /* SCORE SUFFIX STYLE (Matches Bluechip Explorer) */
     .score-suffix { font-size: 0.6em; color: inherit; font-weight: 800; opacity: 0.9; }
 
     /* METRIC GRID */
@@ -86,7 +89,7 @@ st.markdown("""
     .warn { background: #fffbeb !important; border-left-color: #f59e0b !important; color: #92400e !important; }
     .danger { background: #fef2f2 !important; border-left-color: #ef4444 !important; color: #991b1b !important; }
 
-    /* ACTION BUTTONS (Analyze) */
+    /* ACTION BUTTONS */
     div.stButton > button {
         background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
         color: white; border-radius: 12px; padding: 12px; font-weight: 600; width: 100%; border: none; transition: 0.2s;
@@ -96,11 +99,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. LOGIC & HELPERS
+# 3. HELPERS
 # ==========================================
-START_DATE = (datetime.today() - timedelta(days=365 * 10)).strftime('%Y-%m-%d')
-END_DATE = datetime.today().strftime('%Y-%m-%d')
-RISK_FREE_RATE = 0.05
 
 COMMON_NAMES = {
     "infosys": "INFY", "reliance": "RELIANCE", "tcs": "TCS", "hdfc bank": "HDFCBANK",
@@ -113,135 +113,94 @@ COMMON_NAMES = {
     "policybazaar": "POLICYBZR", "delhivery": "DELHIVERY"
 }
 
-WEIGHTS = {"CAGR": 25, "Sharpe": 15, "Sortino": 10, "Calmar": 10, "Vol": 10, "MaxDD": 10, "Beta": 5, "RecDays": 5}
-
 def resolve_ticker(user_input):
     return COMMON_NAMES.get(user_input.lower().strip(), user_input.upper())
 
-def create_card_html(ticker, score, reco, desc, m, fv, idx=None, delay=0):
+def get_recommendation_text(cagr, sharpe):
+    """Simple recommendation logic based on key metrics"""
+    if sharpe > 0.5 and cagr > 0.12: return ("✅ Strong Buy", "Steady Growth")
+    elif sharpe > 0.3 and cagr > 0.08: return ("⚠️ Moderate", "Higher Risk")
+    else: return ("❌ Avoid", "Inconsistent History")
+
+def create_card_html(row, amount_invested, years, idx=None, delay=0):
+    # Extract Metrics from the Row
+    ticker = row['Ticker'].replace('.NS','')
+    score = round(row.get('FinalScore', 0) * 100, 1)
+    cagr = row.get('CAGR', 0)
+    sharpe = row.get('Sharpe', 0)
+    vol = row.get('Volatility', 0)
+    beta = row.get('Beta', 0)
+    
+    # Calculate Future Value
+    # Handle case where amount is None (user left it blank)
+    principal = amount_invested if amount_invested is not None else 0
+    fv = principal * ((1 + cagr) ** years)
+    
+    # Get Recommendation Text
+    reco, desc = get_recommendation_text(cagr, sharpe)
+    
+    # Styling classes
     reco_class = "reco-box"
     if "Moderate" in reco: reco_class += " warn"
     if "Avoid" in reco: reco_class += " danger"
     
     header = f"#{idx} {ticker}" if idx else ticker
     
-    # --- UPDATED: Score Display using .score-suffix class ---
     return f"""
     <div class='stock-card' style='animation-delay: {delay}s;'>
-    <div style='display:flex; justify-content:space-between; border-bottom:1px dashed #e2e8f0; padding-bottom:10px;'>
-    <div style='font-weight:800; font-size:1.2rem;'>{header}</div>
-    <div style='font-weight:800; font-size:1.5rem; color:#16a34a;'>
-        {score}<span class='score-suffix'>/100</span>
-    </div>
-    </div>
-    <div class='{reco_class}'>{reco}<br><span>{desc}</span></div>
-    <div class='metrics-grid'>
-    <div class='metric-row'><span class='label'>CAGR</span><span class='val'>{m['CAGR']*100:.1f}%</span></div>
-    <div class='metric-row'><span class='label'>Sharpe</span><span class='val'>{m['Sharpe']:.2f}</span></div>
-    <div class='metric-row'><span class='label'>Vol</span><span class='val'>{m['Vol']*100:.1f}%</span></div>
-    <div class='metric-row'><span class='label'>Beta</span><span class='val'>{m['Beta']:.2f}</span></div>
-    </div>
-    <div style='text-align:center; margin-top:15px;'>
-    <div style='font-size:0.85rem; color:#64748b;'>Projected Value</div>
-    <div style='font-size:1.4rem; font-weight:800; color:#16a34a;'>₹ {fv:,.0f}</div>
-    </div>
+        <div style='display:flex; justify-content:space-between; border-bottom:1px dashed #e2e8f0; padding-bottom:10px;'>
+            <div style='font-weight:800; font-size:1.2rem;'>{header}</div>
+            <div style='font-weight:800; font-size:1.5rem; color:#16a34a;'>
+                {score}<span class='score-suffix'>/100</span>
+            </div>
+        </div>
+        <div class='{reco_class}'>{reco}<br><span>{desc}</span></div>
+        <div class='metrics-grid'>
+            <div class='metric-row'><span class='label'>CAGR</span><span class='val'>{cagr*100:.1f}%</span></div>
+            <div class='metric-row'><span class='label'>Sharpe</span><span class='val'>{sharpe:.2f}</span></div>
+            <div class='metric-row'><span class='label'>Vol</span><span class='val'>{vol*100:.1f}%</span></div>
+            <div class='metric-row'><span class='label'>Beta</span><span class='val'>{beta:.2f}</span></div>
+        </div>
+        <div style='text-align:center; margin-top:15px;'>
+            <div style='font-size:0.85rem; color:#64748b;'>Projected Value ({years}y)</div>
+            <div style='font-size:1.4rem; font-weight:800; color:#16a34a;'>₹ {fv:,.0f}</div>
+        </div>
     </div>
     """
 
-@st.cache_data(ttl=3600)
-def get_nifty_data():
-    try:
-        df = yf.download("^NSEI", start=START_DATE, end=END_DATE, progress=False)
-        if isinstance(df, pd.DataFrame):
-            if "Adj Close" in df.columns: return df["Adj Close"].squeeze()
-            elif "Close" in df.columns: return df["Close"].squeeze()
-            else: return df.iloc[:, 0].squeeze()
-        return df
-    except: return pd.Series(dtype=float)
-
-def download_data(ticker):
-    sym = ticker.upper() + (".NS" if not ticker.endswith(".NS") else "")
-    df = yf.download(sym, start=START_DATE, end=END_DATE, progress=False, auto_adjust=True)
-    if df.empty: df = yf.download(sym, period="max", progress=False, auto_adjust=True)
+def run_analysis(tickers):
+    """
+    Centralized function to fetch, calculate, and rank stocks.
+    """
+    # 1. Add Market Proxy for Beta Calculation
+    market_ticker = "NIFTYBEES.NS"
+    search_list = list(set(tickers + [market_ticker]))
     
-    if df.empty: return pd.Series(dtype=float)
-
-    try:
-        if isinstance(df.columns, pd.MultiIndex):
-            try: data = df.xs('Close', level=0, axis=1)
-            except: data = df.iloc[:, 0]
-        elif "Close" in df.columns: data = df["Close"]
-        else: data = df.iloc[:, 0]
-        if isinstance(data, pd.DataFrame): data = data.iloc[:, 0]
-        return data.dropna()
-    except: return pd.Series(dtype=float)
-
-def calculate_metrics(price, nifty=None):
-    if price.empty: return None
-    if isinstance(price, pd.DataFrame): price = price.squeeze()
-    if nifty is not None and isinstance(nifty, pd.DataFrame): nifty = nifty.squeeze()
-
-    returns = price.pct_change().dropna()
-    years = (price.index[-1] - price.index[0]).days / 365.25
-    if years < 0.2: return None 
-
-    ann_ret = float(returns.mean() * 252)
-    ann_vol = float(returns.std() * np.sqrt(252))
-    if years < 1: cagr = ann_ret 
-    else: cagr = float((price.iloc[-1] / price.iloc[0]) ** (1 / years) - 1)
+    # 2. Fetch Data (Cached)
+    df = data_fetch.fetch_stock_data(search_list)
     
-    sharpe = (ann_ret - RISK_FREE_RATE) / ann_vol if ann_vol != 0 else 0
-    neg = returns[returns < 0]
-    downside = float(neg.std() * np.sqrt(252)) if not neg.empty else 1.0
-    sortino = (ann_ret - RISK_FREE_RATE) / downside
+    if df.empty:
+        return pd.DataFrame()
+        
+    # 3. Calculate Metrics (Cached & Vectorized)
+    metrics_df = metric_calculator.compute_metrics(df, market_ticker)
     
-    roll_max = price.cummax()
-    max_dd = float(((price / roll_max) - 1).min())
-    calmar = ann_ret / abs(max_dd) if max_dd < 0 else 0
-
-    rec = 0
-    peak = price.iloc[0]
-    peak_date = price.index[0]
-    for dt, val in price.items():
-        if val >= peak:
-            peak = val; peak_date = dt
-        else:
-            rec = max(rec, (dt - peak_date).days)
-
-    beta = 1.0
-    if nifty is not None and not nifty.empty:
-        n_ret = nifty.pct_change().dropna()
-        common = returns.index.intersection(n_ret.index)
-        if len(common) > 30:
-            beta = float(np.cov(returns.loc[common], n_ret.loc[common])[0, 1] / np.var(n_ret.loc[common]))
-
-    return {"CAGR": cagr, "Sharpe": sharpe, "Sortino": sortino, "Calmar": calmar, "Vol": ann_vol, "MaxDD": max_dd, "Beta": beta, "RecDays": rec}
-
-def calculate_score(m):
-    s = 0
-    s += min(m["CAGR"] / 0.20, 1) * WEIGHTS["CAGR"]
-    s += min(m["Sharpe"] / 1.5, 1) * WEIGHTS["Sharpe"]
-    s += min(m["Sortino"] / 2.0, 1) * WEIGHTS["Sortino"]
-    s += min(m["Calmar"] / 1.5, 1) * WEIGHTS["Calmar"]
-    s += max(0, 1 - m["Vol"] / 0.35) * WEIGHTS["Vol"]
-    s += max(0, 1 - abs(m["MaxDD"]) / 0.6) * WEIGHTS["MaxDD"]
-    s += max(0, 1 - abs(m["Beta"] - 1) / 0.5) * WEIGHTS["Beta"]
-    s += max(0, 1 - m["RecDays"] / 800) * WEIGHTS["RecDays"]
-    return round((s / sum(WEIGHTS.values())) * 100, 1)
-
-def get_recommendation(m):
-    if m["Sharpe"] > 0.5 and m["CAGR"] > 0.12: return ("✅ Strong Buy", "Steady Growth")
-    elif m["Sharpe"] > 0.3 and m["CAGR"] > 0.08: return ("⚠️ Moderate", "Higher Risk")
-    else: return ("❌ Avoid", "Inconsistent")
+    # 4. Rank Stocks (Cached)
+    ranked_df = scoring_system.rank_stocks(metrics_df)
+    
+    # Filter out the market ticker from results
+    ranked_df = ranked_df[ranked_df['Ticker'] != market_ticker]
+    
+    return ranked_df
 
 # ==========================================
 # 4. MAIN UI
 # ==========================================
 if 'single_output' not in st.session_state: st.session_state.single_output = None
 if 'multi_output' not in st.session_state: st.session_state.multi_output = []
-if 'failed_tickers' not in st.session_state: st.session_state.failed_tickers = []
+if 'failed_msg' not in st.session_state: st.session_state.failed_msg = None
 
-# --- UPDATED TITLE WITH EMOJI ---
+# --- TITLE ---
 st.markdown("<h1 style='text-align:center; animation: slideInDown 0.8s ease-out;'>🏢 Company Advisor</h1>", unsafe_allow_html=True)
 st.write("---")
 
@@ -251,89 +210,94 @@ col_single, col_multi = st.columns(2)
 with col_single:
     st.markdown("<div class='input-box'><div class='input-title'>🔍 Single Deep Dive</div><div class='input-desc'>Analyze one stock.</div></div>", unsafe_allow_html=True)
     s_input = st.text_input("Ticker Symbol", value="", placeholder="e.g. Zomato, Reliance")
+    
+    # No default value (None), placeholder "Type amount..."
     s_amount = st.number_input("Investment Amount (₹)", value=None, placeholder="Type amount...")
-    s_years = st.slider("Years", 1, 20, 1)
+    
+    # UPDATED: Added HTML labels below slider for visibility
+    s_years = st.slider("Years", min_value=1, max_value=20, value=1)
+    st.markdown("""
+    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #64748b; margin-top: -10px; margin-bottom: 20px;">
+        <span>1 Year</span>
+        <span>20 Years</span>
+    </div>
+    """, unsafe_allow_html=True)
 
     if st.button("🚀 Analyze Single", use_container_width=True):
-        if "," in s_input: st.error("Use the Multi-Stock box for lists."); st.session_state.single_output = None
-        elif not s_input.strip(): st.warning("Enter a company."); st.session_state.single_output = None
+        if "," in s_input: 
+            st.error("Use the Multi-Stock box for lists.")
+        elif not s_input.strip(): 
+            st.warning("Enter a company.")
         else:
             s_ticker = resolve_ticker(s_input)
-            nifty = get_nifty_data()
-            price = download_data(s_ticker)
-            if price.empty: st.error(f"⚠️ Could not find data for '{s_input}'."); st.session_state.single_output = None
-            else:
-                m = calculate_metrics(price, nifty)
-                if m:
-                    score = calculate_score(m)
-                    reco, desc = get_recommendation(m)
-                    fv = (s_amount if s_amount else 0) * ((1 + m["CAGR"]) ** s_years)
-                    st.session_state.single_output = create_card_html(s_ticker, score, reco, desc, m, fv)
-    
-    if st.session_state.single_output: st.markdown(st.session_state.single_output, unsafe_allow_html=True)
+            
+            with st.spinner(f"Analyzing {s_ticker}..."):
+                results = run_analysis([s_ticker])
+                
+                if results.empty:
+                    st.session_state.single_output = None
+                    st.session_state.failed_msg = f"Could not find data for {s_ticker}"
+                else:
+                    row = results.iloc[0]
+                    st.session_state.single_output = create_card_html(row, s_amount, s_years)
+                    st.session_state.failed_msg = None
+
+    if st.session_state.failed_msg:
+        st.error(st.session_state.failed_msg)
+        
+    if st.session_state.single_output: 
+        st.markdown(st.session_state.single_output, unsafe_allow_html=True)
 
 # --- MULTI COMPANY ---
 with col_multi:
     st.markdown("<div class='input-box'><div class='input-title'>⚖️ Multi-Stock Ranking</div><div class='input-desc'>Compare multiple stocks.</div></div>", unsafe_allow_html=True)
     m_input = st.text_area("Enter Tickers (Comma Separated)", value="", placeholder="e.g. Zomato, Swiggy, TCS")
+    
+    # No default value, placeholder matches Ticker input style
     m_amount = st.number_input("Amount Per Stock (₹)", value=None, placeholder="Type amount...")
-    m_years = st.slider("Duration", 1, 20, 1)
+    
+    # UPDATED: Added HTML labels below slider for visibility
+    m_years = st.slider("Duration (Years)", min_value=1, max_value=20, value=1)
+    st.markdown("""
+    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #64748b; margin-top: -10px; margin-bottom: 20px;">
+        <span>1 Year</span>
+        <span>20 Years</span>
+    </div>
+    """, unsafe_allow_html=True)
 
     if st.button("🚀 Compare & Rank", use_container_width=True):
         raw_list = [t.strip() for t in m_input.split(",") if t.strip()]
         
-        if not m_input.strip():
-            st.warning("Please enter at least two companies.")
-        elif len(raw_list) < 2:
-            st.error("⚠️ Error: For single company analysis, please use the 'Single Deep Dive' box on the left.")
-            st.session_state.multi_output = []
-            st.session_state.failed_tickers = []
+        if len(raw_list) < 2:
+            st.warning("Please enter at least two companies to compare.")
         else:
             tickers = [resolve_ticker(t) for t in raw_list]
-            results, failed = [], []
-            nifty = get_nifty_data()
-            bar = st.progress(0)
             
-            for i, t in enumerate(tickers):
-                price = download_data(t)
-                if not price.empty:
-                    m = calculate_metrics(price, nifty)
-                    if m:
-                        m["Ticker"] = t; m["Score"] = calculate_score(m)
-                        m["FV"] = (m_amount if m_amount else 0) * ((1 + m["CAGR"]) ** m_years)
-                        m["Reco"], m["Desc"] = get_recommendation(m)
-                        results.append(m)
-                    else: failed.append(t)
-                else: failed.append(t)
-                bar.progress((i + 1) / len(tickers))
-            bar.empty()
-
-            st.session_state.multi_output = []
-            st.session_state.failed_tickers = failed
-
-            if results:
-                df = pd.DataFrame(results).sort_values("Score", ascending=False)
-                st.success(f"Ranked {len(df)} stocks")
-                for idx, row in df.iterrows():
-                    html = create_card_html(row['Ticker'], row['Score'], row['Reco'], row['Desc'], row, row['FV'], idx=idx+1, delay=idx*0.1)
-                    st.session_state.multi_output.append(html)
-            elif not failed: st.error("No valid stocks found.")
-
-    if st.session_state.failed_tickers:
-        st.error(f"⚠️ No data for: {', '.join(st.session_state.failed_tickers)}")
+            with st.spinner("Fetching data and ranking stocks..."):
+                results = run_analysis(tickers)
+                
+                if results.empty:
+                    st.error("No valid data found for these stocks.")
+                else:
+                    html_cards = []
+                    for idx, row in results.iterrows():
+                        html = create_card_html(row, m_amount, m_years, idx=idx+1, delay=idx*0.1)
+                        html_cards.append(html)
+                    
+                    st.session_state.multi_output = html_cards
 
     if st.session_state.multi_output:
-        for html in st.session_state.multi_output: st.markdown(html, unsafe_allow_html=True)
+        for html in st.session_state.multi_output: 
+            st.markdown(html, unsafe_allow_html=True)
 
 # ==========================================
 # 5. NAVIGATION (FOOTER)
 # ==========================================
 st.write(""); st.write("---"); st.write("")
 
-# Inject specific CSS for the footer buttons to look like pills
+# Inject specific CSS for the footer buttons
 st.markdown("""
 <style>
-/* Targets the buttons in the columns below to match the rounded pill style */
 div.stButton:last-of-type > button {
     padding: 0.4rem 1rem !important; 
     font-size: 0.8rem !important; 
@@ -352,19 +316,11 @@ div.stButton:last-of-type > button:hover {
 </style>
 """, unsafe_allow_html=True)
 
-# Footer Layout: Back button on top left, Dashboard button centered below
-c_back, _, _ = st.columns([1, 4, 1])
+c_back, _, c_dash = st.columns([1, 4, 1])
 with c_back:
     if st.button("⬅ Back to Menu"):
-        try:
-            st.switch_page("pages/reinvestor.py")
-        except Exception as e:
-            st.error("Page 'pages/reinvestor.py' not found.")
+        st.switch_page("pages/reinvestor.py")
 
-_, c_dash, _ = st.columns([5, 2, 5])
 with c_dash:
     if st.button("⬅ Dashboard", key="btn_home_nav"):
-        try:
-            st.switch_page("app.py")
-        except Exception as e:
-            st.error("Page 'app.py' not found.")
+        st.switch_page("app.py")

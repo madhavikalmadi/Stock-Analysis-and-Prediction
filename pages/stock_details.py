@@ -1,9 +1,6 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
 import requests
 from streamlit_lottie import st_lottie
-import os
 
 # ==============================================================================
 # 1. CONFIGURATION & ASSET LOADING
@@ -15,8 +12,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# OPTIMIZATION: Cache the network request to prevent lag on reload
+@st.cache_data(ttl=86400, show_spinner=False)
 def load_lottieurl(url: str):
-    """Helper to load lottie animations from URL."""
+    """Helper to load lottie animations from URL. Cached for 24h."""
     try:
         r = requests.get(url, timeout=3)
         return r.json() if r.status_code == 200 else None
@@ -454,7 +453,7 @@ def main():
     # 1. Load Styles
     load_css()
     
-    # 2. Load Assets
+    # 2. Load Assets (Cached)
     assets = load_assets()
 
     # 4. Initialize Session State

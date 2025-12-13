@@ -1,9 +1,12 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import yfinance as yf
-from datetime import datetime, timedelta
 import time
+
+# --- IMPORT OPTIMIZED MODULES ---
+import data_fetch
+import metric_calculator
+import scoring_system
 
 # ==========================================
 # 0. PAGE CONFIG
@@ -16,7 +19,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 1. CSS STYLING (Matched to Bluechip Explorer)
+# 1. CSS STYLING
 # ==========================================
 st.markdown("""
 <style>
@@ -30,7 +33,7 @@ st.markdown("""
     
     body, [data-testid="stAppViewContainer"] {
         font-family: 'Outfit', sans-serif !important;
-        background-color: #ffffff !important; /* Force White Background */
+        background-color: #ffffff !important;
     }
     
     [data-testid="stSidebar"] { display: none; }
@@ -53,13 +56,49 @@ st.markdown("""
     @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 40px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
     @keyframes slideInDown { from { opacity: 0; transform: translate3d(0, -100%, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
 
-    /* --- BUTTON STYLING (General) --- */
+    /* --- BUTTON STYLING --- */
     div.stButton > button {
-        border-radius: 8px;
-        font-weight: bold;
-        transition: transform 0.1s;
+        background-color: #1e293b; 
+        color: white; 
+        border-radius: 8px; 
+        height: 3rem; 
+        width: 100%;
+        font-weight: 600;
+        margin-top: 28px; 
     }
-    div.stButton > button:active { transform: scale(0.95); }
+    div.stButton > button:hover {
+        background-color: #334155; 
+        border-color: #334155; 
+        color: #fff;
+    }
+    
+    /* CARD STYLING */
+    .stock-card {
+        background-color: white;
+        padding: 24px;
+        border-radius: 12px;
+        border-top: 5px solid #4CAF50;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+        height: 100%;
+        color: #333;
+    }
+    .stock-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+    
+    .card-header { text-align: center; margin-bottom: 10px; }
+    .stock-rank { font-size: 1.4rem; font-weight: 800; color: #1e293b; margin: 0; }
+    
+    .score-container { text-align: center; margin: 15px 0 20px 0; }
+    .big-score { font-size: 2.5rem; font-weight: 800; color: #4CAF50; line-height: 1; margin-bottom: 5px; }
+    .score-suffix { font-size: 0.6em; color: inherit; font-weight: 800; opacity: 0.9; }
+    .score-label { font-size: 0.9rem; color: #64748b; font-weight: 500; }
+    
+    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-top: 15px; border-top: 1px solid #f1f5f9; }
+    .metric-item { display: flex; flex-direction: column; }
+    .metric-item.right { align-items: flex-end; text-align: right; }
+    .metric-label { font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 2px; }
+    .metric-val { font-size: 1rem; font-weight: 600; color: #334155; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -245,60 +284,6 @@ MARKET_DATA = {
     }
 }
 
-START_DATE = (datetime.today() - timedelta(days=365 * 10)).strftime('%Y-%m-%d')
-END_DATE = datetime.today().strftime('%Y-%m-%d')
-RISK_FREE_RATE = 0.05
-
-# ==========================================
-# 3. HELPER FUNCTIONS
-# ==========================================
-@st.cache_data(show_spinner=False)
-def download_data(tickers):
-    if not tickers: return pd.DataFrame()
-    tickers = [t + ".NS" if not t.endswith(".NS") else t for t in tickers]
-    try:
-        data = yf.download(tickers, start=START_DATE, end=END_DATE, progress=False, group_by='ticker')
-    except: return pd.DataFrame()
-    
-    adj = pd.DataFrame()
-    for t in tickers:
-        try:
-            if isinstance(data.columns, pd.MultiIndex):
-                if (t, "Adj Close") in data.columns: adj[t] = data[(t, "Adj Close")]
-                elif (t, "Close") in data.columns: adj[t] = data[(t, "Close")]
-            else:
-                if "Adj Close" in data.columns: adj[t] = data["Adj Close"]
-                elif "Close" in data.columns: adj[t] = data["Close"]
-        except: pass
-    
-    adj.columns = [c.replace(".NS", "") for c in adj.columns]
-    adj = adj.ffill().bfill().dropna(axis=1, thresh=int(0.8 * len(adj)))
-    return adj
-
-def calculate_score(adj_df):
-    if adj_df.empty: return pd.DataFrame()
-    ret = adj_df.pct_change().dropna()
-    days = (adj_df.index[-1] - adj_df.index[0]).days
-    if days < 365: return pd.DataFrame() 
-    years = days / 365.25
-    cagr = ((adj_df.iloc[-1] / adj_df.iloc[0]) ** (1 / years)) - 1
-    vol = ret.std() * np.sqrt(252)
-    sharpe = (ret.mean() * 252 - RISK_FREE_RATE) / vol
-    cum_max = adj_df.cummax()
-    drawdown = (adj_df / cum_max) - 1
-    max_dd = drawdown.min()
-    
-    metrics = pd.DataFrame({"CAGR": cagr, "Sharpe": sharpe, "Vol": vol, "MaxDD": max_dd})
-    
-    metrics["Score"] = (
-        (metrics["CAGR"].rank(pct=True) * 0.4) +
-        (metrics["Sharpe"].rank(pct=True) * 0.2) +
-        (metrics["MaxDD"].rank(pct=True) * 0.2) + 
-        (metrics["Vol"].rank(pct=True, ascending=False) * 0.2)
-    ) * 100
-    
-    return metrics.sort_values("Score", ascending=False).head(5)
-
 # ==========================================
 # 4. MAIN INTERFACE
 # ==========================================
@@ -348,59 +333,7 @@ with c2:
         if target_indices:
             start_analysis = st.button("🚀 Analyze Performance")
 
-# --- CSS for Button & Card ---
-st.markdown("""
-<style>
-    /* Button Styling */
-    div.stButton > button {
-        background-color: #1e293b; 
-        color: white; 
-        border-radius: 8px; 
-        height: 3rem; 
-        width: 100%;
-        font-weight: 600;
-        margin-top: 28px; 
-    }
-    div.stButton > button:hover {
-        background-color: #334155; 
-        border-color: #334155; 
-        color: #fff;
-    }
-    
-    /* CARD STYLING */
-    .stock-card {
-        background-color: white;
-        padding: 24px;
-        border-radius: 12px;
-        border-top: 5px solid #4CAF50;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        margin-bottom: 20px;
-        transition: transform 0.2s;
-        height: 100%;
-        color: #333;
-    }
-    .stock-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-    
-    .card-header { text-align: center; margin-bottom: 10px; }
-    .stock-rank { font-size: 1.4rem; font-weight: 800; color: #1e293b; margin: 0; }
-    
-    .score-container { text-align: center; margin: 15px 0 20px 0; }
-    .big-score { font-size: 2.5rem; font-weight: 800; color: #4CAF50; line-height: 1; margin-bottom: 5px; }
-    
-    /* ADDED: Score Suffix Style */
-    .score-suffix { font-size: 0.6em; color: inherit; font-weight: 800; opacity: 0.9; }
-
-    .score-label { font-size: 0.9rem; color: #64748b; font-weight: 500; }
-    
-    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-top: 15px; border-top: 1px solid #f1f5f9; }
-    .metric-item { display: flex; flex-direction: column; }
-    .metric-item.right { align-items: flex-end; text-align: right; }
-    .metric-label { font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 2px; }
-    .metric-val { font-size: 1rem; font-weight: 600; color: #334155; }
-</style>
-""", unsafe_allow_html=True)
-
-# --- ANALYZE LOGIC ---
+# --- ANALYZE LOGIC (OPTIMIZED) ---
 if start_analysis:
     st.write("---")
     progress_bar = st.progress(0)
@@ -409,28 +342,45 @@ if start_analysis:
     for i, (cat, idx_name, tickers) in enumerate(target_indices):
         st.markdown(f"### 🔎 {idx_name}")
         
-        with st.spinner(f"📥 Crunching numbers for {len(tickers)} stocks..."):
-            data = download_data(tickers)
+        # --- OPTIMIZED CALCULATION BLOCK ---
+        with st.spinner(f"Processing {len(tickers)} stocks for {idx_name}..."):
+            # 1. Add Market Benchmark for Beta calculation
+            market_ticker = "NIFTYBEES.NS"
+            search_tickers = tickers + [market_ticker]
+            
+            # 2. Fetch Data (Uses cached function)
+            data = data_fetch.fetch_stock_data(search_tickers)
             
             if data.empty:
                 st.warning(f"⚠️ No data available for {idx_name}")
             else:
-                top_picks = calculate_score(data)
+                # 3. Calculate Metrics (Vectorized)
+                metrics = metric_calculator.compute_metrics(data, market_ticker)
+                
+                # 4. Rank and filter (Uses unified scoring system)
+                ranked_stocks = scoring_system.rank_stocks(metrics)
+                
+                # Filter out the benchmark and get top 5
+                top_picks = ranked_stocks[ranked_stocks['Ticker'] != market_ticker].head(5)
+
+                # --- RENDER UI (Instant) ---
                 cols = st.columns(len(top_picks))
                 
-                for j, (sym, row) in enumerate(top_picks.iterrows()):
+                for j, (idx, row) in enumerate(top_picks.iterrows()):
                     with cols[j]:
+                        ticker_name = row['Ticker'].replace('.NS', '')
+                        score = row.get('FinalScore', 0) * 100
+                        
                         # HTML Card
                         html_content = (
                             f'<div class="stock-card">'
-                            f'<div class="card-header"><div class="stock-rank">#{j+1} {sym}</div></div>'
-                            # UPDATED: Added Score Suffix
-                            f'<div class="score-container"><div class="big-score">{row["Score"]:.1f}<span class="score-suffix">/100</span></div><div class="score-label">Decision Score</div></div>'
+                            f'<div class="card-header"><div class="stock-rank">#{j+1} {ticker_name}</div></div>'
+                            f'<div class="score-container"><div class="big-score">{score:.1f}<span class="score-suffix">/100</span></div><div class="score-label">Decision Score</div></div>'
                             f'<div class="metrics-grid">'
                             f'<div class="metric-item"><div class="metric-label">CAGR</div><div class="metric-val">{row["CAGR"]*100:.1f}%</div></div>'
-                            f'<div class="metric-item right"><div class="metric-label">Max DD</div><div class="metric-val" style="color: #ef4444;">{row["MaxDD"]*100:.1f}%</div></div>'
+                            f'<div class="metric-item right"><div class="metric-label">Max DD</div><div class="metric-val" style="color: #ef4444;">{row["MaxDrawdown"]*100:.1f}%</div></div>'
                             f'<div class="metric-item"><div class="metric-label">Sharpe</div><div class="metric-val">{row["Sharpe"]:.2f}</div></div>'
-                            f'<div class="metric-item right"><div class="metric-label">Vol</div><div class="metric-val">{row["Vol"]*100:.1f}%</div></div>'
+                            f'<div class="metric-item right"><div class="metric-label">Vol</div><div class="metric-val">{row["Volatility"]*100:.1f}%</div></div>'
                             f'</div></div>'
                         )
                         st.markdown(html_content, unsafe_allow_html=True)
@@ -458,13 +408,13 @@ if start_analysis:
         """)
 
 # ==========================================
-# 5. FOOTER / NAVIGATION (EXACT COPY OF BLUECHIP)
+# 5. FOOTER
 # ==========================================
 st.write("")
 st.write("---")
 st.write("")
 
-# Specific CSS for the Footer Buttons (same as Beginner page)
+# Specific CSS for the Footer Buttons
 st.markdown("""
 <style>
 div.stButton:last-of-type > button {
@@ -486,12 +436,13 @@ div.stButton:last-of-type > button:hover {
 """, unsafe_allow_html=True)
 
 # Footer Layout
-c_back, _, _ = st.columns([1, 4, 1])
+c_back, _, c_dash = st.columns([1, 4, 1])
+
 with c_back:
-    if st.button("⬅ Back to Menu"):
+    # BUG FIX: Removed try/except block which was blocking the switch
+    if st.button("⬅ Back to Menu", key="btn_sector_back"):
         st.switch_page("pages/beginner.py")
 
-_, c_dash, _ = st.columns([5, 2, 5])
 with c_dash:
     if st.button("⬅ Dashboard", key="btn_home_nav"):
         st.switch_page("app.py")

@@ -3,7 +3,14 @@ import time
 from datetime import datetime
 import pytz 
 import yfinance as yf 
-from theme_manager import get_theme, apply_theme
+
+# Try to import theme_manager, handle gracefully if missing
+try:
+    from theme_manager import get_theme, apply_theme
+except ImportError:
+    # Dummy fallback if file doesn't exist yet
+    def get_theme(): return "light"
+    def apply_theme(t): pass
 
 # =============================================================
 # CONFIGURATION
@@ -14,6 +21,8 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+# Hide Sidebar Navigation
 st.markdown("""
 <style>
 [data-testid="stSidebar"],
@@ -23,7 +32,6 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
-
 
 # Theme Application
 try:
@@ -181,11 +189,11 @@ body, [data-testid="stAppViewContainer"] {
     
     /* --- FIXED HEIGHT AND CENTERED CONTENT --- */
     height: 100%;
-    min-height: 300px; /* Increased height to ensure uniformity */
+    min-height: 300px;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Vertically center content */
-    align-items: center;     /* Horizontally center content */
+    justify-content: center;
+    align-items: center;
     text-align: center;
     
     position: relative;
@@ -388,13 +396,25 @@ div.stButton > button:hover {
     margin: 0 auto 1rem auto;
     line-height: 1.5;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
 # =============================================================
-# FEATURE 1: EDUCATIONAL TICKER (Indices + 7 Types + Sector Pairs)
+# FEATURE 1: EDUCATIONAL TICKER (Cached & Optimized)
 # =============================================================
+
+@st.cache_data(ttl=300, show_spinner=False)
+def get_ticker_tape_data(tickers):
+    """
+    Downloads ticker data for the marquee. 
+    Cached for 5 minutes (300s) to prevent constant re-downloading on refresh.
+    """
+    try:
+        # We download 1 day of data with 1m interval to get "current" price roughly
+        data = yf.download(tickers, period="1d", interval="1m", group_by='ticker', threads=True, progress=False)
+        return data
+    except Exception:
+        return pd.DataFrame()
 
 def format_ticker_item(symbol, name, data_frame):
     try:
@@ -405,12 +425,18 @@ def format_ticker_item(symbol, name, data_frame):
         
         stock_data = stock_data.ffill()
 
-        if stock_data.empty or stock_data['Close'].isnull().all():
+        if stock_data.empty or 'Close' not in stock_data.columns or stock_data['Close'].isnull().all():
             return f"{name}: No Data"
 
+        # Get latest close
         current_price = stock_data['Close'].dropna().iloc[-1]
-        open_price = stock_data['Open'].dropna().iloc[0]
         
+        # Get open price (first available of the day)
+        if 'Open' in stock_data.columns:
+            open_price = stock_data['Open'].dropna().iloc[0]
+        else:
+            open_price = current_price # Fallback
+
         if open_price == 0 or str(open_price) == 'nan': 
             return f"{name}: N/A"
 
@@ -432,7 +458,6 @@ def show_auto_ticker():
             "^NSEI": "NIFTY 50", 
             "^BSESN": "SENSEX"
         },
-        
         # B. The 7 Educational Types (7)
         "TYPES": {
             "RELIANCE.NS": "RELIANCE (L.Cap)",
@@ -443,7 +468,6 @@ def show_auto_ticker():
             "TATAMOTORS.NS": "TATA MOTORS (Cyc)",
             "HINDUNILVR.NS": "HUL (Def)"
         },
-
         # C. Sector Representatives (16 Stocks / 8 Sectors)
         "IT": { "TCS.NS": "TCS", "INFY.NS": "INFY" },
         "BANKING": { "HDFCBANK.NS": "HDFC BANK", "ICICIBANK.NS": "ICICI BANK" },
@@ -452,10 +476,10 @@ def show_auto_ticker():
         "POWER": { "POWERGRID.NS": "POWERGRID", "NTPC.NS": "NTPC" },
         "AUTO": { "MARUTI.NS": "MARUTI", "M&M.NS": "M&M" },
         "FMCG": { "NESTLEIND.NS": "NESTLE", "BRITANNIA.NS": "BRITANNIA" },
-        "INFRA": { "DLF.NS": "DLF", "LT.NS": "L&T" } # Added to reach 25
+        "INFRA": { "DLF.NS": "DLF", "LT.NS": "L&T" } 
     }
     
-    # 2. FLATTEN THE LIST FOR DOWNLOADING
+    # 2. FLATTEN THE LIST
     selected_tickers = []
     symbol_map = {}
     
@@ -464,11 +488,8 @@ def show_auto_ticker():
             selected_tickers.append(symbol)
             symbol_map[symbol] = display_name
             
-    # 3. FETCH DATA 
-    try:
-        batch_data = yf.download(selected_tickers, period="1d", interval="1m", group_by='ticker', threads=True, progress=False)
-    except:
-        batch_data = None
+    # 3. FETCH DATA (Now uses Cache!)
+    batch_data = get_ticker_tape_data(selected_tickers)
 
     # 4. FORMAT DATA FOR DISPLAY
     ticker_items = []
@@ -566,8 +587,8 @@ with c3:
 st.write("")
 col_btn, _ = st.columns([1, 4])
 with col_btn:
-    if st.button("📚 Go to Learning Center"):
-        st.switch_page("pages/stock_details.py")
+    if st.button("📚 Go to Knowledge Hub"):
+        st.switch_page("pages/sector_details.py") # Updated to point to the correct knowledge file
 
 # =============================================================
 # FEATURE 3: HELP ME DECIDE (EXPANDER)
@@ -634,8 +655,10 @@ with col_path2:
         st.switch_page("pages/reinvestor.py")
 
 # =============================================================
-# FEATURE 4: FAQ SECTION
+# FEATURE 5: FOOTER & LEGAL DISCLAIMER
 # =============================================================
+
+# FAQ Section
 st.markdown("<h4 class='faq-header'>Frequently Asked Questions</h4>", unsafe_allow_html=True)
 
 faq1, faq2 = st.columns(2)
@@ -651,9 +674,6 @@ with faq2:
     with st.expander("Can I trade directly here?"):
         st.write("No. This is an analysis dashboard. You must use your registered broker (Zerodha, Groww, etc.) to place actual trades.")
 
-# =============================================================
-# FEATURE 5: FOOTER & LEGAL DISCLAIMER
-# =============================================================
 st.markdown("""
 <div class="footer-box">
     <p class="disclaimer-text">

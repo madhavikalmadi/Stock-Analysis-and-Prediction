@@ -20,44 +20,64 @@ INDEX_GROUPS = {
     "NIFTYBANK": ["HDFCBANK.NS", "ICICIBANK.NS", "SBIN.NS", "KOTAKBANK.NS", "AXISBANK.NS"]
 }
 
-START_DATE = (datetime.today() - timedelta(days=365 * 10)).strftime('%Y-%m-%d')
-END_DATE = datetime.today().strftime('%Y-%m-%d')
-
-@st.cache_data(ttl=86400)
+# 1. OPTIMIZATION: Combine Fetch & Clean into one cached function
+# This ensures we don't re-calculate 'ffill' or 'bfill' on every interaction.
+@st.cache_data(ttl=86400, show_spinner=False)
 def fetch_stock_data(tickers):
-    # Ensure .NS extension
-    tickers = [t if ".NS" in t else t + ".NS" for t in tickers]
+    """
+    Downloads and cleans stock data. 
+    Cached for 24 hours to prevent constant re-downloading.
+    """
+    if not tickers:
+        return pd.DataFrame()
+
+    # 2. OPTIMIZATION: Sort tickers to ensure cache hits regardless of order
+    # (e.g., ['TCS', 'INFY'] matches ['INFY', 'TCS'])
+    tickers = sorted([t if ".NS" in t else t + ".NS" for t in tickers])
     
-    # 1. Download with auto_adjust=False to force 'Adj Close' to appear if possible
+    # 3. OPTIMIZATION: Calculate dates inside function so they are always current
+    end_date = datetime.today().strftime('%Y-%m-%d')
+    start_date = (datetime.today() - timedelta(days=365 * 10)).strftime('%Y-%m-%d')
+
     try:
-        raw_data = yf.download(tickers, start=START_DATE, end=END_DATE, progress=False, auto_adjust=False)
+        # Download data
+        raw_data = yf.download(
+            tickers, 
+            start=start_date, 
+            end=end_date, 
+            progress=False, 
+            auto_adjust=False,
+            threads=True # Use parallel threads
+        )
     except Exception as e:
         st.error(f"Data Download Error: {e}")
         return pd.DataFrame()
 
-    # 2. Robust Column Selection (The Fix)
     if raw_data.empty:
         return pd.DataFrame()
 
-    # Check if 'Adj Close' exists (Multi-level or Single level)
+    # Robust Column Selection
     if 'Adj Close' in raw_data.columns:
         data = raw_data['Adj Close']
     elif 'Close' in raw_data.columns:
-        # Fallback to 'Close' if 'Adj Close' is missing (newer yfinance versions)
         data = raw_data['Close']
     else:
-        # Emergency fallback: take the first level/column if specific keys fail
-        data = raw_data.iloc[:, 0]
+        data = raw_data.iloc[:, 0] # Fallback
 
-    # Handle single ticker returning Series instead of DataFrame
+    # Ensure we always return a DataFrame, even for a single stock
     if isinstance(data, pd.Series):
         data = data.to_frame()
-        
-    data = data.dropna(how='all')
-    return data
 
-def clean_data(data):
+    # 4. OPTIMIZATION: Perform cleaning HERE so the result is cached
     data = data.ffill().bfill()
+    
     # Drop columns with > 20% missing data
     data = data.dropna(axis=1, thresh=int(0.80 * len(data)))
+    
+    return data
+
+# Wrapper function if you need to call it without caching logic elsewhere (optional)
+def clean_data(data):
+    # This function is now largely redundant but kept for backward compatibility 
+    # if other files import it. It just passes data through.
     return data
