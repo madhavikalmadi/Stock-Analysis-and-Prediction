@@ -16,7 +16,55 @@ st.set_page_config(
 )
 
 # ==========================================
-# 1. MARKET DATA (Final Verified List)
+# 1. CSS STYLING (Matched to Bluechip Explorer)
+# ==========================================
+st.markdown("""
+<style>
+    /* --- HIDE ANCHOR LINKS --- */
+    [data-testid="stHeaderActionElements"] { display: none !important; visibility: hidden !important; }
+    [data-testid="stHeaderAnchor"] { display: none !important; visibility: hidden !important; }
+    h1 > a, h2 > a, h3 > a, h4 > a, h5 > a, h6 > a { display: none !important; content: none !important; pointer-events: none; color: transparent !important; }
+
+    /* --- GLOBAL FONT --- */
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap');
+    
+    body, [data-testid="stAppViewContainer"] {
+        font-family: 'Outfit', sans-serif !important;
+        background-color: #ffffff !important; /* Force White Background */
+    }
+    
+    [data-testid="stSidebar"] { display: none; }
+
+    /* --- TITLES & ANIMATIONS --- */
+    .main-title { animation: slideInDown 0.8s ease-out; text-align: center; }
+    .sub-title { text-align: center; color: #555; margin-bottom: 20px; animation: slideInDown 0.9s ease-out; }
+    
+    .section-title { 
+        font-size: 1.2em; 
+        font-weight: bold; 
+        color: #333; 
+        margin-top: 30px; 
+        margin-bottom: 10px; 
+        border-bottom: 2px solid #ddd; 
+        padding-bottom: 5px; 
+        animation: fadeInUp 1s ease-out; 
+    }
+    
+    @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 40px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+    @keyframes slideInDown { from { opacity: 0; transform: translate3d(0, -100%, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+
+    /* --- BUTTON STYLING (General) --- */
+    div.stButton > button {
+        border-radius: 8px;
+        font-weight: bold;
+        transition: transform 0.1s;
+    }
+    div.stButton > button:active { transform: scale(0.95); }
+</style>
+""", unsafe_allow_html=True)
+
+# ==========================================
+# 2. MARKET DATA
 # ==========================================
 MARKET_DATA = {
     "✈️ Services Sector": {
@@ -202,7 +250,7 @@ END_DATE = datetime.today().strftime('%Y-%m-%d')
 RISK_FREE_RATE = 0.05
 
 # ==========================================
-# 3. HELPER FUNCTIONS (Local Scoring)
+# 3. HELPER FUNCTIONS
 # ==========================================
 @st.cache_data(show_spinner=False)
 def download_data(tickers):
@@ -254,13 +302,10 @@ def calculate_score(adj_df):
 # ==========================================
 # 4. MAIN INTERFACE
 # ==========================================
-st.markdown("<h1 style='text-align: center; color: #1e293b; margin-bottom: 20px;'>🏗️ NSE Sector & Thematic Advisor</h1>", unsafe_allow_html=True)
-
-# Subtitle (Small)
-st.markdown("<p style='text-align: center; color: #64748b; font-size: 14px; font-weight: 400; margin-bottom: 30px;'>Select a category to explore top performing stocks.</p>", unsafe_allow_html=True)
+st.markdown('<h1 class="main-title">🏗️ NSE Sector & Thematic Advisor</h1>', unsafe_allow_html=True)
+st.markdown('<h3 class="sub-title">Select a category to explore top performing stocks.</h3>', unsafe_allow_html=True)
 
 # --- DROPDOWNS & BUTTON ---
-# Layout: Col1 has Category, Col2 has Index + Button
 c1, c2 = st.columns([1, 1])
 start_analysis = False 
 
@@ -272,7 +317,6 @@ target_indices = []
 
 with c2:
     if selected_category == "SELECT CATEGORY...":
-        # Placeholder text when no category is selected
         st.markdown(
             """
             <div style='
@@ -291,26 +335,23 @@ with c2:
             unsafe_allow_html=True
         )
     else:
-        # Show specific index dropdown
         available_indices = list(MARKET_DATA[selected_category].keys())
         index_options = ["SELECT INDEX...", "Analyze Entire Category"] + available_indices
         selected_index = st.selectbox("2️⃣ Specific Index", index_options)
         
-        # LOGIC FOR SELECTION
         if selected_index == "Analyze Entire Category":
             for name, tickers in MARKET_DATA[selected_category].items():
                 target_indices.append((selected_category, name, tickers))
         elif selected_index != "SELECT INDEX...":
             target_indices.append((selected_category, selected_index, MARKET_DATA[selected_category][selected_index]))
             
-        # BUTTON: Placed inside Column 2 so it aligns with the dropdown
         if target_indices:
             start_analysis = st.button("🚀 Analyze Performance")
 
-# --- CSS for Button (Making it fit in the column) ---
+# --- CSS for Button & Card ---
 st.markdown("""
 <style>
-    /* Styling specifically for the Analyze button */
+    /* Button Styling */
     div.stButton > button {
         background-color: #1e293b; 
         color: white; 
@@ -318,7 +359,7 @@ st.markdown("""
         height: 3rem; 
         width: 100%;
         font-weight: 600;
-        margin-top: 28px; /* Aligns button with dropdown */
+        margin-top: 28px; 
     }
     div.stButton > button:hover {
         background-color: #334155; 
@@ -345,6 +386,10 @@ st.markdown("""
     
     .score-container { text-align: center; margin: 15px 0 20px 0; }
     .big-score { font-size: 2.5rem; font-weight: 800; color: #4CAF50; line-height: 1; margin-bottom: 5px; }
+    
+    /* ADDED: Score Suffix Style */
+    .score-suffix { font-size: 0.6em; color: inherit; font-weight: 800; opacity: 0.9; }
+
     .score-label { font-size: 0.9rem; color: #64748b; font-weight: 500; }
     
     .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-top: 15px; border-top: 1px solid #f1f5f9; }
@@ -379,7 +424,8 @@ if start_analysis:
                         html_content = (
                             f'<div class="stock-card">'
                             f'<div class="card-header"><div class="stock-rank">#{j+1} {sym}</div></div>'
-                            f'<div class="score-container"><div class="big-score">{row["Score"]:.1f}</div><div class="score-label">Decision Score</div></div>'
+                            # UPDATED: Added Score Suffix
+                            f'<div class="score-container"><div class="big-score">{row["Score"]:.1f}<span class="score-suffix">/100</span></div><div class="score-label">Decision Score</div></div>'
                             f'<div class="metrics-grid">'
                             f'<div class="metric-item"><div class="metric-label">CAGR</div><div class="metric-val">{row["CAGR"]*100:.1f}%</div></div>'
                             f'<div class="metric-item right"><div class="metric-label">Max DD</div><div class="metric-val" style="color: #ef4444;">{row["MaxDD"]*100:.1f}%</div></div>'
@@ -396,32 +442,43 @@ if start_analysis:
     time.sleep(1)
     progress_bar.empty()
 
+    # --- EXPLANATION SECTION ---
+    st.markdown('<div class="section-title">🧾 Explanation of Terms</div>', unsafe_allow_html=True)
+    with st.expander("Show Detailed Definitions", expanded=False):
+        st.markdown("""
+        * **CAGR (Compound Annual Growth Rate):** Average yearly growth of stock price.       
+        * **Max Drawdown:** Biggest price fall from peak to bottom. Lower = safer.  
+        * **Sharpe Ratio:** Measures how much return you earn for the risk you take. Higher = better.
+        * **Sortino Ratio:** Like Sharpe, but only counts downside (bad) volatility. Higher = safer returns.
+        * **Calmar Ratio:** Compares yearly return vs biggest loss. Higher = strong recovery ability.
+        * **Volatility:** How much the stock price moves up or down. Lower = more stable.
+        * **Beta:** How much the stock moves compared to market (1 = same as market, <1 = safer).
+        * **Recovery Days:** Time it takes for stock to recover after big fall. Fewer = better.
+        * **Decision Score:** Final 0–100 score combining all metrics for beginner investors.
+        """)
+
 # ==========================================
-# 5. FOOTER / NAVIGATION
+# 5. FOOTER / NAVIGATION (EXACT COPY OF BLUECHIP)
 # ==========================================
 st.write("")
 st.write("---")
 st.write("")
 
-# Specific CSS for Footer Buttons
+# Specific CSS for the Footer Buttons (same as Beginner page)
 st.markdown("""
 <style>
-/* Target the Last 2 Buttons (Navigation) specifically */
-div.stButton:last-of-type > button, 
-div.stButton:nth-last-of-type(2) > button {
+div.stButton:last-of-type > button {
     padding: 0.4rem 1rem !important; 
     font-size: 0.8rem !important; 
     border-radius: 50px !important;
     background: rgba(24, 40, 72, 0.8) !important; 
     box-shadow: none !important; 
     width: auto !important; 
-    height: auto !important; 
     margin: 0 auto;
     white-space: nowrap !important;
     color: white !important;
 }
-div.stButton:last-of-type > button:hover,
-div.stButton:nth-last-of-type(2) > button:hover { 
+div.stButton:last-of-type > button:hover { 
     background: #2563eb !important; 
     transform: translateY(-2px); 
 }
@@ -438,5 +495,3 @@ _, c_dash, _ = st.columns([5, 2, 5])
 with c_dash:
     if st.button("⬅ Dashboard", key="btn_home_nav"):
         st.switch_page("app.py")
-
-st.markdown("<p style='text-align:center;color:#94a3b8;margin-top:18px;'>© 2025 Smart Investor Assistant</p>", unsafe_allow_html=True)

@@ -9,7 +9,7 @@ st.set_page_config(page_title="Bluechip Explorer", layout="wide")
 
 st.markdown("""
 <style>
-    /* --- FORCE HIDE HEADER ANCHORS (UPDATED FIX) --- */
+    /* --- FORCE HIDE HEADER ANCHORS --- */
     [data-testid="stHeaderActionElements"] { display: none !important; visibility: hidden !important; }
     [data-testid="stHeaderAnchor"] { display: none !important; visibility: hidden !important; }
     h1 > a, h2 > a, h3 > a, h4 > a, h5 > a, h6 > a { display: none !important; content: none !important; pointer-events: none; color: transparent !important; }
@@ -19,7 +19,8 @@ st.markdown("""
     @keyframes slideInDown { from { opacity: 0; transform: translate3d(0, -100%, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
 
     /* --- COMPONENT STYLING --- */
-    .main-title { animation: slideInDown 0.8s ease-out; }
+    .main-title { animation: slideInDown 0.8s ease-out; text-align: center; } 
+    .sub-title { text-align: center; color: #555; margin-bottom: 20px; animation: slideInDown 0.9s ease-out; } 
 
     /* Card Styling */
     .stock-card {
@@ -37,6 +38,10 @@ st.markdown("""
     .stock-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
 
     .big-score { font-size: 1.8em; font-weight: 800; color: #4CAF50; }
+    
+    /* --- UPDATED: BOLD SUFFIX --- */
+    .score-suffix { font-size: 0.6em; color: inherit; font-weight: 800; opacity: 0.9; } 
+    
     .metric-row { font-size: 0.85em; color: #555; margin-top: 10px; display: flex; justify-content: space-between; }
     .metric-item { text-align: center; }
     .section-title { font-size: 1.2em; font-weight: bold; color: #333; margin-top: 30px; margin-bottom: 10px; border-bottom: 2px solid #ddd; padding-bottom: 5px; animation: fadeInUp 1s ease-out; }
@@ -193,8 +198,9 @@ def calculate_metrics_and_score(adj):
 
 # --- 4. MAIN PAGE LAYOUT ---
 
+# Centered Title and Subtitle
 st.markdown('<h1 class="main-title">🚀 Blue-Chip Explorer</h1>', unsafe_allow_html=True)
-st.markdown("### Top 10 Recommendations based on 10-Year History")
+st.markdown('<h3 class="sub-title">Top 10 Recommendations based on 10-Year History</h3>', unsafe_allow_html=True)
 st.markdown("---")
 
 with st.spinner("📥 Downloading market data & calculating scores..."):
@@ -218,7 +224,9 @@ with st.spinner("📥 Downloading market data & calculating scores..."):
                         st.markdown(f"""
                         <div class="stock-card" style="animation-delay: {delay}s;">
                             <h4>#{i + idx + 1} {sym}</h4>
-                            <div class="big-score">{row["Decision_Score"]:.1f}</div>
+                            <div class="big-score">
+                                {row["Decision_Score"]:.1f}<span class="score-suffix">/100</span>
+                            </div>
                             <small>Decision Score</small>
                             <hr style="margin: 10px 0; opacity: 0.3;">
                             <div class="metric-row">
@@ -248,14 +256,16 @@ with st.spinner("📥 Downloading market data & calculating scores..."):
             with st.expander("Show Detailed Definitions", expanded=False):
                 st.markdown("""
                 * **CAGR (Compound Annual Growth Rate):** Average yearly growth of stock price.
-                * **Sharpe Ratio:** Measures how much return you earn for the risk you take. Higher = better.
-                * **Sortino Ratio:** Like Sharpe, but only counts downside (bad) volatility. Higher = safer returns.
-                * **Calmar Ratio:** Compares yearly return vs biggest loss. Higher = strong recovery ability.
-                * **Volatility:** How much the stock price moves up or down. Lower = more stable.
-                * **Max Drawdown:** Biggest price fall from peak to bottom. Lower = safer.
-                * **Beta:** How much the stock moves compared to market (1 = same as market, <1 = safer).
-                * **Recovery Days:** Time it takes for stock to recover after big fall. Fewer = better.
-                * **Decision Score:** Final 0–100 score combining all metrics for beginner investors.
+                * **Max Drawdown:** The biggest percentage drop a stock has ever suffered from a peak to a trough. It measures worst-case risk.
+                * **Sharpe Ratio:** Measures how much extra return you get for the risk you take. Higher is better.
+                * **Sortino Ratio:** Similar to Sharpe, but only penalizes "bad" (downside) volatility, ignoring upside jumps.
+                * **Calmar Ratio:** Compares annual return to maximum drawdown. Higher means strong recovery ability.
+                * **Volatility:** How much the stock price swings up or down. Lower = more stable.
+                * **Beta:** How much the stock moves compared to the market index (Nifty 50). 
+                    * Beta = 1: Moves with market.
+                    * Beta < 1: Less volatile than market (Safer).
+                * **Recovery Days:** The time it takes for a stock to climb back to its previous high after a crash.
+                * **Decision Score:** A proprietary score (0-100) combining all these metrics to rank the best long-term performers.
                 """)
 
             # ==========================================
@@ -265,7 +275,7 @@ with st.spinner("📥 Downloading market data & calculating scores..."):
             st.write("---")
             st.write("")
 
-            # Specific CSS for the Footer Buttons (same as Beginner page)
+            # Specific CSS for the Footer Buttons
             st.markdown("""
             <style>
             div.stButton:last-of-type > button {

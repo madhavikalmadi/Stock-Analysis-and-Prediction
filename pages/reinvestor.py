@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# CSS STYLING & ANIMATION (MATCHING BEGINNER ADVISOR)
+# CSS STYLING & ANIMATION
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -55,12 +55,12 @@ st.markdown("""
         padding: 3rem 2rem; 
         box-shadow: 0 10px 40px rgba(0,0,0,0.05); 
         text-align: center; 
-        height: 350px; /* Fixed height matching beginner code */
+        height: 350px; 
         display: flex; flex-direction: column; justify-content: center; align-items: center;
         transition: transform 0.3s ease;
-        position: relative; z-index: 2; /* Clickable */
+        position: relative; z-index: 2; 
     }
-    .glass-card:hover { transform: translateY(-10px); background: rgba(255, 255, 255, 0.85); box-shadow: 0 20px 50px rgba(0,0,0,0.1); border: 1px solid rgba(255, 255, 255, 1); }
+    .glass-card:hover { transform: translateY(-12px); background: rgba(255, 255, 255, 0.85); box-shadow: 0 20px 50px rgba(0,0,0,0.1); border: 1px solid rgba(255, 255, 255, 1); }
     .card-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.1)); transition: transform 0.5s ease; }
     .glass-card:hover .card-icon { transform: scale(1.15) rotate(5deg); }
     .card-heading { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 0.5rem; }
@@ -77,9 +77,27 @@ st.markdown("""
     @keyframes gradientText { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     .hero-subtitle { font-size: 1.3rem; color: #4b5563; max-width: 650px; margin: 0 auto 3rem auto; font-weight: 300; line-height: 1.6; }
     
-    /* BUTTONS */
-    div.stButton > button { background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%); color: white; border-radius: 12px; border: none; padding: 0.8rem 1.5rem; font-weight: 600; letter-spacing: 0.5px; transition: all 0.3s ease; width: 100%; box-shadow: 0 4px 15px rgba(24, 40, 72, 0.2); position: relative; z-index: 6; overflow: hidden; }
-    div.stButton > button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(24, 40, 72, 0.3); background: linear-gradient(90deg, #182848 0%, #4b6cb7 100%); }
+    /* --- BUTTON STYLING (Matched to Beginner Advisor) --- */
+    div.stButton > button { 
+        background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%); 
+        color: white; 
+        border-radius: 12px; 
+        border: none; 
+        padding: 0.8rem 1.5rem; 
+        font-weight: 600; 
+        letter-spacing: 0.5px; 
+        transition: all 0.3s ease; 
+        width: 100%; 
+        box-shadow: 0 4px 15px rgba(24, 40, 72, 0.2); 
+        position: relative; 
+        z-index: 6; 
+        overflow: hidden; 
+    }
+    div.stButton > button:hover { 
+        transform: translateY(-3px); 
+        box-shadow: 0 8px 25px rgba(24, 40, 72, 0.3); 
+        background: linear-gradient(90deg, #182848 0%, #4b6cb7 100%); 
+    }
 </style>
 
 <div class="area" >
@@ -88,12 +106,6 @@ st.markdown("""
     </ul>
 </div>
 """, unsafe_allow_html=True)
-
-# -----------------------------------------------------------------------------
-# SESSION STATE LOGIC
-# -----------------------------------------------------------------------------
-if 'reinvest_view' not in st.session_state:
-    st.session_state['reinvest_view'] = 'home'
 
 # -----------------------------------------------------------------------------
 # HERO SECTION
@@ -132,8 +144,9 @@ with col2:
         st.write("") 
         
         # Redirect to company.py
-        if st.button("Start Company Analysis", key="btn_company"):
+        if st.button("🚀 Start Company Analysis", key="btn_company"):
             st.switch_page("pages/company.py")
+        
 
     # CARD 2: INDEX ADVISOR
     with card_c2:
@@ -150,25 +163,30 @@ with col2:
         """, unsafe_allow_html=True)
         st.write("") 
         
-        # Placeholder for Index Analysis
-        if st.button("Start Index Analysis", key="btn_index"):
-             st.info("Index Advisor Module coming soon!")
+        # Redirect to index.py
+        if st.button("🚀 Start Index Analysis", key="btn_index"):
+                st.switch_page("pages/index.py")
+
 
 # -----------------------------------------------------------------------------
-# NAV (Footer)
+# NAV (Dashboard Button)
 # -----------------------------------------------------------------------------
 st.write("")
 st.write("---")
 st.markdown("""
 <style>
+/* Specific style for the Back button */
 div.stButton:last-of-type > button {
     padding: 0.4rem 1rem !important; 
     font-size: 0.8rem !important; 
     border-radius: 50px !important;
     background: rgba(24, 40, 72, 0.8) !important; 
+    box-shadow: none !important; 
     width: auto !important; 
     margin: 0 auto;
+    white-space: nowrap !important;
 }
+div.stButton:last-of-type > button:hover { background: #2563eb !important; transform: translateY(-2px); }
 </style>
 """, unsafe_allow_html=True)
 

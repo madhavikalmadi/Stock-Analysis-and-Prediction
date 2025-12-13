@@ -169,7 +169,7 @@ body, [data-testid="stAppViewContainer"] {
     margin: 0 auto;
 }
 
-/* --- GLASSMOPHISM CARDS --- */
+/* --- GLASSMOPHISM CARDS (LEARNING SECTION) --- */
 .glass-panel {
     background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(16px);
@@ -178,8 +178,16 @@ body, [data-testid="stAppViewContainer"] {
     padding: 2rem;
     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     transition: all 0.4s ease;
+    
+    /* --- FIXED HEIGHT AND CENTERED CONTENT --- */
     height: 100%;
-    min-height: 250px;
+    min-height: 300px; /* Increased height to ensure uniformity */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertically center content */
+    align-items: center;     /* Horizontally center content */
+    text-align: center;
+    
     position: relative;
     overflow: hidden;
     animation: slideUp 0.8s ease-out both; 

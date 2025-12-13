@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import altair as alt
 import requests
 from streamlit_lottie import st_lottie
 import os
@@ -27,9 +26,6 @@ def load_lottieurl(url: str):
 def load_assets():
     """Loads all necessary assets (animations) at once."""
     return {
-        "plant": load_lottieurl("https://lottie.host/9d31154c-7c0b-44ec-b50e-744046429940/3Y2Rj8w0yY.json"),
-        "chart": load_lottieurl("https://lottie.host/f7c10f63-0975-4089-a2f0-1563f847343d/dK0yS0nZ5J.json"),
-        "check": load_lottieurl("https://lottie.host/80e3636b-7334-4b47-9257-23425f05359c/Qk5r24rTj5.json"),
         "success": load_lottieurl("https://lottie.host/98014498-8422-4881-bb03-4d402b800645/6T39I2b9K1.json")
     }
 
@@ -38,7 +34,7 @@ def load_assets():
 # ==============================================================================
 
 def render_beginner_zone(lotties):
-    # --- HEADER ---
+    # --- GOAL HEADER ---
     st.markdown("""
     <div class="glass-container" style="padding: 1.5rem; text-align: center;">
         <span style="font-size: 1.1rem;">
@@ -60,10 +56,7 @@ def render_beginner_zone(lotties):
             If the pizza shop starts using better cheese and selling more pizzas (higher profits), everyone wants a slice, so the price goes **UP**. If they burn the pizza (losses), nobody wants it, and the price goes **DOWN**.
             """)
         with cc:
-            try:
-                st.image("images/pizza.png", use_container_width=True)
-            except:
-                st.error("Image not found at 'images/pizza.png'")
+             st.markdown("🍕 *Imagine a delicious pizza here*")
 
     # 2. SHARE MARKET
     with st.expander("🏛️ What is the Share Market? (The Supermarket)"):
@@ -109,7 +102,7 @@ def render_beginner_zone(lotties):
         A market is officially "Bear" if it drops **20% or more** from its high. For example, during the COVID-19 crash (March 2020), the market fell ~30% in a month (Bear). It then recovered and doubled (Bull).
         """)
 
-    # 5. TRADING VS INVESTING (NEW ADDITION)
+    # 5. TRADING VS INVESTING
     with st.expander("🏏 Trading vs. Investing? (The Cricket Analogy)"):
         st.markdown("""
         **The Nice & Easy Explanation:**
@@ -189,19 +182,80 @@ def render_beginner_zone(lotties):
         (As of July 2024 Budget): The first **₹1.25 Lakh** of Long Term profit you make in a year is **Tax-Free**. The government encourages small investors to save long-term!
         """)
 
-    # --- QUIZ ---
+    # --- 5-QUESTION QUIZ ---
     st.markdown("---")
-    st.markdown("### 📝 Test Your Knowledge")
-    with st.container():
-        form = st.form("beginner_quiz")
-        ans = form.radio("1. If you want 'Rent' (Cash) from a stock, what do you look for?", 
-                         ["High P/E Ratio", "High Dividend Yield", "Stock Split"], index=None)
-        if form.form_submit_button("Check My Answer"):
-            if ans == "High Dividend Yield":
-                st.success("🎉 Correct! Dividends are like rent payments.")
-                if lotties["success"]: st_lottie(lotties["success"], height=150, key="succ_1")
+    st.markdown("### 📝 Beginner Quiz: Test Your Basics")
+    st.write("Select your answers and click 'Check Score' at the bottom.")
+    
+    with st.form("quiz_beginner_form"):
+        # Q1
+        st.markdown("**1. When you buy a share in the secondary market (Stock Exchange), who gets the money?**")
+        q1 = st.radio("Select one:", ["The Company (e.g., Reliance)", "Another Investor (Seller)", "The Government"], key="bq1", index=None)
+        
+        # Q2
+        st.markdown("**2. Which animal represents a falling market where people are fearful?**")
+        q2 = st.radio("Select one:", ["Bull 🐂", "Bear 🐻", "Rabbit 🐇"], key="bq2", index=None)
+
+        # Q3
+        st.markdown("**3. If you hold a stock for MORE than 1 year, what is the tax rate on profit?**")
+        q3 = st.radio("Select one:", ["20% (Short Term)", "12.5% (Long Term)", "30%"], key="bq3", index=None)
+
+        # Q4
+        st.markdown("**4. In the Cricket analogy, 'Investing' is compared to which format?**")
+        q4 = st.radio("Select one:", ["T20 Match (Fast & Risky)", "Test Match (Long & Steady)", "Gully Cricket"], key="bq4", index=None)
+
+        # Q5
+        st.markdown("**5. Which 'Class Monitor' tracks the top 50 companies on the NSE?**")
+        q5 = st.radio("Select one:", ["Sensex", "Nifty 50", "Bank Nifty"], key="bq5", index=None)
+
+        st.markdown("---")
+        submitted = st.form_submit_button("✅ Check Score")
+
+        if submitted:
+            score = 0
+            
+            # CHECK Q1
+            if q1 == "Another Investor (Seller)":
+                st.success("1. Correct! Secondary market is peer-to-peer.")
+                score += 1
             else:
-                st.error("Try again! Hint: It's related to the 'Cow' analogy.")
+                st.error("1. Wrong. In the Secondary market, you buy from another person, not the company.")
+
+            # CHECK Q2
+            if q2 == "Bear 🐻":
+                st.success("2. Correct! Bears swipe down (Market falls).")
+                score += 1
+            else:
+                st.error("2. Wrong. A falling market is a Bear Market.")
+
+            # CHECK Q3
+            if q3 == "12.5% (Long Term)":
+                st.success("3. Correct! Long term investors pay less tax.")
+                score += 1
+            else:
+                st.error("3. Wrong. After 1 year, it is Long Term Capital Gains (12.5%).")
+
+            # CHECK Q4
+            if q4 == "Test Match (Long & Steady)":
+                st.success("4. Correct! Investing is a long game.")
+                score += 1
+            else:
+                st.error("4. Wrong. Investing is like a Test Match (Patience required).")
+            
+            # CHECK Q5
+            if q5 == "Nifty 50":
+                st.success("5. Correct! Nifty tracks the top 50 on NSE.")
+                score += 1
+            else:
+                st.error("5. Wrong. Nifty 50 tracks the top 50 companies.")
+
+            # Final Score Logic
+            if score == 5:
+                st.balloons()
+                if lotties["success"]: st_lottie(lotties["success"], height=150, key="win_beg")
+                st.markdown(f"### 🏆 Perfect Score! 5/5")
+            else:
+                st.markdown(f"### You got {score}/5. Review the notes above!")
 
 
 def render_reinvestor_zone(lotties):
@@ -317,20 +371,81 @@ def render_reinvestor_zone(lotties):
         * **The Sweet Spot:** **15 to 20** high-quality stocks gives you safety without diluting your profits.
         """)
 
-    # --- Quiz ---
+    # --- 5-QUESTION QUIZ ---
     st.markdown("---")
-    st.markdown("### 📝 Pro Quiz: Test Your Strategy")
-    form = st.form("pro_quiz")
-    ans = form.radio("1. A PEG Ratio of < 1 usually indicates:", 
-                     ["Overvalued", "Undervalued/Good", "No Growth"], index=None)
-    if form.form_submit_button("Check Mastery"):
-        if ans == "Undervalued/Good":
-            st.success("🏆 Correct! You are a Pro.")
-            if lotties["success"]: st_lottie(lotties["success"], height=150, key="succ_2")
-        else:
-            st.warning("Try again! (Hint: Growth justifies price)")
+    st.markdown("### 📝 Reinvestor Quiz: Test Your Strategy")
+    st.write("Select your answers and click 'Check Score' at the bottom.")
+    
+    with st.form("quiz_pro_form"):
+        # Q1
+        st.markdown("**1. What does a PEG ratio of LESS than 1 usually indicate?**")
+        p1 = st.radio("Select one:", ["Stock is Overvalued", "Stock is Undervalued/Good Deal", "Stock has no growth"], key="pq1", index=None)
 
-            st.stop()
+        # Q2
+        st.markdown("**2. What is an 'Economic Moat'?**")
+        p2 = st.radio("Select one:", ["A government tax", "A competitive advantage (like Brand)", "A type of loan"], key="pq2", index=None)
+
+        # Q3
+        st.markdown("**3. Which type of fund generally performs better over 10 years due to lower fees?**")
+        p3 = st.radio("Select one:", ["Active Funds (Manager)", "Passive Funds (Index)", "Hedge Funds"], key="pq3", index=None)
+
+        # Q4
+        st.markdown("**4. What is the 'Sweet Spot' number of stocks to own for safe diversification?**")
+        p4 = st.radio("Select one:", ["1 or 2 stocks", "15 to 20 stocks", "50+ stocks"], key="pq4", index=None)
+
+        # Q5
+        st.markdown("**5. If you invest via SIP (Monthly), which metric calculates your returns accurately?**")
+        p5 = st.radio("Select one:", ["CAGR", "XIRR", "Simple Interest"], key="pq5", index=None)
+
+        st.markdown("---")
+        submitted_pro = st.form_submit_button("✅ Check Score")
+
+        if submitted_pro:
+            score = 0
+            
+            # CHECK Q1
+            if p1 == "Stock is Undervalued/Good Deal":
+                st.success("1. Correct! Growth justifies the price.")
+                score += 1
+            else:
+                st.error("1. Wrong. PEG < 1 means the stock is likely undervalued relative to growth.")
+
+            # CHECK Q2
+            if p2 == "A competitive advantage (like Brand)":
+                st.success("2. Correct! It protects the company from enemies (competitors).")
+                score += 1
+            else:
+                st.error("2. Wrong. A Moat is a competitive advantage.")
+
+            # CHECK Q3
+            if p3 == "Passive Funds (Index)":
+                st.success("3. Correct! Passive funds often beat active managers long-term.")
+                score += 1
+            else:
+                st.error("3. Wrong. Passive Index funds usually win due to lower fees and no human error.")
+
+            # CHECK Q4
+            if p4 == "15 to 20 stocks":
+                st.success("4. Correct! This provides safety without 'diworsification'.")
+                score += 1
+            else:
+                st.error("4. Wrong. 15-20 is the ideal balance.")
+
+            # CHECK Q5
+            if p5 == "XIRR":
+                st.success("5. Correct! XIRR handles multiple cash flows at different times.")
+                score += 1
+            else:
+                st.error("5. Wrong. CAGR is for one-time lumpsum; XIRR is for SIPs.")
+
+            # Final Score Logic
+            if score == 5:
+                st.balloons()
+                if lotties["success"]: st_lottie(lotties["success"], height=150, key="win_pro")
+                st.markdown(f"### 🏆 Perfect Score! 5/5. You are a Pro.")
+            else:
+                st.markdown(f"### You got {score}/5. Review the strategies above!")
+
 
 # ==============================================================================
 # 3. MAIN CONTROLLER
@@ -342,40 +457,58 @@ def main():
     # 2. Load Assets
     assets = load_assets()
 
+    # 4. Initialize Session State
+    if "active_tab" not in st.session_state:
+        st.session_state.active_tab = "beginner"
+
+    # Determine dynamic subtitle based on state
+    if st.session_state.active_tab == 'beginner':
+        dynamic_subtitle = "Current Mode: <span style='color:#059669; font-weight:800'>🌱 Beginner Basics</span>"
+    else:
+        dynamic_subtitle = "Current Mode: <span style='color:#2563eb; font-weight:800'>🚀 Reinvestor Strategy</span>"
+
     # 3. Render Hero
     with st.container():
-        st.markdown("""
+        st.markdown(f"""
         <div class="hero-container">
             <div class='hero-title'>Knowledge Hub</div>
-            <div class="hero-subtitle">Master the market concepts step-by-step</div>
+            <div class="hero-subtitle" style="margin-top: 10px;">{dynamic_subtitle}</div>
             <div class="hero-desc">Clarify doubts, calculate returns, and verify your decisions before investing.</div>
         </div>
         """, unsafe_allow_html=True)
     st.write("")
-
-    # 4. Initialize Session State
-    if "active_tab" not in st.session_state:
-        st.session_state.active_tab = "beginner"
     
-    # 5. Render Navigation Buttons
-    _, nav_col, _ = st.columns([1, 6, 1])
+    # 5. Render Navigation Buttons (CONDITIONAL LOGIC)
+    _, nav_col, _ = st.columns([1, 4, 1])
+    
     with nav_col:
-        # 1. Change columns from 3 to 2
-        b1, b2 = st.columns(2, gap="small")
-        
-        # Helper to create nav buttons
-        def create_nav_btn(col, label, key, target_tab):
-            with col:
-                cls = 'tab-btn-active' if st.session_state.active_tab == target_tab else 'tab-btn'
-                st.markdown(f"<div class='{cls}'>", unsafe_allow_html=True)
-                if st.button(label, key=key, use_container_width=True):
-                    st.session_state.active_tab = target_tab
-                    st.rerun()
-                st.markdown("</div>", unsafe_allow_html=True)
+        # If currently in Beginner, show link to Reinvestor
+        if st.session_state.active_tab == "beginner":
+            st.markdown("""
+                <div style='text-align: center; font-size: 0.95rem; margin-bottom: 8px; color: #475569;'>
+                    Ready to master valuation & strategy? Level up below! 👇
+                </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown("<div class='tab-btn'>", unsafe_allow_html=True)
+            if st.button("🚀 Go to Reinvestor Zone", key="btn_go_pro", use_container_width=True):
+                st.session_state.active_tab = "pro"
+                st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
 
-        # 2. Only render these two buttons
-        create_nav_btn(b1, "🌱 Beginner", "btn_beg", "beginner")
-        create_nav_btn(b2, "🚀 Reinvestor", "btn_pro", "pro")
+        # If currently in Reinvestor, show link to Beginner
+        else:
+            st.markdown("""
+                <div style='text-align: center; font-size: 0.95rem; margin-bottom: 8px; color: #475569;'>
+                    Need a refresher on the basics? Go back below. 👇
+                </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown("<div class='tab-btn'>", unsafe_allow_html=True)
+            if st.button("🌱 Back to Beginner Zone", key="btn_go_beg", use_container_width=True):
+                st.session_state.active_tab = "beginner"
+                st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
 
     # 6. Render Content Based on State
     _, content_col, _ = st.columns([1, 6, 1])
@@ -384,8 +517,6 @@ def main():
             render_beginner_zone(assets)
         elif st.session_state.active_tab == "pro":
             render_reinvestor_zone(assets)
-        else:
-            render_checklist_zone(assets)
 
     # 7. Bottom Navigation
     st.write(""); st.write("")
@@ -432,14 +563,13 @@ def load_css():
     /* Tabs */
     .tab-btn button, .tab-btn-active button { width: 100% !important; border-radius: 12px !important; padding: 0.8rem 1rem !important; font-weight: 700 !important; border: none !important; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important; z-index: 2; position: relative; }
     .tab-btn button { background: linear-gradient(135deg, #475569 0%, #1e293b 100%) !important; color: white !important; opacity: 0.85; }
-    .tab-btn-active button { background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important; box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important; border: 2px solid #a7f3d0 !important; transform: scale(1.02); color: white !important; opacity: 1; }
     .tab-btn button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2) !important; }
     
     /* Content Boxes */
     .glass-container { background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(16px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 20px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.05); z-index: 1; position: relative; }
     .sub-header { font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-top: 1rem; margin-bottom: 1rem; display: inline-block; }
     
-    /* Expanders - REDUCED PADDING */
+    /* Expanders */
     .streamlit-expanderHeader { background-color: rgba(255, 255, 255, 0.6) !important; border-radius: 12px !important; font-weight: 600 !important; color: #1f2a44 !important; border: 1px solid rgba(255,255,255,0.5) !important; }
     .streamlit-expanderContent { background-color: rgba(255, 255, 255, 0.4) !important; border-radius: 0 0 12px 12px !important; padding: 0.5rem !important; border-top: none; }
     
