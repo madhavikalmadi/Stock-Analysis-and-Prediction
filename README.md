@@ -25,42 +25,6 @@ Using 8 advanced financial metrics, the scoring engine ranks stocks for long-ter
 - Beta
 - Recovery Days
 These combine into a Decision Score (0–100) used throughout the system.
-
-Project Structure
-📁 Smart-Analysis-and-Prediction/
-│
-├── app.py                       # Main homepage & navigation
-├── README.md                    # Project documentation
-│
-├── theme_manager.py             # Light/Dark theme controller
-├── scoring_system.py            # Decision Score calculations
-├── metric_calculator.py         # Financial metrics engine
-├── data_fetch.py                # yFinance data downloader
-│
-├── images/
-│   └── pizza.png                # Used in Knowledge Hub beginner section
-│
-├── modules/
-│   ├── beginner_explore.ipynb
-│   ├── beginner_index.ipynb
-│   ├── reinvestor_company.ipynb
-│   └── reinvestor_index.ipynb
-│
-├── pages/                       # All Streamlit sub-pages
-│   ├── beginner.py              # Knowledge Hub (Beginner)
-│   ├── reinvestor.py            # Knowledge Hub (Pro/Reinvestor)
-│   ├── bluechip.py              # Bluechip Explorer
-│   ├── company.py               # Company Analyzer (Single & Multi)
-│   ├── index.py                 # Index Analyzer
-│   ├── sector.py                # Sector-based Stock Ranking
-│   └── stock_details.py         # (Optional page — depends on your use)
-│
-├── .streamlit/
-│   └── config.toml              # Theme configuration
-│
-├── requirements.txt             # Python dependencies (if exists)
-│
-└── .venv/                       # Virtual environment (ignored in GitHub)
       
 Installation & Setup
 - Clone the Project
@@ -110,4 +74,3 @@ Roadmap / Future Features
 - Add Portfolio Builder & Risk Profiler
 
 
-we do next?
