@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 
 # --- IMPORT OPTIMIZED MODULES ---
-# These now handle the heavy lifting with caching
 import data_fetch
 import metric_calculator
 import scoring_system
@@ -13,16 +12,16 @@ st.set_page_config(page_title="Bluechip Explorer", layout="wide")
 
 st.markdown("""
 <style>
-    /* --- FORCE HIDE HEADER ANCHORS --- */
+    /* FORCE HIDE HEADER ANCHORS */
     [data-testid="stHeaderActionElements"] { display: none !important; visibility: hidden !important; }
     [data-testid="stHeaderAnchor"] { display: none !important; visibility: hidden !important; }
     h1 > a, h2 > a, h3 > a, h4 > a, h5 > a, h6 > a { display: none !important; content: none !important; pointer-events: none; color: transparent !important; }
     
-    /* --- ANIMATION DEFINITIONS --- */
+    /* ANIMATION DEFINITIONS */
     @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 40px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
     @keyframes slideInDown { from { opacity: 0; transform: translate3d(0, -100%, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
 
-    /* --- COMPONENT STYLING --- */
+    /* COMPONENT STYLING */
     .main-title { animation: slideInDown 0.8s ease-out; text-align: center; } 
     .sub-title { text-align: center; color: #555; margin-bottom: 20px; animation: slideInDown 0.9s ease-out; } 
 
@@ -62,18 +61,21 @@ st.markdown("""
 
 # --- 2. MAIN PAGE LOGIC ---
 
-# Centered Title and Subtitle
 st.markdown('<h1 class="main-title">🚀 Blue-Chip Explorer</h1>', unsafe_allow_html=True)
 st.markdown('<h3 class="sub-title">Top 10 Recommendations based on 10-Year History</h3>', unsafe_allow_html=True)
 st.markdown("---")
 
-# --- STEP 1: FETCH DATA (Hidden behind Spinner) ---
-# This block runs fast now because we use the optimized modules
+# --- STEP 1: FETCH DATA ---
 with st.spinner("Analyzing Market Data & Calculating Scores..."):
     try:
         # 1. Get List of Bluechips
         tickers = data_fetch.BLUECHIP_TICKERS
         
+        # Ensure Benchmark Ticker is in the list
+        benchmark_ticker = "^NSEI" 
+        if benchmark_ticker not in tickers:
+            tickers.append(benchmark_ticker)
+
         # 2. Fetch Data (Cached)
         stock_data = data_fetch.fetch_stock_data(tickers)
         
@@ -81,13 +83,15 @@ with st.spinner("Analyzing Market Data & Calculating Scores..."):
             st.error("No data found. Please check your internet connection.")
             st.stop()
             
-        # 3. Compute Metrics (Cached & Vectorized)
-        # Using NIFTY50 as the benchmark
-        metrics_df = metric_calculator.compute_metrics(stock_data, "NIFTY 50.NS") # Assuming Nifty is in the data or handled
+        # 3. Compute Metrics
+        metrics_df = metric_calculator.compute_metrics(stock_data, benchmark_ticker) 
         
-        # 4. Rank Stocks (Cached)
+        # 4. Rank Stocks
         ranked_stocks = scoring_system.rank_stocks(metrics_df)
         
+        # Filter out the Benchmark itself so it doesn't show as a card
+        ranked_stocks = ranked_stocks[ranked_stocks['Ticker'] != benchmark_ticker]
+
         # Get Top 10
         top10 = ranked_stocks.head(10)
 
@@ -95,81 +99,71 @@ with st.spinner("Analyzing Market Data & Calculating Scores..."):
         st.error(f"An error occurred during analysis: {e}")
         st.stop()
 
-# --- STEP 2: RENDER UI (Instant) ---
-# Now that data is ready, we draw the cards without blocking
+# --- STEP 2: RENDER UI ---
 if not top10.empty:
     for i in range(0, 10, 5):
         cols = st.columns(5)
         batch = top10.iloc[i:i+5]
         
         for idx, (sym, row) in enumerate(batch.iterrows()):
-            ticker_name = row['Ticker'].replace('.NS', '') # Clean ticker name
-            
-            # Safe access to metrics (handle missing keys gracefully)
+            # Prepare Variables
+            ticker_name = row['Ticker'].replace('.NS', '')
             cagr = row.get('CAGR', 0)
             max_dd = row.get('MaxDrawdown', 0)
             sharpe = row.get('Sharpe', 0)
             vol = row.get('Volatility', 0)
-            score = row.get('FinalScore', 0) * 100 # Scale score to 100
+            score = row.get('FinalScore', 0) * 100 
 
             with cols[idx]:
-                # CSS Animation Delay
                 delay = (i + idx) * 0.1 
                 
-                st.markdown(f"""
-                <div class="stock-card" style="animation-delay: {delay}s;">
-                    <h4>#{i + idx + 1} {ticker_name}</h4>
-                    <div class="big-score">
-                        {score:.1f}<span class="score-suffix">/100</span>
-                    </div>
-                    <small>Decision Score</small>
-                    <hr style="margin: 10px 0; opacity: 0.3;">
-                    <div class="metric-row">
-                        <div class="metric-item"><b>CAGR</b><br>{cagr*100:.1f}%</div>
-                        <div class="metric-item"><b>Max DD</b><br>{max_dd*100:.1f}%</div>
-                    </div>
-                    <div class="metric-row">
-                        <div class="metric-item"><b>Sharpe</b><br>{sharpe:.2f}</div>
-                        <div class="metric-item"><b>Vol</b><br>{vol*100:.1f}%</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                # HTML CARD (No Indentation to prevent code blocks)
+                html_code = f"""
+<div class="stock-card" style="animation-delay: {delay}s;">
+<h4 style="margin-bottom: 0;">#{i + idx + 1} {ticker_name}</h4>
+<div class="big-score">{score:.1f}<span class="score-suffix">/100</span></div>
+<small>Decision Score</small>
+<hr style="margin: 10px 0; opacity: 0.3;">
+<div class="metric-row">
+<div class="metric-item"><b>CAGR</b><br>{cagr*100:.1f}%</div>
+<div class="metric-item"><b>Max DD</b><br>{max_dd*100:.1f}%</div>
+</div>
+<div class="metric-row">
+<div class="metric-item"><b>Sharpe</b><br>{sharpe:.2f}</div>
+<div class="metric-item"><b>Vol</b><br>{vol*100:.1f}%</div>
+</div>
+</div>
+"""
+                st.markdown(html_code, unsafe_allow_html=True)
                 st.write("") 
 
     st.markdown("---")
     
-    # Interpretation Section
+    # Interpretation & Footer
     st.markdown('<div class="section-title" style="animation-delay: 1.2s; animation-fill-mode: backwards;">✅ Interpretation</div>', unsafe_allow_html=True)
     st.info("""
     * **Higher CAGR** = Stronger long-term growth.
     * **Sharpe > 0.5** = Steady, risk-adjusted returns.
     * **Lower Volatility & Drawdown** = Safer investment.
-    * **Beta < 1** = Stock moves less than the market (safer).
-    * **Lower Recovery Days** = Quicker bounce-back after dips.
+    * **Decision Score** = The higher the score, the better the overall performance.
     """)
 
     st.markdown('<div class="section-title">🧾 Explanation of Terms</div>', unsafe_allow_html=True)
     with st.expander("Show Detailed Definitions", expanded=False):
         st.markdown("""
+        * **Decision Score:** A proprietary score (0-100) combining all metrics to rank the best long-term performers.
         * **CAGR (Compound Annual Growth Rate):** Average yearly growth of stock price.
-        * **Max Drawdown:** The biggest percentage drop a stock has ever suffered from a peak to a trough. It measures worst-case risk.
+        * **Max Drawdown:** The biggest percentage drop a stock has ever suffered (Measures worst-case risk).
         * **Sharpe Ratio:** Measures how much extra return you get for the risk you take. Higher is better.
-        * **Sortino Ratio:** Similar to Sharpe, but only penalizes "bad" (downside) volatility, ignoring upside jumps.
-        * **Calmar Ratio:** Compares annual return to maximum drawdown. Higher means strong recovery ability.
         * **Volatility:** How much the stock price swings up or down. Lower = more stable.
-        * **Beta:** How much the stock moves compared to the market index (Nifty 50). 
-        * **Recovery Days:** The time it takes for a stock to climb back to its previous high after a crash.
-        * **Decision Score:** A proprietary score (0-100) combining all these metrics to rank the best long-term performers.
         """)
 
-# ==========================================
-# FOOTER
-# ==========================================
-st.write("")
-st.write("---")
-st.write("")
+else:
+    st.warning("No stock data available to display. Please try again later.")
 
-# Specific CSS for the Footer Buttons
+# --- FOOTER ---
+st.write(""); st.write("---"); st.write("")
+
 st.markdown("""
 <style>
 div.stButton > button {
@@ -192,8 +186,10 @@ div.stButton > button:hover {
 
 # Footer Layout
 c_back, _, c_dash = st.columns([1, 4, 1])
+
 with c_back:
-    if st.button("⬅ Back to Menu"):
+    # BUG FIX: Removed try/except block which was blocking the switch
+    if st.button("⬅ Back to Menu", key="btn_sector_back"):
         st.switch_page("pages/beginner.py")
 
 with c_dash:

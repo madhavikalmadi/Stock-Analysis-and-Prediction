@@ -392,21 +392,16 @@ if start_analysis:
     time.sleep(1)
     progress_bar.empty()
 
-    # --- EXPLANATION SECTION ---
+# --- EXPLANATION SECTION ---
     st.markdown('<div class="section-title">🧾 Explanation of Terms</div>', unsafe_allow_html=True)
     with st.expander("Show Detailed Definitions", expanded=False):
         st.markdown("""
-        * **CAGR (Compound Annual Growth Rate):** Average yearly growth of stock price.       
-        * **Max Drawdown:** Biggest price fall from peak to bottom. Lower = safer.  
-        * **Sharpe Ratio:** Measures how much return you earn for the risk you take. Higher = better.
-        * **Sortino Ratio:** Like Sharpe, but only counts downside (bad) volatility. Higher = safer returns.
-        * **Calmar Ratio:** Compares yearly return vs biggest loss. Higher = strong recovery ability.
-        * **Volatility:** How much the stock price moves up or down. Lower = more stable.
-        * **Beta:** How much the stock moves compared to market (1 = same as market, <1 = safer).
-        * **Recovery Days:** Time it takes for stock to recover after big fall. Fewer = better.
-        * **Decision Score:** Final 0–100 score combining all metrics for beginner investors.
+        * **Decision Score:** A proprietary score (0-100) combining all metrics to rank the best long-term performers.
+        * **CAGR (Compound Annual Growth Rate):** Average yearly growth of stock price.
+        * **Max Drawdown:** The biggest percentage drop a stock has ever suffered (Measures worst-case risk).
+        * **Sharpe Ratio:** Measures how much extra return you get for the risk you take. Higher is better.
+        * **Volatility:** How much the stock price swings up or down. Lower = more stable.
         """)
-
 # ==========================================
 # 5. FOOTER
 # ==========================================
