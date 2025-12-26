@@ -1,15 +1,32 @@
 import streamlit as st
-import time
 from datetime import datetime
-import pytz 
-import yfinance as yf 
+import pytz
+import yfinance as yf
 import pandas as pd
+import time
+import itertools
+
+# =============================================================
+# !!! IMPORTANT FIX: Check URL for Navigation !!!
+# This block MUST be the first executable code after imports.
+# It resolves the StreamlitAPIException by using the correct path.
+# =============================================================
+if "page" in st.query_params:
+    page_name = st.query_params["page"]
+    if page_name == "profile":
+        # CORRECTED PATH: Must reference the pages/ directory
+        st.switch_page("pages/profile.py") 
+    elif page_name == "search":
+        st.switch_page("pages/search.py")
+    # Clean the query parameter to avoid infinite redirects on full app reload
+    st.query_params.clear()
+
 
 # --- IMPORT LOCAL MODULES ---
 try:
     from theme_manager import get_theme, apply_theme
 except ImportError:
-    # Fallback if file is missing
+    # Stubs for local modules to prevent ImportError
     def get_theme(): return "light"
     def apply_theme(t): pass
 
@@ -23,18 +40,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Hide Sidebar Navigation
-st.markdown("""
-<style>
-[data-testid="stSidebar"],
-[data-testid="stSidebarNav"],
-[data-testid="stSidebarCollapsedControl"] {
-    display: none !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# Theme Application
+# Apply theme
 try:
     theme = get_theme()
     apply_theme(theme)
@@ -42,83 +48,51 @@ except:
     pass
 
 # =============================================================
-# CSS ENGINE (DEFINITIVE PLACEMENT)
+# WATCHLIST AND SEARCH INITIALIZATION
+# =============================================================
+if 'watchlist' not in st.session_state:
+    st.session_state['watchlist'] = []
+if 'search_query' not in st.session_state:
+    st.session_state['search_query'] = ""
+# =============================================================
+# END SESSION STATE
+# =============================================================
+
+# =============================================================
+# CSS ENGINE
 # =============================================================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap');
 
-/* GLOBAL FONT */
+/* Hide sidebar */
+[data-testid="stSidebar"],
+[data-testid="stSidebarNav"],
+[data-testid="stSidebarCollapsedControl"] {
+    display: none !important;
+}
+
+/* Global font */
 body, [data-testid="stAppViewContainer"] {
     font-family: 'Outfit', sans-serif !important;
     overflow-x: hidden;
 }
 
-/* 1. HIDE NATIVE DEPLOY BUTTON */
-.stAppDeployButton {
-    display: none !important; 
-    visibility: hidden !important;
-}
+/* Hide deploy button, menu, spinners */
+.stAppDeployButton { display: none !important; }
+#MainMenu, footer { visibility: hidden; height: 0; }
+[data-testid*="stProgress"],
+[data-testid*="stSpinner"],
+.stAlert:has(.stSpinner) { display: none !important; }
 
-/* 2. STYLE THE HEADER BAR (Keep it white) */
+/* Hide native Streamlit header */
 [data-testid="stHeader"] {
-    background: rgba(255, 255, 255, 1) !important;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.1); 
-    z-index: 999990;
+    display: none !important;
+    visibility: hidden;
+    height: 0;
 }
 
-/* --- CUSTOM PROFILE BUTTON STYLES --- */
-.profile-badge-link {
-    /* Style to match a Streamlit Primary button */
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white !important;
-    border: none;
-    padding: 6px 14px;
-    border-radius: 0.5rem; /* 8px */
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-decoration: none !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-    
-    /* Flex container for the icon and text */
-    display: flex; 
-    align-items: center;
-    gap: 8px;
-}
-
-.profile-badge-link:hover {
-    transform: translateY(-1px);
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    box-shadow: 0 8px 10px rgba(37, 99, 235, 0.3);
-}
-
-.profile-pic {
-    color: white; 
-    font-size: 1rem;
-}
-
-.profile-badge-link span {
-    color: white !important;
-}
-
-/* 3. INJECTION CONTAINER POSITIONING */
-/* Use fixed position on the far top right, placed just to the left of the three dots menu */
-#custom-profile-injection {
-    position: fixed;
-    top: 12px; 
-    /* This value is calculated to place the button next to the three dots (which is at right: 20px) */
-    right: 55px; 
-    z-index: 999999;
-    /* Important for responsiveness: if the screen is too narrow, make sure it flows */
-    white-space: nowrap; 
-}
-
-
-/* --- REST OF YOUR EXISTING CSS BELOW --- */
-
-/* --- REMOVE ANCHOR LINKS (Chain Icons) --- */
+/* REMOVE HEADER ANCHORS */
 [data-testid="stMarkdownContainer"] h1 a,
 [data-testid="stMarkdownContainer"] h2 a,
 [data-testid="stMarkdownContainer"] h3 a,
@@ -127,6 +101,122 @@ body, [data-testid="stAppViewContainer"] {
 [data-testid="stMarkdownContainer"] h6 a {
     display: none !important;
 }
+
+/* ==== CUSTOM FIXED HEADER BAR ==== */
+.custom-top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px; /* Taller header */
+    background: #eff6ff; /* Light Blue Color */
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+    display: flex;
+    align-items: center; /* Ensures vertical centering */
+    padding: 0 2rem; 
+    z-index: 99990;
+}
+.custom-top-bar-title {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: #1e3a8a;
+    margin: 0 !important; 
+}
+
+/* Container for search and profile buttons */
+.nav-buttons-container {
+    margin-left: auto; /* Push buttons to the right */
+    display: flex; 
+    align-items: center;
+    gap: 10px; /* Space between search and profile buttons */
+    height: 100%; 
+}
+
+/* ===== SEARCH ICON STYLES (HTML Anchor) ===== */
+.search-btn-style {
+    background: none;
+    color: #1e3a8a !important;
+    padding: 0.5rem 0.8rem; 
+    border-radius: 999px;
+    font-size: 1.1rem;
+    border: 2px solid #3b82f6; /* Subtle blue border */
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+    text-decoration: none !important; 
+    display: inline-block; 
+}
+.search-btn-style:hover {
+    background: #dbeafe; /* Very light blue background on hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+}
+
+/* ===== PROFILE BUTTON STYLES (PURE HTML ANCHOR STYLES) ===== */
+.profile-btn-style {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white !important;
+    padding: 0.5rem 1.2rem; 
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    transition: all 0.3s ease;
+    text-decoration: none !important; 
+    white-space: nowrap;
+    animation: pulse 2s infinite; 
+    display: inline-block; 
+}
+
+.profile-btn-style:hover {
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+/* Main container (push content below custom bar) */
+.block-container {
+    padding-top: 6rem !important; /* Increased space for the taller header */
+    padding-bottom: 5rem !important;
+    max-width: 1200px;
+    position: relative;
+    z-index: 1;
+}
+
+
+/* ANIMATION KEYFRAMES (Keeping all existing animations) */
+@keyframes cloud-move {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(30px, 30px); }
+}
+@keyframes marquee {
+    0% { transform: translate3d(0, 0, 0); } 
+    100% { transform: translate3d(-100%, 0, 0); }
+}
+@keyframes popIn {
+    0% { opacity: 0; transform: scale(0.9); }
+    100% { opacity: 1; transform: scale(1); }
+}
+@keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+@keyframes slideUp { 
+    from { opacity: 0; transform: translateY(20px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+@keyframes fadeInSlideUp { 
+    from { opacity: 0; transform: translateY(10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
 
 /* ANIMATED CLOUD BACKGROUND */
 [data-testid="stAppViewContainer"]::before {
@@ -145,22 +235,7 @@ body, [data-testid="stAppViewContainer"] {
     pointer-events: none;
 }
 
-@keyframes cloud-move {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(30px, 30px); }
-}
-
-/* MAIN CONTAINER */
-.block-container {
-    /* Adjusted padding to account for the sticky header */
-    padding-top: 3rem !important; 
-    padding-bottom: 5rem !important;
-    max-width: 1200px;
-    position: relative;
-    z-index: 1;
-}
-
-/* TICKER TAPE CSS */
+/* ticker */
 .ticker-wrap {
     width: 100%;
     backdrop-filter: blur(5px);
@@ -183,28 +258,22 @@ body, [data-testid="stAppViewContainer"] {
 }
 .ticker {
     display: inline-block;
-    /* Fast Animation Speed */
     animation: marquee 25s linear infinite;
     width: 100%;
 }
-.ticker__item {
+.ticker__item { 
     display: inline-block;
     padding: 0 2rem;
     font-size: 0.9rem;
     font-weight: 600;
 }
-@keyframes marquee {
-    0% { transform: translate3d(0, 0, 0); }
-    100% { transform: translate3d(-100%, 0, 0); }
-}
 
-/* HERO SECTION */
+/* Hero */
 .hero-container {
     text-align: center;
     margin-bottom: 2rem;
     animation: popIn 1s ease-out;
 }
-
 .hero-title {
     font-size: 3.5rem;
     font-weight: 800;
@@ -217,25 +286,7 @@ body, [data-testid="stAppViewContainer"] {
     animation: gradient-shift 5s ease infinite;
 }
 
-@keyframes gradient-shift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-@keyframes popIn {
-    0% { opacity: 0; transform: scale(0.9); }
-    100% { opacity: 1; transform: scale(1); }
-}
-
-.static-subtitle {
-    font-size: 1.2rem;
-    font-weight: 500;
-    margin: 0 auto;
-    opacity: 0.8;
-}
-
-/* CARDS */
+/* Cards and Pathways styles (unchanged) */
 .glass-panel {
     backdrop-filter: blur(16px);
     border-radius: 20px;
@@ -253,27 +304,23 @@ body, [data-testid="stAppViewContainer"] {
     overflow: hidden;
     animation: slideUp 0.8s ease-out both; 
 }
-.c1 { animation-delay: 0.1s; }
-.c2 { animation-delay: 0.3s; }
-.c3 { animation-delay: 0.5s; }
+.c1 { animation-delay: 0.1s; } 
+.c2 { animation-delay: 0.3s; } 
+.c3 { animation-delay: 0.5s; } 
 
 .glass-panel:hover {
     transform: translateY(-5px) scale(1.02);
     box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1);
 }
-
-.card-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    display: inline-block;
+.card-icon { 
+    font-size: 2.5rem; 
+    margin-bottom: 1rem; 
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .glass-panel:hover .card-icon { transform: scale(1.2) rotate(10deg); }
-
 .card-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.8rem; }
 .card-desc { font-size: 0.95rem; line-height: 1.6; opacity: 0.8; }
 
-/* PATHWAY CARDS */
 .path-card {
     border-radius: 24px;
     padding: 2.5rem;
@@ -282,16 +329,24 @@ body, [data-testid="stAppViewContainer"] {
     height: 100%;
     overflow: hidden;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    animation: slideUp 0.8s ease-out both;
+    animation: slideUp 0.8s ease-out both; 
 }
-.p-left { animation-delay: 0.6s; }
-.p-right { animation-delay: 0.8s; }
+.p-left { animation-delay: 0.6s; } 
+.p-right { animation-delay: 0.8s; } 
+
+.path-description-animated {
+    opacity: 0; 
+    animation: fadeInSlideUp 0.5s ease-out 1.2s both; 
+}
+.p-right .path-description-animated {
+    animation-delay: 1.4s; 
+}
+
 
 .path-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-5px); 
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
-
 .path-card::before {
     content: '';
     position: absolute;
@@ -320,9 +375,7 @@ body, [data-testid="stAppViewContainer"] {
     background: #2563eb;
     color: white !important;
 }
-
 .path-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
-
 .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin: 1.5rem 0; }
 .chip {
     padding: 6px 14px;
@@ -333,11 +386,11 @@ body, [data-testid="stAppViewContainer"] {
     border: 1px solid rgba(0,0,0,0.1);
 }
 
-/* BUTTONS - FIXED COLORS (for internal Streamlit buttons) */
+/* Buttons */
 div.stButton > button {
     width: 100%;
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-    color: white !important; 
+    color: white !important;
     border: none;
     padding: 0.8rem;
     font-weight: 600;
@@ -348,19 +401,14 @@ div.stButton > button {
     font-size: 0.9rem;
     box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
 }
-
-div.stButton > button * {
-    color: white !important;
-}
-
+div.stButton > button * { color: white !important; }
 div.stButton > button:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 15px rgba(37, 99, 235, 0.3);
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-    color: white !important;
 }
 
-/* BANNER & FOOTER */
+/* Banner & footer */
 .insight-box {
     border-left: 5px solid #10b981;
     padding: 1.2rem 1.5rem;
@@ -370,22 +418,16 @@ div.stButton > button:hover {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     animation: slideUp 1s ease-out;
 }
-@keyframes slideUp { 
-    from { opacity: 0; transform: translateY(20px); } 
-    to { opacity: 1; transform: translateY(0); } 
-}
-
 .faq-header { text-align:center; margin-top:3rem; font-weight: 700; }
-
 .footer-box {
-    text-align:center; 
-    margin-top: 4rem; 
-    padding: 2rem; 
+    text-align:center;
+    margin-top: 4rem;
+    padding: 2rem;
     border-top: 1px solid rgba(255,255,255,0.5);
     border-radius: 20px 20px 0 0;
 }
 .disclaimer-text {
-    font-size: 0.75rem; 
+    font-size: 0.75rem;
     max-width: 800px;
     margin: 0 auto 1rem auto;
     line-height: 1.5;
@@ -394,16 +436,21 @@ div.stButton > button:hover {
 </style>
 """, unsafe_allow_html=True)
 
-
 # =============================================================
-# INJECT PROFILE BUTTON
+# CUSTOM FIXED HEADER BAR (TITLE, SEARCH, AND PROFILE BUTTONS)
 # =============================================================
-st.markdown("""
-<div id="custom-profile-injection">
-    <a class="profile-badge-link" href="/profile" target="_self">
-        <div class="profile-pic">👤</div>
-        <span>Profile</span>
-    </a>
+# Reverted to HTML anchors with URL parameters for stable positioning and navigation fix
+st.markdown(f"""
+<div class="custom-top-bar">
+    <div class="custom-top-bar-title">Smart Investor Assistant</div>
+    <div class="nav-buttons-container">
+        <a href="?page=search" target="_self" class="search-btn-style">
+            🔍
+        </a>
+        <a href="?page=profile" target="_self" class="profile-btn-style">
+            👤 My Profile
+        </a>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -415,7 +462,8 @@ st.markdown("""
 @st.cache_data(ttl=300, show_spinner=False)
 def get_market_data_tape(tickers):
     try:
-        data = yf.download(tickers, period="1mo", group_by='ticker', threads=True, progress=False)
+        # Fetch 2 days data minimum to calculate daily change
+        data = yf.download(tickers, period="2d", group_by='ticker', threads=True, progress=False)
         return data
     except Exception:
         return pd.DataFrame()
@@ -464,11 +512,12 @@ def show_auto_ticker():
             "VOLTAS.NS": "VOLTAS", 
             "BAJFINANCE.NS": "BAJAJ FIN", 
             "COALINDIA.NS": "COAL IND", 
+            "TCS.NS": "TCS", # Added TCS to balance the number of items
             "TATAMOTORS.NS": "TATA MOTORS", 
             "HINDUNILVR.NS": "HUL"
         },
         "SECTORS": { 
-            "TCS.NS": "TCS", "HDFCBANK.NS": "HDFC BK", "SUNPHARMA.NS": "SUN PHARMA", 
+            "HDFCBANK.NS": "HDFC BK", "SUNPHARMA.NS": "SUN PHARMA", 
             "TATASTEEL.NS": "TATA STL", "POWERGRID.NS": "POWERGRID", "MARUTI.NS": "MARUTI"
         }
     }
@@ -492,6 +541,7 @@ def show_auto_ticker():
     if not ticker_items:
         ticker_items = ["Loading Data..."]
 
+    # Duplicate content for seamless marquee effect
     content_str = "&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;".join(ticker_items)
     
     st.markdown(f"""
@@ -506,11 +556,12 @@ def show_auto_ticker():
 show_auto_ticker()
 
 # =============================================================
-# HEADER & MARKET STATUS
+# HERO & MARKET STATUS
 # =============================================================
 
 def get_market_status():
     try:
+        # Check Indian Stock Market hours (9:15 AM to 3:30 PM IST, Mon-Fri)
         ist = pytz.timezone('Asia/Kolkata')
         now = datetime.now(ist)
         is_weekday = now.weekday() < 5
@@ -549,7 +600,7 @@ st.markdown("""
 # =============================================================
 # LEARNING SECTION
 # =============================================================
-st.markdown("<h3 style='margin-bottom:1.5rem; font-weight:700; animation: slideUp 0.5s ease-out;'>🧠 Learn the Basics</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='margin-bottom:1.5rem; font-weight:700;'>🧠 Learn the Basics</h3>", unsafe_allow_html=True)
 
 c1, c2, c3 = st.columns(3)
 
@@ -576,14 +627,15 @@ with c3:
 
 st.write("")
 
-# BUTTON: Single line natural flow
+# BUTTON: Go to Knowledge Hub
 if st.button("📚 Go to Knowledge Hub"):
+    # This assumes 'pages/stock_details.py' is your knowledge hub
     st.switch_page("pages/stock_details.py")
 
 # =============================================================
-# PATHWAYS
+# PATHWAYS (Animation added to inner description text)
 # =============================================================
-st.markdown("<h3 style='margin-top:3rem; margin-bottom:1.5rem; font-weight:700; animation: slideUp 0.6s ease-out;'>🚀 Choose Your Path</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='margin-top:3rem; margin-bottom:1.5rem; font-weight:700;'>🚀 Choose Your Path</h3>", unsafe_allow_html=True)
 
 col_path1, col_path2 = st.columns(2, gap="large")
 
@@ -591,7 +643,7 @@ with col_path1:
     st.markdown("""<div class="path-card p-left">
         <div class="path-icon">🌱</div>
         <div class="path-title">Beginner</div>
-        <div style="opacity:0.8; margin-bottom:1rem;">Safe, steady, and simple. Perfect for your first steps.</div>
+        <div class="path-description-animated" style="opacity:0.8; margin-bottom:1rem;">Safe, steady, and simple. Perfect for your first steps.</div>
         <div class="chip-group">
             <span class="chip">Blue-Chip</span>
             <span class="chip">Large Cap</span>
@@ -608,7 +660,7 @@ with col_path2:
     st.markdown("""<div class="path-card p-right">
         <div class="path-icon">🔁</div>
         <div class="path-title">Reinvestor</div>
-        <div style="opacity:0.8; margin-bottom:1rem;">Growth-focused strategies for experienced players.</div>
+        <div class="path-description-animated" style="opacity:0.8; margin-bottom:1rem;">Growth-focused strategies for experienced players.</div>
         <div class="chip-group">
             <span class="chip">Mid Cap</span>
             <span class="chip">Small Cap</span>
@@ -620,6 +672,18 @@ with col_path2:
     st.write("") 
     if st.button("Start Reinvestor Journey", key="btn_inv"):
         st.switch_page("pages/reinvestor.py")
+
+# =============================================================
+# STOCK DEMO BUTTON (Added for Watchlist testing)
+# =============================================================
+st.markdown("<h3 style='margin-top:3rem; margin-bottom:1.5rem; font-weight:700;'>🎯 Test the Watchlist (RELIANCE.NS)</h3>", unsafe_allow_html=True)
+
+# A simplified button to link to the detail page for testing the save function
+if st.button("View Reliance Details & Save", key="btn_demo_reliance"):
+    # Assumes you have created a file named pages/stock_details.py
+    st.switch_page("pages/stock_details.py")
+    
+st.markdown("---", unsafe_allow_html=True)
 
 # =============================================================
 # FOOTER
