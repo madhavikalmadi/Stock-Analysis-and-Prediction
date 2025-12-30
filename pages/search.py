@@ -224,7 +224,7 @@ with col1:
 
 with col2:
     if st.button("⬅ Dashboard", key="btn_dashboard_nav"):
-        st.switch_page("app.py")
+        st.switch_page("pages/dashboard.py")
 
 # =============================================================
 # FOOTER

@@ -506,52 +506,75 @@ def format_ticker_item(symbol, name, batch_data):
 @st.fragment(run_every=300) 
 def show_auto_ticker():
     universe = {
-        "INDICES": { "^NSEI": "NIFTY 50", "^BSESN": "SENSEX" },
-        "TYPES": { 
-            "RELIANCE.NS": "RELIANCE", 
-            "VOLTAS.NS": "VOLTAS", 
-            "BAJFINANCE.NS": "BAJAJ FIN", 
-            "COALINDIA.NS": "COAL IND", 
-            "TCS.NS": "TCS", # Added TCS to balance the number of items
-            "TATAMOTORS.NS": "TATA MOTORS", 
-            "HINDUNILVR.NS": "HUL"
+        "INDICES": {
+            "^NSEI": "NIFTY 50",
+            "^BSESN": "SENSEX"
         },
-        "SECTORS": { 
-            "HDFCBANK.NS": "HDFC BK", "SUNPHARMA.NS": "SUN PHARMA", 
-            "TATASTEEL.NS": "TATA STL", "POWERGRID.NS": "POWERGRID", "MARUTI.NS": "MARUTI"
+        "BANKING": {
+            "HDFCBANK.NS": "HDFC Bank",
+            "ICICIBANK.NS": "ICICI Bank",
+            "SBIN.NS": "SBI",
+            "KOTAKBANK.NS": "Kotak Bank",
+            "AXISBANK.NS": "Axis Bank"
+        },
+        "IT": {
+            "TCS.NS": "TCS",
+            "INFY.NS": "Infosys",
+            "HCLTECH.NS": "HCL Tech",
+            "WIPRO.NS": "Wipro",
+            "TECHM.NS": "Tech Mahindra"
+        },
+        "AUTO": {
+            "MARUTI.NS": "Maruti",
+            "TATAMOTORS.NS": "Tata Motors",
+            "M&M.NS": "Mahindra",
+            "BAJAJ-AUTO.NS": "Bajaj Auto",
+            "EICHERMOT.NS": "Eicher"
+        },
+        "FMCG": {
+            "HINDUNILVR.NS": "HUL",
+            "ITC.NS": "ITC",
+            "NESTLEIND.NS": "Nestle",
+            "DABUR.NS": "Dabur",
+            "BRITANNIA.NS": "Britannia"
+        },
+        "ENERGY": {
+            "RELIANCE.NS": "Reliance",
+            "ONGC.NS": "ONGC",
+            "NTPC.NS": "NTPC"
         }
     }
-    
+        
     selected_tickers = []
     symbol_map = {}
-    
+        
     for category in universe:
         for symbol, display_name in universe[category].items():
             selected_tickers.append(symbol)
             symbol_map[symbol] = display_name
-            
+                
     batch_data = get_market_data_tape(selected_tickers)
     ticker_items = []
-    
+        
     for sym in selected_tickers:
         if sym in symbol_map:
             name = symbol_map[sym]
             ticker_items.append(format_ticker_item(sym, name, batch_data))
-    
+        
     if not ticker_items:
         ticker_items = ["Loading Data..."]
 
     # Duplicate content for seamless marquee effect
     content_str = "&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;".join(ticker_items)
-    
+        
     st.markdown(f"""
-    <div class="ticker-wrap">
-    <div class="ticker-heading">LIVE</div>
-    <div class="ticker">
-        <div class="ticker__item">{content_str} &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp; {content_str}</div>
-    </div>
-    </div>
-    """, unsafe_allow_html=True)
+        <div class="ticker-wrap">
+        <div class="ticker-heading">LIVE</div>
+        <div class="ticker">
+            <div class="ticker__item">{content_str} &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp; {content_str}</div>
+        </div>
+        </div>
+        """, unsafe_allow_html=True)
 
 show_auto_ticker()
 
@@ -672,18 +695,6 @@ with col_path2:
     st.write("") 
     if st.button("Start Reinvestor Journey", key="btn_inv"):
         st.switch_page("pages/reinvestor.py")
-
-# =============================================================
-# STOCK DEMO BUTTON (Added for Watchlist testing)
-# =============================================================
-st.markdown("<h3 style='margin-top:3rem; margin-bottom:1.5rem; font-weight:700;'>🎯 Test the Watchlist (RELIANCE.NS)</h3>", unsafe_allow_html=True)
-
-# A simplified button to link to the detail page for testing the save function
-if st.button("View Reliance Details & Save", key="btn_demo_reliance"):
-    # Assumes you have created a file named pages/stock_details.py
-    st.switch_page("pages/stock_details.py")
-    
-st.markdown("---", unsafe_allow_html=True)
 
 # =============================================================
 # FOOTER

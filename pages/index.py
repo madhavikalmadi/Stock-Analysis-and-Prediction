@@ -256,4 +256,4 @@ with c_back:
 
 with c_dash:
     if st.button("⬅ Dashboard", key="btn_home_nav"):
-        st.switch_page("app.py")
+        st.switch_page("pages/dashboard.py")
