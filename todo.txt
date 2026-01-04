@@ -1,0 +1,4 @@
+- clickable button
+- accuracy
+- drop down menu
+- meaning of the terms used
