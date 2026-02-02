@@ -2,6 +2,13 @@ import streamlit as st
 import requests
 from streamlit_lottie import st_lottie
 
+import sys
+import os
+
+# Add parent directory to allow imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import auth_utils
+
 # ==============================================================================
 # 1. CONFIGURATION & ASSET LOADING
 # ==============================================================================
@@ -11,6 +18,11 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+# CHECK AUTHENTICATION
+if not auth_utils.check_auth():
+    st.warning("You must log in to access this page.")
+    st.switch_page("login.py")
 
 # OPTIMIZATION: Cache the network request to prevent lag on reload
 @st.cache_data(ttl=86400, show_spinner=False)

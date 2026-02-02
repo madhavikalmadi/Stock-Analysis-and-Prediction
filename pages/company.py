@@ -8,6 +8,13 @@ import data_fetch
 import metric_calculator
 import scoring_system
 
+import sys
+import os
+
+# Add parent directory to allow imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import auth_utils
+
 # ==========================================
 # 1. PAGE CONFIGURATION
 # ==========================================
@@ -17,6 +24,11 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+# CHECK AUTHENTICATION
+if not auth_utils.check_auth():
+    st.warning("You must log in to access this page.")
+    st.switch_page("login.py")
 
 # ==========================================
 # 2. GLOBAL CSS
@@ -291,7 +303,20 @@ with col_multi:
             st.markdown(html, unsafe_allow_html=True)
 
 # ==========================================
-# 5. NAVIGATION (FOOTER)
+# 5. EXPLANATION OF TERMS
+# ==========================================
+st.markdown('<div class="section-title">🧾 Explanation of Terms</div>', unsafe_allow_html=True)
+with st.expander("Show Detailed Definitions", expanded=False):
+    st.markdown("""
+    * **Sharpe Ratio:** Measures risk-adjusted return. Higher is better (>1 is good, >2 is excellent).
+    * **Sortino Ratio:** Similar to Sharpe, but only penalizes downside volatility. Better for assessing real loss risk.
+    * **Volatility (Std Dev):** How much the stock price swings. Lower means more stable.
+    * **Alpha:** The excess return of an investment relative to the return of a benchmark index.
+    * **Beta:** A measure of the stock's volatility in relation to the overall market. Beta < 1 is less volatile than market.
+    """)
+
+# ==========================================
+# 6. NAVIGATION (FOOTER)
 # ==========================================
 st.write(""); st.write("---"); st.write("")
 

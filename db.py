@@ -1,19 +1,17 @@
-from sqlalchemy import create_engine, text
-
-# Your connection string
-DB_URL = "postgresql+psycopg2://postgres:1203@localhost/stock_app"
-
-engine = create_engine(DB_URL)
+# Mock database module to avoid psycopg2 dependency
 
 def execute(query, params=None, fetchall=False, fetchone=False):
-    with engine.connect() as conn:
-        # We use text(query) to ensure SQLAlchemy handles the SQL correctly
-        result = conn.execute(text(query), params or {})
-        
-        if fetchall:
-            return result.fetchall()
-        if fetchone:
-            return result.fetchone()
-        
-        conn.commit()
+    """
+    Mock execute function.
+    In a real app, this would query the database.
+    Here we return empty results to allow the UI to function without a DB.
+    """
+    # Log the query for debugging (optional)
+    # print(f"Mock DB Execute: {query} | Params: {params}")
+
+    if fetchall:
+        return []
+    if fetchone:
+        return None
+    
     return None

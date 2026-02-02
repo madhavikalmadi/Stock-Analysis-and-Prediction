@@ -1,4 +1,10 @@
 import streamlit as st
+import sys
+import os
+
+# Add parent directory to allow imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import auth_utils
 
 # --- PAGE CONFIG ---
 st.set_page_config(
@@ -6,6 +12,11 @@ st.set_page_config(
     page_icon="👤",
     layout="wide"
 )
+
+# CHECK AUTHENTICATION
+if not auth_utils.check_auth():
+    st.warning("You must log in to access this page.")
+    st.switch_page("login.py")
 
 # =============================================================
 # SESSION STATE
@@ -29,6 +40,13 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap');
 body {
     font-family: 'Outfit', sans-serif !important;
+}
+
+/* Reduce top spacing */
+/* Reduce top spacing */
+.block-container {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
 }
 
 /* Profile card */

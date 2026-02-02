@@ -8,6 +8,13 @@ import data_fetch
 import metric_calculator
 import scoring_system
 
+import sys
+import os
+
+# Add parent directory to allow imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import auth_utils
+
 # ==========================================
 # 1. PAGE CONFIGURATION
 # ==========================================
@@ -17,6 +24,11 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+# CHECK AUTHENTICATION
+if not auth_utils.check_auth():
+    st.warning("You must log in to access this page.")
+    st.switch_page("login.py")
 
 # ==========================================
 # 2. CSS STYLING
@@ -103,12 +115,11 @@ st.markdown("""
 # ==========================================
 # 3. CONFIG & DATA MAPS
 # ==========================================
-ETF_INDEX_SYMBOLS = {
-    "NIFTY 50": "NIFTYBEES.NS",
-    "NIFTY NEXT 50": "JUNIORBEES.NS",
-    "NIFTY MIDCAP 100": "MIDCAPETF.NS",
-    "NIFTY SMALLCAP 100": "SMALLCAP.NS"
-}
+# ==========================================
+# 3. CONFIG & DATA MAPS
+# ==========================================
+# Imported from centralized data_fetch module
+ETF_INDEX_SYMBOLS = data_fetch.ETF_INDEX_SYMBOLS
 
 # Reverse mapping to find "NIFTY 50" from "NIFTYBEES.NS" later
 TICKER_TO_NAME = {v: k for k, v in ETF_INDEX_SYMBOLS.items()}
@@ -220,7 +231,20 @@ if analyze:
         st.error(f"Could not calculate metrics for {user_choice}. Data might be missing.")
 
 # ==========================================
-# 5. NAVIGATION (FOOTER)
+# 5. EXPLANATION OF TERMS
+# ==========================================
+st.markdown('<div class="section-title">🧾 Explanation of Terms</div>', unsafe_allow_html=True)
+with st.expander("Show Detailed Definitions", expanded=False):
+    st.markdown("""
+    * **NIFTY 50:** Benchmark index of NSE, representing top 50 largest Indian companies.
+    * **SENSEX:** Benchmark index of BSE, 30 established companies.
+    * **Sector Rotation:** Strategy of shifting capital between sectors (e.g., Bank -> IT) based on economic cycles.
+    * **Correlation:** How closely two indices move together. High correlation means they offer less diversification.
+    * **YTD (Year to Date):** Return on investment from the start of the current year to today.
+    """)
+
+# ==========================================
+# 6. NAVIGATION (FOOTER)
 # ==========================================
 st.write(""); st.write("---"); st.write("")
 
@@ -249,10 +273,7 @@ div.stButton:last-of-type > button:hover {
 c_back, _, c_dash = st.columns([1, 4, 1])
 with c_back:
     if st.button("⬅ Back to Menu"):
-        try:
-            st.switch_page("pages/reinvestor.py")
-        except:
-             st.switch_page("pages/beginner.py")
+        st.switch_page("pages/reinvestor.py")
 
 with c_dash:
     if st.button("⬅ Dashboard", key="btn_home_nav"):

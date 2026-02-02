@@ -4,6 +4,10 @@ from sqlalchemy.exc import SQLAlchemyError
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Admin Panel", layout="centered")
+# from login import login (Removed)
+
+# if not login(): (Removed)
+#     st.stop()
 
 # --- SESSION STATE ---
 if "admin_logged_in" not in st.session_state:

@@ -8,6 +8,13 @@ import data_fetch
 import metric_calculator
 import scoring_system
 
+import sys
+import os
+
+# Add parent directory to allow imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import auth_utils
+
 # ==========================================
 # 0. PAGE CONFIG
 # ==========================================
@@ -17,6 +24,11 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+# CHECK AUTHENTICATION
+if not auth_utils.check_auth():
+    st.warning("You must log in to access this page.")
+    st.switch_page("login.py")
 
 # ==========================================
 # 1. CSS STYLING
@@ -105,184 +117,11 @@ st.markdown("""
 # ==========================================
 # 2. MARKET DATA
 # ==========================================
-MARKET_DATA = {
-    "✈️ Services Sector": {
-        "NIFTY Services Sector": [
-            "HDFCBANK", "TCS", "ICICIBANK", "BHARTIARTL", "INFY", "SBIN", "AXISBANK",
-            "KOTAKBANK", "BAJFINANCE", "HCLTECH", "ADANIENT", "TITAN", "TECHM",
-            "WIPRO", "BAJAJFINSV", "ADANIPORTS", "APOLLOHOSP", "HDFCLIFE", "SBILIFE",
-            "POWERGRID", "NTPC", "INDIGO", "TRENT"
-        ]
-    },
-    "🏦 Financial & Banking": {
-        "NIFTY Bank": [
-            "HDFCBANK", "ICICIBANK", "SBIN", "AXISBANK", "KOTAKBANK", "INDUSINDBK",
-            "BANKBARODA", "PNB", "AUBANK", "FEDERALBNK", "IDFCFIRSTB", "BANDHANBNK"
-        ],
-        "NIFTY PSU Bank": [
-            "SBIN", "BANKBARODA", "PNB", "CANBK", "UNIONBANK", "INDIANB",
-            "BANKINDIA", "IOB", "UCOBANK", "CENTRALBK", "MAHABANK", "PSB"
-        ],
-        "NIFTY Private Bank": [
-            "HDFCBANK", "ICICIBANK", "AXISBANK", "KOTAKBANK", "INDUSINDBK",
-            "FEDERALBNK", "IDFCFIRSTB", "RBLBANK", "CUB", "BANDHANBNK"
-        ],
-        "NIFTY Fin Services": [
-            "HDFCBANK", "ICICIBANK", "AXISBANK", "SBIN", "BAJFINANCE", "BAJAJFINSV",
-            "KOTAKBANK", "HDFCLIFE", "SBILIFE", "PFC", "REC", "CHOLAFIN",
-            "SHRIRAMFIN", "MUTHOOTFIN", "HDFCAMC", "ICICIGI", "SBICARD", "RECLTD", "LICHSGFIN"
-        ]
-    },
-    "💻 Technology & IT": {
-        "NIFTY IT": [
-            "TCS", "INFY", "HCLTECH", "TECHM", "WIPRO",
-            "LTIM", "PERSISTENT", "COFORGE", "LTTS", "MPHASIS"
-        ],
-        "NIFTY Digital": [
-            "NAUKRI", "ZOMATO", "PAYTM", "POLICYBZR", "NYKAA", "TATACOMM",
-            "DELHIVERY", "INDIAMART", "AFFLE", "HAPPSTMINDS", "MAPMYINDIA",
-            "TANLA", "LATENTVIEW", "CARTRADE", "FSL"
-        ]
-    },
-    "🏠 Consumer & Lifestyle": {
-        "NIFTY FMCG": [
-            "HINDUNILVR", "ITC", "NESTLEIND", "VBL", "BRITANNIA", "GODREJCP",
-            "TATACONSUM", "MCDOWELL-N", "MARICO", "DABUR", "COLPAL", "PATAINDIA",
-            "UBL", "RADICO", "EMAMILTD"
-        ],
-        "NIFTY Auto": [
-            "M&M", "MARUTI", "TATAMOTORS", "BAJAJ-AUTO", "EICHERMOT", "TVSMOTOR",
-            "HEROMOTOCO", "MOTHERSON", "ASHOKLEY", "BHARATFORG", "TIINDIA",
-            "MRF", "BOSCHLTD", "BALKRISIND", "SONACOMS"
-        ],
-        "NIFTY India Consumption 30": [
-            "BHARTIARTL", "ITC", "HINDUNILVR", "M&M", "MARUTI", "TITAN",
-            "ASIANPAINT", "ZOMATO", "INDIGO", "TRENT", "BAJAJ-AUTO", "DMART",
-            "NESTLEIND", "ADANIPOWER", "DLF", "VBL", "GODREJCP", "APOLLOHOSP"
-        ],
-        "NIFTY Consumer Durables": [
-            "TITAN", "HAVELLS", "DIXON", "KALYANJEWEL", "VOLTAS", "BLUESTARCO",
-            "AMBER", "CENTURYPLY", "KAJARIACER", "CROMPTON", "VGUARD",
-            "RAJESHEXPO", "BATAINDIA", "WHIRLPOOL", "CERA"
-        ],
-        "NIFTY Media": [
-            "SUNTV", "ZEEL", "PVRINOX", "NAZARA", "NETWORK18", "PFOCUS",
-            "SAREGAMA", "TIPSIND", "DBCORP", "HATHWAY"
-        ]
-    },
-    "🏗️ Realty & Construction": {
-        "NIFTY Realty": [
-            "DLF", "GODREJPROP", "PHOENIXLTD", "LODHA", "PRESTIGE",
-            "OBEROIRLTY", "BRIGADE", "SOBHA", "SIGNATURE", "ANANTRAJ"
-        ],
-        "NIFTY Housing": [
-            "LT", "NTPC", "ULTRACEMCO", "HDFCBANK", "ICICIBANK", "SBIN",
-            "TATASTEEL", "JSWSTEEL", "GRASIM", "ASIANPAINT", "AMBUJACEM",
-            "PIDILITIND", "DLF", "GODREJPROP", "HAVELLS", "VOLTAS",
-            "CHOLAFIN", "LICHSGFIN", "PNBHOUSING", "KAJARIACER"
-        ]
-    },
-    "🛢️ Energy & Resources": {
-        "NIFTY Energy": [
-            "RELIANCE", "NTPC", "ONGC", "POWERGRID", "COALINDIA",
-            "BPCL", "IOC", "TATAPOWER", "GAIL", "ADANIGREEN"
-        ],
-        "NIFTY Oil & Gas": [
-            "RELIANCE", "ONGC", "IOC", "BPCL", "GAIL", "HINDPETRO",
-            "OIL", "PETRONET", "IGL", "ATGL", "GUJGASLTD", "MGL",
-            "CASTROLIND", "GSPL"
-        ],
-        "NIFTY Metal": [
-            "TATASTEEL", "HINDALCO", "JSWSTEEL", "JINDALSTEL", "VEDL",
-            "ADANIENT", "NMDC", "SAIL", "NATIONALUM", "APLAPOLLO",
-            "HINDZINC", "JSL", "WELCORP", "RATNAMANI"
-        ],
-        "NIFTY Commodities": [
-            "RELIANCE", "ULTRACEMCO", "TATASTEEL", "NTPC", "JSWSTEEL",
-            "ONGC", "GRASIM", "HINDALCO", "COALINDIA", "PIDILITIND",
-            "VEDL", "SHREECEM", "AMBUJACEM", "BPCL", "JINDALSTEL"
-        ]
-    },
-    "💊 Healthcare": {
-        "NIFTY Pharma": [
-            "SUNPHARMA", "DIVISLAB", "CIPLA", "TORNTPHARM", "DRREDDY",
-            "LUPIN", "ZYDUSLIFE", "MANKIND", "ALKEM", "AUROPHARMA",
-            "ABBOTINDIA", "GLENMARK", "BIOCON", "LAURUSLABS", "IPCALAB",
-            "JBCHEPHARM", "GLAND", "NATCOPHARM", "PFIZER", "GRANULES"
-        ],
-        "NIFTY Healthcare": [
-            "APOLLOHOSP", "MAXHEALTH", "FORTIS", "MEDANTA", "NH",
-            "LALPATHLAB", "METROPOLIS", "SYNGENE", "POLYMED", "RAINBOW",
-            "SUNPHARMA", "DIVISLAB", "CIPLA", "DRREDDY", "ALKEM",
-            "LUPIN", "AUROPHARMA", "ZYDUSLIFE", "TORNTPHARM", "ABBOTINDIA"
-        ]
-    },
-    "⚙️ Infra & Industrial": {
-        "NIFTY Infrastructure": [
-            "RELIANCE", "BHARTIARTL", "LT", "NTPC", "POWERGRID", "ULTRACEMCO",
-            "ONGC", "ADANIPORTS", "GRASIM", "INDIGO", "TITAN", "TATAPOWER",
-            "HINDUNILVR", "BPCL", "APOLLOHOSP", "SHREECEM", "INDHOTEL", "GAIL"
-        ],
-        "NIFTY CPSE": [
-            "NTPC", "ONGC", "BEL", "COALINDIA", "POWERGRID", "NHPC", "OIL",
-            "SJVN", "COCHINSHIP", "NLCINDIA", "NBCC", "IRCON"
-        ],
-        "NIFTY PSE": [
-            "NTPC", "ONGC", "BEL", "HAL", "POWERGRID", "COALINDIA", "IOC",
-            "PFC", "REC", "GAIL", "BPCL", "BHARATFORG", "BHEL", "OIL",
-            "CONCOR", "NMDC", "LICHSGFIN", "HINDPETRO"
-        ],
-        "NIFTY Industrials": [
-            "LT", "HAL", "SIEMENS", "ABB", "BEL", "CGPOWER", "CUMMINSIND",
-            "POLYCAB", "BHEL", "THERMAX", "BHARATFORG", "TIMKEN",
-            "AIAENG", "SCHAEFFLER", "APLAPOLLO", "SUZLON"
-        ]
-    },
-    "🌱 Thematic & Emerging": {
-        "NIFTY SME EMERGE": [
-            "KOTYARK", "ALFALOGIC", "UCL", "HPIL", "E2E", "ORIANA",
-            "RELIABLE", "BASILIC"
-        ],
-        "NIFTY India Defence": [
-            "HAL", "BEL", "MAZDOCK", "BDL", "COCHINSHIP", "SOLARINDS",
-            "BHARATFORG", "DATAPATTERNS", "MTARTECH", "ASTRAMICRO",
-            "PARAS", "GRSE", "MIDHANI", "IDEAFORGE"
-        ],
-        "NIFTY Mobility": [
-            "TATAMOTORS", "MARUTI", "M&M", "BAJAJ-AUTO", "INDIGO",
-            "MOTHERSON", "BOSCHLTD", "SONACOMS", "EXIDEIND", "APOLLOTYRE",
-            "MRF", "HEROMOTOCO", "TVSMOTOR", "EICHERMOT"
-        ],
-        "NIFTY MNC": [
-            "HINDUNILVR", "NESTLEIND", "BRITANNIA", "MARUTI", "SIEMENS",
-            "ABB", "COLPAL", "CUMMINSIND", "ABBOTINDIA", "MCDOWELL-N",
-            "HONAUT", "BOSCHLTD", "PFIZER", "SANOFI", "BATAINDIA"
-        ],
-        "NIFTY Dividend Opps 50": [
-            "ITC", "HINDUNILVR", "TCS", "INFY", "HCLTECH", "POWERGRID",
-            "ONGC", "COALINDIA", "VEDL", "IOC", "BPCL", "HINDZINC",
-            "PETRONET", "NHPC", "RECLTD", "PFC"
-        ],
-        "NIFTY EV & New Age Auto": [
-            "TATAMOTORS", "M&M", "EXIDEIND", "AMARAJABAT", "MOTHERSON",
-            "TATACHEM", "OLECTRA", "JBMA", "TVSMOTOR", "SONACOMS",
-            "GREAVESCOT"
-        ],
-        "NIFTY ESG": [
-            "INFY", "TCS", "HDFCBANK", "TITAN", "WIPRO", "TECHM",
-            "HCLTECH", "HAVELLS", "GODREJCP", "LT", "KOTAKBANK",
-            "MARICO", "ASIANPAINT", "APOLLOHOSP"
-        ]
-    },
-    "🧠 NIFTY Strategy & Factor": {
-        "NIFTY Alpha 50": ["BHARTIARTL", "BAJFINANCE", "MARUTI", "M&M", "ZOMATO", "TRENT", "ADANIENT", "HAL", "BEL", "INDIGO"],
-        "NIFTY Momentum 30": ["HDFCBANK", "ICICIBANK", "BHARTIARTL", "TRENT", "BEL", "COALINDIA", "NTPC", "TATAMOTORS", "BAJFINANCE"],
-        "NIFTY Low Volatility 30": ["RELIANCE", "HDFCBANK", "TCS", "SBIN", "CIPLA", "SUNPHARMA", "HINDUNILVR", "ITC", "POWERGRID", "INFY"],
-        "NIFTY Quality 30": ["HDFCBANK", "INFY", "NESTLEIND", "ITC", "COALINDIA", "HCLTECH", "BRITANNIA", "HINDUNILVR", "TCS", "ASIANPAINT"],
-        "NIFTY Growth Sectors 15": ["TCS", "INFY", "M&M", "BAJFINANCE", "TITAN", "MARUTI", "SUNPHARMA", "EICHERMOT", "HINDUNILVR", "CIPLA"],
-        "NIFTY Shariah 25": ["ULTRACEMCO", "LTIM", "DIVISLAB", "CUMMINSIND", "RELIANCE", "TCS", "INFY", "HCLTECH", "ASIANPAINT", "TITAN"]
-    }
-}
+# ==========================================
+# 2. MARKET DATA
+# ==========================================
+# Imported from centralized data_fetch module
+MARKET_DATA = data_fetch.MARKET_DATA
 
 # ==========================================
 # 4. MAIN INTERFACE

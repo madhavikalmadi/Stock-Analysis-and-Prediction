@@ -1,4 +1,4 @@
-- clickable button
-- accuracy
-- drop down menu
-- meaning of the terms used
+- clickable button done
+- accuracy 
+- drop down menu 
+- meaning of the terms used done

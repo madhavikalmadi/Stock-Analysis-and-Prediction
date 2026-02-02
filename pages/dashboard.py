@@ -1,10 +1,27 @@
+import sys
+import os
 import streamlit as st
-from datetime import datetime
-import pytz
-import yfinance as yf
+
+# Add parent directory to path to allow imports if needed
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import auth_utils # Import the auth utility
+
+# --- RESTORED IMPORTS ---
 import pandas as pd
+import yfinance as yf
+import pytz
 import time
 import itertools
+from datetime import datetime
+
+
+st.set_page_config(page_title="Stock App", layout="wide")
+
+# CHECK AUTHENTICATION
+if not auth_utils.check_auth():
+    st.warning("You must log in to access this page.")
+    st.switch_page("login.py")
 
 # =============================================================
 # !!! IMPORTANT FIX: Check URL for Navigation !!!
@@ -18,6 +35,10 @@ if "page" in st.query_params:
         st.switch_page("pages/profile.py") 
     elif page_name == "search":
         st.switch_page("pages/search.py")
+    elif page_name == "beginner":
+        st.switch_page("pages/beginner.py")
+    elif page_name == "reinvestor":
+        st.switch_page("pages/reinvestor.py")
     # Clean the query parameter to avoid infinite redirects on full app reload
     st.query_params.clear()
 
@@ -165,7 +186,7 @@ body, [data-testid="stAppViewContainer"] {
     transition: all 0.3s ease;
     text-decoration: none !important; 
     white-space: nowrap;
-    animation: pulse 2s infinite; 
+    /* animation: pulse 2s infinite; REMOVED */
     display: inline-block; 
 }
 
@@ -258,7 +279,7 @@ body, [data-testid="stAppViewContainer"] {
 }
 .ticker {
     display: inline-block;
-    animation: marquee 25s linear infinite;
+    animation: marquee 15s linear infinite;
     width: 100%;
 }
 .ticker__item { 
@@ -439,15 +460,18 @@ div.stButton > button:hover {
 # =============================================================
 # CUSTOM FIXED HEADER BAR (TITLE, SEARCH, AND PROFILE BUTTONS)
 # =============================================================
+# Retrieve session token for persistence
+session_token = st.query_params.get("session", "")
+
 # Reverted to HTML anchors with URL parameters for stable positioning and navigation fix
 st.markdown(f"""
 <div class="custom-top-bar">
     <div class="custom-top-bar-title">Smart Investor Assistant</div>
     <div class="nav-buttons-container">
-        <a href="?page=search" target="_self" class="search-btn-style">
+        <a href="?page=search&session={session_token}" target="_self" class="search-btn-style">
             🔍
         </a>
-        <a href="?page=profile" target="_self" class="profile-btn-style">
+        <a href="?page=profile&session={session_token}" target="_self" class="profile-btn-style">
             👤 My Profile
         </a>
     </div>
@@ -459,10 +483,9 @@ st.markdown(f"""
 # FEATURE 1: EDUCATIONAL TICKER
 # =============================================================
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=900, show_spinner=False)
 def get_market_data_tape(tickers):
     try:
-        # Fetch 2 days data minimum to calculate daily change
         data = yf.download(tickers, period="2d", group_by='ticker', threads=True, progress=False)
         return data
     except Exception:
@@ -477,14 +500,20 @@ def format_ticker_item(symbol, name, batch_data):
                     stock_data = batch_data.xs(symbol, axis=1, level=0)
             elif symbol in batch_data.columns:
                  stock_data = batch_data[[symbol]]
-    except:
+    except Exception:
         pass
 
-    if stock_data.empty or 'Close' not in stock_data.columns:
+    if stock_data.empty:
         return f"{name}: N/A"
 
     try:
-        valid_history = stock_data['Close'].dropna()
+        # Handle case where column might be 'Close' or just the ticker itself depending on download
+        if 'Close' in stock_data.columns:
+            valid_history = stock_data['Close'].dropna()
+        else:
+             # Fallback if structure is different
+            valid_history = stock_data.iloc[:, 0].dropna()
+            
         if valid_history.empty:
             return f"{name}: N/A"
 
@@ -500,7 +529,7 @@ def format_ticker_item(symbol, name, batch_data):
         color_style = "color: #16a34a;" if change >= 0 else "color: #dc2626;"
         
         return f"<span style='{color_style}'><b>{arrow} {name}</b>: {current_price:,.2f} ({change:+.2f}%)</span>"
-    except:
+    except Exception:
         return f"{name}: N/A"
 
 @st.fragment(run_every=300) 
@@ -510,39 +539,30 @@ def show_auto_ticker():
             "^NSEI": "NIFTY 50",
             "^BSESN": "SENSEX"
         },
-        "BANKING": {
-            "HDFCBANK.NS": "HDFC Bank",
-            "ICICIBANK.NS": "ICICI Bank",
-            "SBIN.NS": "SBI",
-            "KOTAKBANK.NS": "Kotak Bank",
-            "AXISBANK.NS": "Axis Bank"
-        },
-        "IT": {
-            "TCS.NS": "TCS",
-            "INFY.NS": "Infosys",
-            "HCLTECH.NS": "HCL Tech",
-            "WIPRO.NS": "Wipro",
-            "TECHM.NS": "Tech Mahindra"
-        },
-        "AUTO": {
-            "MARUTI.NS": "Maruti",
-            "TATAMOTORS.NS": "Tata Motors",
-            "M&M.NS": "Mahindra",
-            "BAJAJ-AUTO.NS": "Bajaj Auto",
-            "EICHERMOT.NS": "Eicher"
-        },
-        "FMCG": {
-            "HINDUNILVR.NS": "HUL",
-            "ITC.NS": "ITC",
-            "NESTLEIND.NS": "Nestle",
-            "DABUR.NS": "Dabur",
-            "BRITANNIA.NS": "Britannia"
-        },
-        "ENERGY": {
-            "RELIANCE.NS": "Reliance",
-            "ONGC.NS": "ONGC",
-            "NTPC.NS": "NTPC"
-        }
+        "BANKING": { "HDFCBANK.NS": "HDFC Bank" },
+        "PSU BANK": { "SBIN.NS": "SBI" },
+        "IT": { "TCS.NS": "TCS" },
+        "AUTO": { "MARUTI.NS": "Maruti" },
+        "FMCG": { "HINDUNILVR.NS": "HUL" },
+        "ENERGY": { "RELIANCE.NS": "Reliance" },
+        "SERVICES": { "INDIGO.NS": "IndiGo" },
+        "REALTY": { "DLF.NS": "DLF" },
+        "PHARMA": { "SUNPHARMA.NS": "Sun Pharma" },
+        "INFRA": { "LT.NS": "Larsen & Toubro" },
+        "METAL": { "TATASTEEL.NS": "Tata Steel" },
+        "FINANCE": { "BAJFINANCE.NS": "Bajaj Finance" },
+        "CONSUMER": { "TITAN.NS": "Titan" },
+        "POWER": { "NTPC.NS": "NTPC" },
+        "HEALTH": { "APOLLOHOSP.NS": "Apollo Hosp" },
+        "DEFENCE": { "HAL.NS": "HAL" },
+        "PAINTS": { "ASIANPAINT.NS": "Asian Paints" },
+        "TELECOM": { "BHARTIARTL.NS": "Airtel" },
+        "MINING": { "COALINDIA.NS": "Coal India" },
+        "MEDIA": { "SUNTV.NS": "Sun TV" },
+        "CEMENT": { "ULTRACEMCO.NS": "UltraTech" },
+        "OIL & GAS": { "ONGC.NS": "ONGC" },
+        "DIVERSIFIED": { "ADANIENT.NS": "Adani Ent" },
+        "PORTS": { "ADANIPORTS.NS": "Adani Ports" }
     }
         
     selected_tickers = []
@@ -552,14 +572,26 @@ def show_auto_ticker():
         for symbol, display_name in universe[category].items():
             selected_tickers.append(symbol)
             symbol_map[symbol] = display_name
-                
-    batch_data = get_market_data_tape(selected_tickers)
+
+    # --- PERFORMANCE OPTIMIZATION: SESSION CACHING ---
+    # Store ticker data in session status to ensure INSTANT loading on navigation.
+    if 'ticker_cache_data' not in st.session_state:
+        st.session_state['ticker_cache_data'] = None
+    
+    # Try to get data
+    batch_data = st.session_state['ticker_cache_data']
+
+    # If empty, fetch immediately (first load might still take a moment, but subsequent navigation is instant)
+    if batch_data is None or batch_data.empty:
+        batch_data = get_market_data_tape(selected_tickers)
+        st.session_state['ticker_cache_data'] = batch_data
+
     ticker_items = []
-        
-    for sym in selected_tickers:
-        if sym in symbol_map:
-            name = symbol_map[sym]
-            ticker_items.append(format_ticker_item(sym, name, batch_data))
+    if batch_data is not None and not batch_data.empty:   
+        for sym in selected_tickers:
+            if sym in symbol_map:
+                name = symbol_map[sym]
+                ticker_items.append(format_ticker_item(sym, name, batch_data))
         
     if not ticker_items:
         ticker_items = ["Loading Data..."]
@@ -662,35 +694,46 @@ st.markdown("<h3 style='margin-top:3rem; margin-bottom:1.5rem; font-weight:700;'
 
 col_path1, col_path2 = st.columns(2, gap="large")
 
+# Get session token to preserve login on navigation
+session_token = st.query_params.get("session", "")
+
 with col_path1:
-    st.markdown("""<div class="path-card p-left">
-        <div class="path-icon">🌱</div>
-        <div class="path-title">Beginner</div>
-        <div class="path-description-animated" style="opacity:0.8; margin-bottom:1rem;">Safe, steady, and simple. Perfect for your first steps.</div>
-        <div class="chip-group">
-            <span class="chip">Blue-Chip</span>
-            <span class="chip">Large Cap</span>
-            <span class="chip">Low Volatility</span>
-            <span class="chip">NIFTY 50</span>
+    st.markdown(f"""
+    <a href="?page=beginner&session={session_token}" target="_self" style="text-decoration:none; color:inherit; display:block; height:100%;">
+        <div class="path-card p-left">
+            <div class="path-icon">🌱</div>
+            <div class="path-title">Beginner</div>
+            <div class="path-description-animated" style="opacity:0.8; margin-bottom:1rem;">Safe, steady, and simple. Perfect for your first steps.</div>
+            <div class="chip-group">
+                <span class="chip">Blue-Chip</span>
+                <span class="chip">Large Cap</span>
+                <span class="chip">Low Volatility</span>
+                <span class="chip">NIFTY 50</span>
+            </div>
         </div>
-    </div>""", unsafe_allow_html=True)
+    </a>
+    """, unsafe_allow_html=True)
     
     st.write("") 
     if st.button("Start Beginner Journey", key="btn_beg"):
         st.switch_page("pages/beginner.py")
 
 with col_path2:
-    st.markdown("""<div class="path-card p-right">
-        <div class="path-icon">🔁</div>
-        <div class="path-title">Reinvestor</div>
-        <div class="path-description-animated" style="opacity:0.8; margin-bottom:1rem;">Growth-focused strategies for experienced players.</div>
-        <div class="chip-group">
-            <span class="chip">Mid Cap</span>
-            <span class="chip">Small Cap</span>
-            <span class="chip">High Growth</span>
-            <span class="chip">Sector Rotation</span>
+    st.markdown(f"""
+    <a href="?page=reinvestor&session={session_token}" target="_self" style="text-decoration:none; color:inherit; display:block; height:100%;">
+        <div class="path-card p-right">
+            <div class="path-icon">🔁</div>
+            <div class="path-title">Reinvestor</div>
+            <div class="path-description-animated" style="opacity:0.8; margin-bottom:1rem;">Growth-focused strategies for experienced players.</div>
+            <div class="chip-group">
+                <span class="chip">Mid Cap</span>
+                <span class="chip">Small Cap</span>
+                <span class="chip">High Growth</span>
+                <span class="chip">Sector Rotation</span>
+            </div>
         </div>
-    </div>""", unsafe_allow_html=True)
+    </a>
+    """, unsafe_allow_html=True)
     
     st.write("") 
     if st.button("Start Reinvestor Journey", key="btn_inv"):

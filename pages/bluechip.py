@@ -7,8 +7,20 @@ import data_fetch
 import metric_calculator
 import scoring_system
 
+import sys
+import os
+
+# Add parent directory to allow imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import auth_utils
+
 # --- 1. PAGE CONFIG & CSS ---
 st.set_page_config(page_title="Bluechip Explorer", layout="wide")
+
+# CHECK AUTHENTICATION
+if not auth_utils.check_auth():
+    st.warning("You must log in to access this page.")
+    st.switch_page("login.py")
 
 st.markdown("""
 <style>

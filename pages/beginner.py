@@ -1,4 +1,10 @@
 import streamlit as st
+import sys
+import os
+
+# Add parent directory to allow imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import auth_utils
 
 # ==========================================
 # PAGE CONFIG
@@ -9,6 +15,22 @@ st.set_page_config(
     layout="wide", 
     initial_sidebar_state="collapsed"
 )
+
+# CHECK AUTHENTICATION
+if not auth_utils.check_auth():
+    st.warning("You must log in to access this page.")
+    st.switch_page("login.py")
+
+# =============================================================
+# HANDLE SUB-PAGE REDIRECTS (Persistence)
+# =============================================================
+if "page" in st.query_params:
+    page_name = st.query_params["page"]
+    if page_name == "bluechip":
+        st.switch_page("pages/bluechip.py") 
+    elif page_name == "sector":
+        st.switch_page("pages/sector.py")
+    st.query_params.clear()
 
 # -----------------------------------------------------------------------------
 # CSS STYLING
@@ -75,6 +97,7 @@ body, [data-testid="stAppViewContainer"] {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
 }
 
 .glass-card:hover { transform: translateY(-12px); background: rgba(255, 255, 255, 0.85); box-shadow: 0 20px 50px rgba(0,0,0,0.1); border: 1px solid rgba(255, 255, 255, 1); }
@@ -106,13 +129,16 @@ st.markdown("""
 # -----------------------------------------------------------------------------
 # MAIN CARDS
 # -----------------------------------------------------------------------------
+session_token = st.query_params.get("session", "")
+
 col1, col2, col3 = st.columns([1, 10, 1]) 
 with col2:
     card_c1, card_c2 = st.columns(2, gap="large")
 
     # CARD 1: BLUE CHIP ADVISOR
     with card_c1:
-        st.markdown("""
+        st.markdown(f"""
+        <a href="?page=bluechip&session={session_token}" target="_self" style="text-decoration:none; color:inherit;">
         <div class='glass-card'>
             <div class='card-content'>
                 <div class='card-icon'>💎</div>
@@ -122,6 +148,7 @@ with col2:
                 </div>
             </div>
         </div>
+        </a>
         """, unsafe_allow_html=True)
         st.write("") 
         if st.button("🚀 Explore Blue-Chips", key="btn_bluechip"):
@@ -129,7 +156,8 @@ with col2:
 
     # CARD 2: SECTOR VIEW
     with card_c2:
-        st.markdown("""
+        st.markdown(f"""
+        <a href="?page=sector&session={session_token}" target="_self" style="text-decoration:none; color:inherit;">
         <div class='glass-card'>
             <div class='card-content'>
                 <div class='card-icon'>🏗️</div>
@@ -139,6 +167,7 @@ with col2:
                 </div>
             </div>
         </div>
+        </a>
         """, unsafe_allow_html=True)
         st.write("") 
         
