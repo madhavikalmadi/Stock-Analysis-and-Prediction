@@ -75,7 +75,7 @@ def apply_theme(theme_name):
         }}
 
         /* Text Colors */
-        h1, h2, h3, h4, h5, h6, p, li, div {{
+        h1, h2, h3, h4, h5, h6, p, li {{
             color: {theme_data['text_color']} !important;
         }}
         

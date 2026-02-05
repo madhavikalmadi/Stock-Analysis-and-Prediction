@@ -5,3 +5,5 @@ yfinance
 plotly
 matplotlib
 requests
+pymongo
+certifi

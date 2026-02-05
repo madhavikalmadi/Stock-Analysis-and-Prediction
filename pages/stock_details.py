@@ -19,10 +19,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CHECK AUTHENTICATION
-if not auth_utils.check_auth():
-    st.warning("You must log in to access this page.")
-    st.switch_page("login.py")
+# Auth check removed
+# if not auth_utils.check_auth():
+#     st.warning("You must log in to access this page.")
+#     st.switch_page("login.py")
 
 # OPTIMIZATION: Cache the network request to prevent lag on reload
 @st.cache_data(ttl=86400, show_spinner=False)

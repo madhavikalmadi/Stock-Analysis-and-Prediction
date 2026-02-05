@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 import data_fetch
 import metric_calculator
 import scoring_system
-
 import sys
 import os
 
@@ -25,10 +24,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CHECK AUTHENTICATION
-if not auth_utils.check_auth():
-    st.warning("You must log in to access this page.")
-    st.switch_page("login.py")
+# Auth check removed
+# if not auth_utils.check_auth():
+#     st.warning("You must log in to access this page.")
+#     st.switch_page("login.py")
 
 # ==========================================
 # 2. GLOBAL CSS
@@ -114,19 +113,13 @@ st.markdown("""
 # 3. HELPERS
 # ==========================================
 
-COMMON_NAMES = {
-    "infosys": "INFY", "reliance": "RELIANCE", "tcs": "TCS", "hdfc bank": "HDFCBANK",
-    "icici bank": "ICICIBANK", "sbi": "SBIN", "bharti airtel": "BHARTIARTL",
-    "kotak": "KOTAKBANK", "itc": "ITC", "l&t": "LT", "axis bank": "AXISBANK",
-    "hindustan unilever": "HINDUNILVR", "hul": "HINDUNILVR", "maruti": "MARUTI",
-    "tata motors": "TATAMOTORS", "sun pharma": "SUNPHARMA", "titan": "TITAN",
-    "bajaj finance": "BAJFINANCE", "wipro": "WIPRO", "hcl": "HCLTECH", 
-    "zomato": "ZOMATO", "paytm": "PAYTM", "nykaa": "NYKAA", "swiggy": "SWIGGY", 
-    "policybazaar": "POLICYBZR", "delhivery": "DELHIVERY"
-}
-
 def resolve_ticker(user_input):
-    return COMMON_NAMES.get(user_input.lower().strip(), user_input.upper())
+    clean_input = user_input.lower().strip()
+    # Check centralized shortcuts first
+    if clean_input in data_fetch.SEARCH_SHORTCUTS:
+        return data_fetch.SEARCH_SHORTCUTS[clean_input]
+    # Fallback to direct input (upper case)
+    return user_input.upper()
 
 def get_recommendation_text(cagr, sharpe):
     """Simple recommendation logic based on key metrics"""
@@ -165,6 +158,7 @@ def create_card_html(row, amount_invested, years, idx=None, delay=0):
             <div style='font-weight:800; font-size:1.5rem; color:#16a34a;'>
                 {score}<span class='score-suffix'>/100</span>
             </div>
+            <div style='font-size:0.7rem; color:#64748b; font-weight:600;'>Risk-Adjusted Score</div>
         </div>
         <div class='{reco_class}'>{reco}<br><span>{desc}</span></div>
         <div class='metrics-grid'>
@@ -308,6 +302,7 @@ with col_multi:
 st.markdown('<div class="section-title">🧾 Explanation of Terms</div>', unsafe_allow_html=True)
 with st.expander("Show Detailed Definitions", expanded=False):
     st.markdown("""
+    * **Risk-Adjusted Score:** Composite score (0-100) combining growth, risk, and stability.
     * **Sharpe Ratio:** Measures risk-adjusted return. Higher is better (>1 is good, >2 is excellent).
     * **Sortino Ratio:** Similar to Sharpe, but only penalizes downside volatility. Better for assessing real loss risk.
     * **Volatility (Std Dev):** How much the stock price swings. Lower means more stable.

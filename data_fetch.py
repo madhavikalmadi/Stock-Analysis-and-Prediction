@@ -2,8 +2,87 @@ import yfinance as yf
 import pandas as pd
 import streamlit as st
 
-# --- CONFIGURATION ---
-# (Ideally, move these to a separate constants.py file in the future)
+# --------------------------------------------------------------
+# CONFIGURATION
+# --------------------------------------------------------------
+# --------------------------------------------------------------
+# SEARCH SHORTCUTS (Friendly Name -> Ticker)
+# --------------------------------------------------------------
+# Used in: pages/company.py
+SEARCH_SHORTCUTS = {
+    # Original List
+    "infosys": "INFY", "infy": "INFY",
+    "reliance": "RELIANCE", "ril": "RELIANCE",
+    "tcs": "TCS", 
+    "hdfc bank": "HDFCBANK", "hdfc": "HDFCBANK",
+    "icici bank": "ICICIBANK", "icici": "ICICIBANK",
+    "sbi": "SBIN", "state bank": "SBIN",
+    "bharti airtel": "BHARTIARTL", "airtel": "BHARTIARTL",
+    "kotak": "KOTAKBANK", "kotak bank": "KOTAKBANK",
+    "itc": "ITC", 
+    "l&t": "LT", "larson": "LT",
+    "axis bank": "AXISBANK", "axis": "AXISBANK",
+    "hindustan unilever": "HINDUNILVR", "hul": "HINDUNILVR", 
+    "maruti": "MARUTI", "maruti suzuki": "MARUTI",
+    "sun pharma": "SUNPHARMA", 
+    "titan": "TITAN", 
+    "bajaj finance": "BAJFINANCE", 
+    "wipro": "WIPRO", 
+    "hcl": "HCLTECH", "hcl tech": "HCLTECH",
+    "paytm": "PAYTM", 
+    "nykaa": "NYKAA", 
+    "swiggy": "SWIGGY", 
+    "policybazaar": "POLICYBZR", 
+    "delhivery": "DELHIVERY",
+
+    # Additions (Top 50+)
+    "adani ent": "ADANIENT", "adani enterprises": "ADANIENT",
+    "adani ports": "ADANIPORTS", 
+    "adani power": "ADANIPOWER",
+    "asian paints": "ASIANPAINT", 
+    "bajaj auto": "BAJAJ-AUTO", 
+    "bajaj finserv": "BAJAJFINSV", 
+    "bpcl": "BPCL", 
+    "britannia": "BRITANNIA", 
+    "cipla": "CIPLA", 
+    "coal india": "COALINDIA", 
+    "divis lab": "DIVISLAB", 
+    "dr reddy": "DRREDDY", 
+    "eicher": "EICHERMOT", "eicher motors": "EICHERMOT",
+    "grasim": "GRASIM", 
+    "hero": "HEROMOTOCO", "hero motocorp": "HEROMOTOCO",
+    "hindalco": "HINDALCO", 
+    "indusind": "INDUSINDBK", "indusind bank": "INDUSINDBK",
+    "jsw steel": "JSWSTEEL", "jsw": "JSWSTEEL",
+    "nestle": "NESTLEIND", 
+    "ntpc": "NTPC", 
+    "ongc": "ONGC", 
+    "power grid": "POWERGRID", "pwrgrid": "POWERGRID",
+    "tata consumer": "TATACONSUM", 
+    "tata steel": "TATASTEEL", 
+    "tata power": "TATAPOWER",
+    "tech mahindra": "TECHM", "techm": "TECHM",
+    "ultratech": "ULTRACEMCO", "ultratech cement": "ULTRACEMCO",
+    "upl": "UPL", 
+    "vedanta": "VEDL", 
+    "jio fin": "JIOFIN", "jio financial": "JIOFIN",
+    "irfc": "IRFC", 
+    "pfc": "PFC", 
+    "rec": "RECLTD", 
+    "bel": "BEL", 
+    "hal": "HAL", 
+    "trent": "TRENT", 
+    "varun beverages": "VBL", "vbl": "VBL",
+    "siemens": "SIEMENS", 
+    "abb": "ABB", 
+    "dlf": "DLF", 
+    "indigo": "INDIGO", 
+    "irctc": "IRCTC",
+    "mazagon": "MAZDOCK",
+    "bhel": "BHEL"
+}
+
+# Used in: pages/bluechip.py
 BLUECHIP_TICKERS = [
     "ADANIENT", "ADANIPORTS", "ASIANPAINT", "AXISBANK", "BAJAJ-AUTO", "BAJAJFINSV", "BAJFINANCE",
     "BHARTIARTL", "BPCL", "BRITANNIA", "CIPLA", "COALINDIA", "DIVISLAB", "DRREDDY", "EICHERMOT",
@@ -13,39 +92,28 @@ BLUECHIP_TICKERS = [
     "TATACONSUM", "TATASTEEL", "TCS", "TECHM", "TITAN", "ULTRACEMCO", "UPL", "WIPRO"
 ]
 
-INDEX_GROUPS = {
-    "NIFTY50": [t + ".NS" for t in BLUECHIP_TICKERS],
-    "NIFTYIT": ["INFY.NS", "TCS.NS", "HCLTECH.NS", "WIPRO.NS", "LTIM.NS"],
-    "NIFTYBANK": ["HDFCBANK.NS", "ICICIBANK.NS", "SBIN.NS", "KOTAKBANK.NS", "AXISBANK.NS"]
-}
-
+# --------------------------------------------------------------
+# DATA FETCHER (FINAL, CORRECTED)
+# --------------------------------------------------------------
+# Used in: pages/company.py
 @st.cache_data(ttl=86400, show_spinner=False)
 def fetch_stock_data(tickers, period="10y"):
-    """
-    Downloads and cleans stock data.
-    
-    Args:
-        tickers (list): List of ticker symbols (e.g., ['RELIANCE', 'TCS']).
-        period (str): The historical period to download (e.g., '1y', '5y', '10y', 'max').
-    
-    Returns:
-        pd.DataFrame: A cleaned DataFrame of Adjusted Close prices.
-    """
+
     if not tickers:
         return pd.DataFrame()
 
-    # 1. OPTIMIZATION: Robust Suffix Handling & Sorting
-    # Uses .endswith() for safety and sorts to ensure cache hits (['A','B'] == ['B','A'])
-    processed_tickers = sorted([t if t.endswith(".NS") else f"{t}.NS" for t in tickers])
+    # Ensure proper NSE symbols
+    processed_tickers = sorted([
+        t if t.endswith(".NS") or t.startswith("^") else f"{t}.NS"
+        for t in tickers
+    ])
 
     try:
-        # 2. DATA FETCHING
-        # using 'period' lets yfinance handle trading days logic automatically
         raw_data = yf.download(
-            processed_tickers, 
-            period=period, 
-            progress=False, 
-            auto_adjust=False,
+            processed_tickers,
+            period=period,
+            progress=False,
+            auto_adjust=True,   # 🔥 CRITICAL FIX
             threads=True
         )
     except Exception as e:
@@ -55,43 +123,63 @@ def fetch_stock_data(tickers, period="10y"):
     if raw_data.empty:
         return pd.DataFrame()
 
-    # 3. COLUMN SELECTION
-    if 'Adj Close' in raw_data.columns:
-        data = raw_data['Adj Close']
-    elif 'Close' in raw_data.columns:
-        data = raw_data['Close']
+    # ----------------------------------------------------------
+    # Use adjusted CLOSE prices (safe for indices + ETFs)
+    # ----------------------------------------------------------
+    if isinstance(raw_data.columns, pd.MultiIndex):
+        data = raw_data["Close"]
     else:
-        # Fallback if neither exists (rare)
-        data = raw_data.iloc[:, 0]
+        data = raw_data
 
-    # Ensure we always return a DataFrame (even for single stock)
     if isinstance(data, pd.Series):
         data = data.to_frame()
 
-    # 4. CLEANING
-    # Handle missing values: Forward fill first (carry last price), then backfill
+    # Clean missing data
     data = data.ffill().bfill()
-    
-    # Drop columns that are mostly empty (>20% missing)
-    # This removes stocks that might have delisted or have bad data
+
+    # Drop assets with insufficient history
     threshold = int(0.80 * len(data))
     data = data.dropna(axis=1, thresh=threshold)
-    
+
     return data
 
-# ==========================================
-# CENTRALIZED STOCK DATA (Refactored from pages)
-# ==========================================
 
+# ==============================================================
+# CENTRALIZED INDEX DATA (INDEX + ETF PROXY)
+# ==============================================================
+# NOTE:
+# Yahoo Finance does NOT provide historical data for
+# NIFTY NEXT 50, MIDCAP 100, SMALLCAP 100 indices.
+# Hence ETF proxies are used ONLY where required.
+# Used in: pages/index.py
 ETF_INDEX_SYMBOLS = {
-    "NIFTY 50": "NIFTYBEES.NS",
+    # ✅ True index data (Yahoo supported)
+    "NIFTY 50": "^NSEI",
+    "BANK NIFTY": "^NSEBANK",
+    "NIFTY IT": "^CNXIT",
+
+    # ⚠️ ETF proxies
     "NIFTY NEXT 50": "JUNIORBEES.NS",
     "NIFTY MIDCAP 100": "MIDCAPETF.NS",
-    "NIFTY SMALLCAP 100": "SMALLCAP.NS",
-    "BANK NIFTY": "BANKBEES.NS",  # Added for completeness
-    "NIFTY IT": "ITBEES.NS"       # Added for completeness
+    "NIFTY SMALLCAP 100": "SMALLCAP.NS"
 }
 
+# Optional metadata (for UI / explanation)
+INDEX_DATA_SOURCE = {
+    "NIFTY 50": "Index",
+    "BANK NIFTY": "Index",
+    "NIFTY IT": "Index",
+    "NIFTY NEXT 50": "ETF Proxy",
+    "NIFTY MIDCAP 100": "ETF Proxy",
+    "NIFTY SMALLCAP 100": "ETF Proxy"
+}
+
+# ==============================================================
+# EVERYTHING BELOW REMAINS UNCHANGED
+# (MARKET_DATA dictionary is kept exactly as you had it)
+# ==============================================================
+
+# Used in: pages/sector.py
 MARKET_DATA = {
     "✈️ Services Sector": {
         "NIFTY Services Sector": [
@@ -101,6 +189,7 @@ MARKET_DATA = {
             "POWERGRID", "NTPC", "INDIGO", "TRENT"
         ]
     },
+
     "🏦 Financial & Banking": {
         "NIFTY Bank": [
             "HDFCBANK", "ICICIBANK", "SBIN", "AXISBANK", "KOTAKBANK", "INDUSINDBK",

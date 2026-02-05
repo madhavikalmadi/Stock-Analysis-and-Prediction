@@ -17,10 +17,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CHECK AUTHENTICATION
-if not auth_utils.check_auth():
-    st.warning("You must log in to access this page.")
-    st.switch_page("login.py")
+# Auth check removed
+# if not auth_utils.check_auth():
+#     st.warning("You must log in to access this page.")
+#     st.switch_page("login.py")
 
 # =============================================================
 # HANDLE SUB-PAGE REDIRECTS (Persistence)
@@ -155,7 +155,7 @@ with col2:
     # CARD 1: COMPANY ADVISOR
     with card_c1:
         st.markdown(f"""
-        <a href="?page=company&session={session_token}" target="_self" style="text-decoration:none; color:inherit;">
+        <a href="company" target="_self" style="text-decoration:none; color:inherit;">
         <div class='glass-card'>
             <div class='card-content'>
                 <div class='card-icon'>🏢</div>
@@ -177,7 +177,7 @@ with col2:
     # CARD 2: INDEX ADVISOR
     with card_c2:
         st.markdown(f"""
-        <a href="?page=index&session={session_token}" target="_self" style="text-decoration:none; color:inherit;">
+        <a href="index" target="_self" style="text-decoration:none; color:inherit;">
         <div class='glass-card'>
             <div class='card-content'>
                 <div class='card-icon'>📈</div>

@@ -29,6 +29,13 @@ def rank_stocks(metrics_df):
     calc_df = metrics_df.copy()
 
     # Fill NaNs to avoid crashes during calculation
+    # FIX: Handle RecoveryDays NaNs separately (NaN means NOT recovered, so it should be penalized, not treated as 0)
+    if "RecoveryDays" in calc_df.columns:
+        max_recovery = calc_df["RecoveryDays"].max()
+        if pd.isna(max_recovery): max_recovery = 2520 # Default penalty if all are NaN
+        penalty_value = max_recovery * 1.5 
+        calc_df["RecoveryDays"] = calc_df["RecoveryDays"].fillna(penalty_value)
+
     calc_df = calc_df.select_dtypes(include=[np.number]).fillna(0)
 
     # 2. Normalize metrics 

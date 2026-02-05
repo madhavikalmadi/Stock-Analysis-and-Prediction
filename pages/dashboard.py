@@ -16,60 +16,37 @@ import itertools
 from datetime import datetime
 
 
-st.set_page_config(page_title="Stock App", layout="wide")
-
-# CHECK AUTHENTICATION
-if not auth_utils.check_auth():
-    st.warning("You must log in to access this page.")
-    st.switch_page("login.py")
-
-# =============================================================
-# !!! IMPORTANT FIX: Check URL for Navigation !!!
-# This block MUST be the first executable code after imports.
-# It resolves the StreamlitAPIException by using the correct path.
-# =============================================================
-if "page" in st.query_params:
-    page_name = st.query_params["page"]
-    if page_name == "profile":
-        # CORRECTED PATH: Must reference the pages/ directory
-        st.switch_page("pages/profile.py") 
-    elif page_name == "search":
-        st.switch_page("pages/search.py")
-    elif page_name == "beginner":
-        st.switch_page("pages/beginner.py")
-    elif page_name == "reinvestor":
-        st.switch_page("pages/reinvestor.py")
-    # Clean the query parameter to avoid infinite redirects on full app reload
-    st.query_params.clear()
-
+# st.set_page_config(page_title="Stock App", layout="wide") # Commented out duplicate config
 
 # --- IMPORT LOCAL MODULES ---
-try:
-    from theme_manager import get_theme, apply_theme
-except ImportError:
-    # Stubs for local modules to prevent ImportError
-    def get_theme(): return "light"
-    def apply_theme(t): pass
+# Theme logic removed
 
-# =============================================================
-# CONFIGURATION
-# =============================================================
-st.set_page_config(
-    page_title="Smart Investor Assistant",
-    page_icon="📈",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
-
-# Apply theme
-try:
-    theme = get_theme()
-    apply_theme(theme)
-except:
-    pass
 
 # =============================================================
 # WATCHLIST AND SEARCH INITIALIZATION
+# =============================================================
+# =============================================================
+# 🔐 RESTORE SESSION FROM URL (REFRESH SAFE)
+# =============================================================
+params = st.query_params
+
+if "user_id" in params and "username" in params:
+    st.session_state.user_id = params["user_id"]
+    st.session_state.username = params["username"]
+    st.session_state.authenticated = True
+
+# Sync back to URL if missing (allows refresh to work)
+user_id = st.session_state.get("user_id")
+username = st.session_state.get("username")
+
+if user_id and username:
+    q = st.query_params
+    if "user_id" not in q or "username" not in q:
+        st.query_params["user_id"] = user_id
+        st.query_params["username"] = username
+
+# =============================================================
+# SESSION STATE INIT
 # =============================================================
 if 'watchlist' not in st.session_state:
     st.session_state['watchlist'] = []
@@ -122,39 +99,48 @@ body, [data-testid="stAppViewContainer"] {
 [data-testid="stMarkdownContainer"] h6 a {
     display: none !important;
 }
+</style>
+""", unsafe_allow_html=True)
 
+# DYNAMIC THEME CSS
+# Fixed Light Mode Colors
+top_bar_bg = '#eff6ff'
+top_bar_text = '#1e3a8a'
+
+st.markdown(f"""
+<style>
 /* ==== CUSTOM FIXED HEADER BAR ==== */
-.custom-top-bar {
+.custom-top-bar {{
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     height: 70px; /* Taller header */
-    background: #eff6ff; /* Light Blue Color */
+    background: {top_bar_bg};
     box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
     display: flex;
     align-items: center; /* Ensures vertical centering */
     padding: 0 2rem; 
     z-index: 99990;
-}
-.custom-top-bar-title {
+}}
+.custom-top-bar-title {{
     font-weight: 800;
     font-size: 1.2rem;
-    color: #1e3a8a;
+    color: {top_bar_text};
     margin: 0 !important; 
-}
+}}
 
 /* Container for search and profile buttons */
-.nav-buttons-container {
+.nav-buttons-container {{
     margin-left: auto; /* Push buttons to the right */
     display: flex; 
     align-items: center;
     gap: 10px; /* Space between search and profile buttons */
     height: 100%; 
-}
+}}
 
 /* ===== SEARCH ICON STYLES (HTML Anchor) ===== */
-.search-btn-style {
+.search-btn-style {{
     background: none;
     color: #1e3a8a !important;
     padding: 0.5rem 0.8rem; 
@@ -166,15 +152,15 @@ body, [data-testid="stAppViewContainer"] {
     box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
     text-decoration: none !important; 
     display: inline-block; 
-}
-.search-btn-style:hover {
+}}
+.search-btn-style:hover {{
     background: #dbeafe; /* Very light blue background on hover */
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
-}
+}}
 
 /* ===== PROFILE BUTTON STYLES (PURE HTML ANCHOR STYLES) ===== */
-.profile-btn-style {
+.profile-btn-style {{
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white !important;
     padding: 0.5rem 1.2rem; 
@@ -188,24 +174,28 @@ body, [data-testid="stAppViewContainer"] {
     white-space: nowrap;
     /* animation: pulse 2s infinite; REMOVED */
     display: inline-block; 
-}
+}}
 
-.profile-btn-style:hover {
+.profile-btn-style:hover {{
     transform: translateY(-2px); 
     box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-}
+}}
 
 /* Main container (push content below custom bar) */
-.block-container {
-    padding-top: 6rem !important; /* Increased space for the taller header */
+.block-container {{
+    padding-top: 3.5rem !important; /* SIGNIFICANTLY REDUCED to 3.5rem */
     padding-bottom: 5rem !important;
     max-width: 1200px;
     position: relative;
     z-index: 1;
-}
+}}
+</style>
+""", unsafe_allow_html=True)
 
-
+# STATIC ANIMATION CSS (Must be separate to avoid f-string syntax errors with keyframes)
+st.markdown("""
+<style>
 /* ANIMATION KEYFRAMES (Keeping all existing animations) */
 @keyframes cloud-move {
     0% { transform: translate(0, 0); }
@@ -309,10 +299,12 @@ body, [data-testid="stAppViewContainer"] {
 
 /* Cards and Pathways styles (unchanged) */
 .glass-panel {
+    background: rgba(255, 255, 255, 0.95); /* Increased contrast */
     backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 1);
     border-radius: 20px;
     padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
     transition: all 0.4s ease;
     height: 100%;
     min-height: 300px;
@@ -343,13 +335,22 @@ body, [data-testid="stAppViewContainer"] {
 .card-desc { font-size: 0.95rem; line-height: 1.6; opacity: 0.8; }
 
 .path-card {
-    border-radius: 24px;
-    padding: 2.5rem;
-    position: relative;
-    transition: all 0.4s ease;
-    height: 100%;
-    overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.95); /* Nearly solid white for contrast */
+    border: 1px solid rgba(255, 255, 255, 1);
+    border-radius: 30px; 
+    padding: 3rem 2rem; 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1); 
+    text-align: center; 
+    height: 100%; 
+    min-height: 350px;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center;
+    position: relative; 
+    overflow: hidden; 
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); 
+    z-index: 2; 
     animation: slideUp 0.8s ease-out both; 
 }
 .p-left { animation-delay: 0.6s; } 
@@ -364,9 +365,11 @@ body, [data-testid="stAppViewContainer"] {
 }
 
 
-.path-card:hover {
-    transform: translateY(-5px); 
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+.path-card:hover { 
+    transform: translateY(-12px); 
+    background: rgba(255, 255, 255, 0.85); 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
+    border: 1px solid rgba(255, 255, 255, 1); 
 }
 .path-card::before {
     content: '';
@@ -449,10 +452,65 @@ div.stButton > button:hover {
 }
 .disclaimer-text {
     font-size: 0.75rem;
-    max-width: 800px;
+    max-width: 100%; /* Changed from 800px to ensure it fills the center aligned container */
     margin: 0 auto 1rem auto;
     line-height: 1.5;
     opacity: 0.7;
+    text-align: center; 
+}
+
+
+/* ============================================= */
+/* HEADER BUTTONS OVERLAY (Robust Selector)      */
+/* ============================================= */
+/* Hide the marker container */
+div.element-container:has(#header-ctl-marker) {
+    display: none;
+}
+
+/* Target the row containing the marker */
+div[data-testid="stHorizontalBlock"]:has(#header-ctl-marker) {
+    position: fixed;
+    top: 12px; /* Vertically aligned in the 70px header */
+    right: 2rem;
+    width: auto !important;
+    height: auto;
+    z-index: 999999;
+    background: transparent;
+    pointer-events: none; /* Allow clicks to pass through empty space */
+}
+
+div[data-testid="stHorizontalBlock"]:has(#header-ctl-marker) [data-testid="column"] {
+    width: auto !important;
+    flex: 0 0 auto !important;
+    min-width: 0;
+}
+
+div[data-testid="stHorizontalBlock"]:has(#header-ctl-marker) button {
+    pointer-events: auto;
+    margin: 0 !important;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 0.4rem 1rem !important;
+    font-weight: 600 !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+    transition: all 0.3s;
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+}
+div[data-testid="stHorizontalBlock"]:has(#header-ctl-marker) button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px rgba(37, 99, 235, 0.3);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    color: white !important;
+}
+div[data-testid="stHorizontalBlock"]:has(#header-ctl-marker) button p {
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -460,23 +518,34 @@ div.stButton > button:hover {
 # =============================================================
 # CUSTOM FIXED HEADER BAR (TITLE, SEARCH, AND PROFILE BUTTONS)
 # =============================================================
-# Retrieve session token for persistence
-session_token = st.query_params.get("session", "")
-
-# Reverted to HTML anchors with URL parameters for stable positioning and navigation fix
-st.markdown(f"""
+st.markdown("""
 <div class="custom-top-bar">
     <div class="custom-top-bar-title">Smart Investor Assistant</div>
-    <div class="nav-buttons-container">
-        <a href="?page=search&session={session_token}" target="_self" class="search-btn-style">
-            🔍
-        </a>
-        <a href="?page=profile&session={session_token}" target="_self" class="profile-btn-style">
-            👤 My Profile
-        </a>
-    </div>
 </div>
 """, unsafe_allow_html=True)
+
+# Buttons positioned by CSS to sit INSIDE the fixed header
+# The marker is placed inside the first column so the parent row can be targeted by :has()
+bh_col1, bh_col2 = st.columns([1, 1], gap="small")
+
+with bh_col1:
+    st.markdown('<span id="header-ctl-marker"></span>', unsafe_allow_html=True)
+    if st.button("🔍 Search", key="header_search_btn"):
+        # Pre-set params so Search page has them immediately
+        if "user_id" in st.session_state:
+            st.query_params["user_id"] = st.session_state.user_id
+        if "username" in st.session_state:
+            st.query_params["username"] = st.session_state.username
+        st.switch_page("pages/search.py")
+
+with bh_col2:
+    if st.button("👤 Profile", key="header_profile_btn"):
+        # Pre-set params so Profile page has them immediately
+        if "user_id" in st.session_state:
+            st.query_params["user_id"] = st.session_state.user_id
+        if "username" in st.session_state:
+            st.query_params["username"] = st.session_state.username
+        st.switch_page("pages/profile.py")
 
 
 # =============================================================
@@ -699,7 +768,7 @@ session_token = st.query_params.get("session", "")
 
 with col_path1:
     st.markdown(f"""
-    <a href="?page=beginner&session={session_token}" target="_self" style="text-decoration:none; color:inherit; display:block; height:100%;">
+    <a href="beginner" target="_self" style="text-decoration:none; color:inherit; display:block; height:100%;">
         <div class="path-card p-left">
             <div class="path-icon">🌱</div>
             <div class="path-title">Beginner</div>
@@ -720,7 +789,7 @@ with col_path1:
 
 with col_path2:
     st.markdown(f"""
-    <a href="?page=reinvestor&session={session_token}" target="_self" style="text-decoration:none; color:inherit; display:block; height:100%;">
+    <a href="reinvestor" target="_self" style="text-decoration:none; color:inherit; display:block; height:100%;">
         <div class="path-card p-right">
             <div class="path-icon">🔁</div>
             <div class="path-title">Reinvestor</div>

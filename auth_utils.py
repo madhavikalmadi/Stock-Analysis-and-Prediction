@@ -1,65 +1,80 @@
 import streamlit as st
-import base64
-
-def get_token(email):
-    """Generate a simple session token from the email."""
-    # In a production app, use use a secure, signed token (e.g., JWT).
-    # For now, base64 encoding serves as a simple persistence mechanism.
-    return base64.b64encode(email.encode()).decode()
-
-def verify_token(token):
-    """Decode the token back to an email."""
-    try:
-        return base64.b64decode(token.encode()).decode()
-    except:
-        return None
-
-def login_user(email):
-    """Log the user in and set the session persistence parameter."""
-    st.session_state.logged_in = True
-    st.session_state.user_email = email
-    
-    # Set the session token in the URL
-    token = get_token(email)
-    st.query_params["session"] = token
+from mongo_db import users_col
 
 def check_auth():
-    """
-    Check if the user is authenticated.
-    If not in session_state, check the URL query parameter and restore session if valid.
-    Returns True if authenticated, False otherwise.
-    """
-    # 1. Check active session
-    if st.session_state.get("logged_in"):
-        # Ensure URL persistence: If logged in but URL param missing, set it.
-        # This handles cases where switch_page might have cleared params.
-        if "session" not in st.query_params:
-            email = st.session_state.get("user_email")
-            if email:
-                token = get_token(email)
-                st.query_params["session"] = token
+    return st.session_state.get("authenticated", False)
+
+def login_user(username, password):
+    # Case-insensitive search
+    user = users_col.find_one({"username": {"$regex": f"^{username}$", "$options": "i"}})
+
+    if user and user["password"] == password:
+        st.session_state.authenticated = True
+        st.session_state.user_id = str(user["_id"])   # ✅ THIS IS THE FIX
+        st.session_state.username = user["username"]  # optional but useful
         return True
 
-    # 2. Check URL for session token (Persistence)
-    query_params = st.query_params
-    token = query_params.get("session")
-
-    if token:
-        email = verify_token(token)
-        if email:
-            # Restore session
-            st.session_state.logged_in = True
-            st.session_state.user_email = email
-            return True
-    
     return False
 
-def logout_user():
-    """Clear session state and query parameters."""
-    st.session_state.logged_in = False
-    if "user_email" in st.session_state:
-        del st.session_state["user_email"]
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+def send_welcome_email(user_email, username):
+    """Sends a welcome email to the new user."""
+    # Try to get secrets, gracefully fade if not set
+    try:
+        smtp_server = st.secrets["smtp"]["server"]
+        smtp_port = st.secrets["smtp"]["port"]
+        sender_email = st.secrets["smtp"]["email"]
+        sender_password = st.secrets["smtp"]["password"]
+    except Exception:
+        print("⚠️ SMTP Secrets not found. Mocking email send.")
+        return
+
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = user_email
+        msg['Subject'] = "Welcome to Smart Investor Assistant! 🚀"
+
+        body = f"""
+        Hi {username},
+
+        Welcome to Smart Investor Assistant! 
+        
+        Your account has been successfully created. We are excited to have you on board.
+        Start exploring the dashboard and manage your portfolio like a pro.
+
+        Best Regards,
+        The Smart Investor Team
+        """
+        msg.attach(MIMEText(body, 'plain'))
+
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+        
+        print(f"✅ Welcome email sent to {user_email}")
+    except Exception as e:
+        print(f"❌ Failed to send email: {e}")
+
+def signup_user(username, password, email, mobile):
+    # Check if user exists (case-insensitive)
+    if users_col.find_one({"username": {"$regex": f"^{username}$", "$options": "i"}}):
+        return False
+
+    users_col.insert_one({
+        "username": username, # Store as entered (preserves preference)
+        "password": password,
+        "email": email,
+        "mobile": mobile
+    })
     
-    # Remove session token specifically
-    if "session" in st.query_params:
-        del st.query_params["session"]
+    # Send Welcome Email (Non-blocking ideally, but simple here)
+    send_welcome_email(email, username)
+    return True
+
+def logout_user():
+    st.session_state.clear()

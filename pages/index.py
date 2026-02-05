@@ -1,23 +1,18 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
+import pandas as pd
+import os, sys
 
-# --- IMPORT OPTIMIZED MODULES ---
 import data_fetch
 import metric_calculator
-import scoring_system
 
-import sys
-import os
-
-# Add parent directory to allow imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import auth_utils
 
-# ==========================================
-# 1. PAGE CONFIGURATION
-# ==========================================
+
+# =====================================================
+# PAGE CONFIG
+# =====================================================
 st.set_page_config(
     page_title="Index Analyzer",
     page_icon="📊",
@@ -25,256 +20,190 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CHECK AUTHENTICATION
-if not auth_utils.check_auth():
-    st.warning("You must log in to access this page.")
-    st.switch_page("login.py")
-
-# ==========================================
-# 2. CSS STYLING
-# ==========================================
+# =====================================================
+# STYLES
+# =====================================================
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap');
-    [data-testid="stSidebar"] { display: none; }
+.stock-card {
+    background: white;
+    padding: 18px;
+    border-radius: 14px;
+    border-top: 5px solid #22c55e;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+.big { font-size: 2rem; font-weight: 800; color:#16a34a; }
+.small { color:#64748b; font-size:0.8rem; }
+.metric { font-weight:700; }
 
-    /* --- HIDE ANCHOR LINKS --- */
-    [data-testid="stHeaderActionElements"] { display: none !important; visibility: hidden !important; }
-    [data-testid="stHeaderAnchor"] { display: none !important; visibility: hidden !important; }
-    h1 > a, h2 > a, h3 > a, h4 > a, h5 > a, h6 > a { display: none !important; content: none !important; pointer-events: none; color: transparent !important; }
-
-    body, [data-testid="stAppViewContainer"] {
-        background: linear-gradient(120deg, #eef2f3 0%, #8e9eab 100%);
-        font-family: 'Outfit', sans-serif !important;
-    }
-
-    /* --- STOCK CARD STYLING --- */
-    .stock-card {
-        background-color: white;
-        padding: 20px;
-        border-radius: 12px;
-        border-top: 5px solid #4CAF50;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        margin-bottom: 20px;
-        height: 100%;
-        text-align: center;
-        transition: transform 0.2s;
-        animation: fadeInUp 0.6s ease-out;
-    }
-    .stock-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-
-    .card-header { font-size: 1.1rem; font-weight: 800; color: #333; margin-bottom: 5px; }
-    
-    .big-score { font-size: 2rem; font-weight: 800; color: #4CAF50; margin: 10px 0; }
-    .score-suffix { font-size: 0.6em; color: inherit; font-weight: 800; opacity: 0.9; }
-    .score-label { font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-
-    /* METRIC GRID */
-    .metrics-grid { 
-        display: grid; 
-        grid-template-columns: 1fr 1fr; 
-        gap: 10px; 
-        margin-top: 15px; 
-        padding-top: 15px;
-        border-top: 1px dashed #e2e8f0;
-    }
-    .metric-item { display: flex; flex-direction: column; }
-    .metric-label { font-size: 0.75rem; font-weight: 700; color: #64748b; }
-    .metric-val { font-size: 0.95rem; font-weight: 700; color: #1e293b; }
-
-    /* ANIMATIONS */
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0px); } }
-
-    /* BUTTON STYLING */
-    div.stButton > button {
-        width: 100%;
-        border-radius: 12px;
-        padding: 10px;
-        font-weight: 600;
-        background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%);
-        color: white;
-        border: none;
-        transition: transform 0.1s;
-    }
-    div.stButton > button:active { transform: scale(0.95); }
-    
-    /* SECTION TITLE */
-    .section-title { 
-        font-size: 1.2em; 
-        font-weight: bold; 
-        color: #333; 
-        margin-top: 30px; 
-        margin-bottom: 10px; 
-        border-bottom: 2px solid #ddd; 
-        padding-bottom: 5px; 
-        animation: fadeInUp 1s ease-out; 
-    }
+div.stButton > button {
+    padding: 0.4rem 1rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 50px !important;
+    background: rgba(24, 40, 72, 0.85) !important;
+    color: white !important;
+    white-space: nowrap !important;
+}
+div.stButton > button:hover {
+    background: #2563eb !important;
+    transform: translateY(-2px);
+}
 </style>
 """, unsafe_allow_html=True)
 
-# ==========================================
-# 3. CONFIG & DATA MAPS
-# ==========================================
-# ==========================================
-# 3. CONFIG & DATA MAPS
-# ==========================================
-# Imported from centralized data_fetch module
-ETF_INDEX_SYMBOLS = data_fetch.ETF_INDEX_SYMBOLS
 
-# Reverse mapping to find "NIFTY 50" from "NIFTYBEES.NS" later
-TICKER_TO_NAME = {v: k for k, v in ETF_INDEX_SYMBOLS.items()}
+# =====================================================
+# TITLE
+# =====================================================
+st.title("🏆 Market Leaderboard")
+st.write("### 10-Year Risk-Adjusted Index Performance (Academic Analysis)")
 
-# ==========================================
-# 4. MAIN UI & LOGIC
-# ==========================================
-st.markdown("<h1 style='text-align:center;'>📊 Index Fund Analyzer</h1>", unsafe_allow_html=True)
-st.write("---")
 
-st.markdown("### 🔍 Check Your Investment First")
-
-user_choice = st.selectbox(
-    "Select Your Index:",
-    ["Select..."] + list(ETF_INDEX_SYMBOLS.keys())
+# =====================================================
+# DROPDOWN
+# =====================================================
+choice = st.selectbox(
+    "Select Index",
+    ["Select..."] + list(data_fetch.ETF_INDEX_SYMBOLS.keys())
 )
 
-analyze = st.button("🚀 Compare Performance")
+selected_indices = list(data_fetch.ETF_INDEX_SYMBOLS.keys())
 
-if analyze:
-    if user_choice == "Select...":
-        st.warning("Please select an index first.")
-        st.stop()
 
-    # --- STEP 1: CALCULATIONS (Hidden behind spinner) ---
-    with st.spinner("🔄 Analyzing 10-Year Market Data..."):
-        # 1. Fetch All Data in One Batch
-        tickers = list(ETF_INDEX_SYMBOLS.values())
-        raw_data = data_fetch.fetch_stock_data(tickers)
-        
-        if raw_data.empty:
-            st.error("Could not fetch market data. Please check connection.")
+# =====================================================
+# HELPERS
+# =====================================================
+def normalize(series: pd.Series) -> pd.Series:
+    series = series.clip(
+        lower=series.quantile(0.05),
+        upper=series.quantile(0.95)
+    )
+    return (series - series.min()) / (series.max() - series.min())
+
+
+# =====================================================
+# ANALYZE
+# =====================================================
+if st.button("🚀 Analyze Market Indices"):
+
+    with st.spinner("Calculating 10-year risk-adjusted performance..."):
+
+        tickers = [
+            data_fetch.ETF_INDEX_SYMBOLS[name]
+            for name in selected_indices
+        ]
+
+        price_data = data_fetch.fetch_stock_data(tickers, period="10y")
+
+        if price_data.empty:
+            st.error("Unable to fetch data.")
             st.stop()
-            
-        # 2. Compute Metrics (Vectorized)
-        # Using NIFTYBEES as the benchmark for Beta
-        metrics_df = metric_calculator.compute_metrics(raw_data, "NIFTYBEES.NS")
-        
-        # 3. Score Indices
-        ranked_df = scoring_system.rank_stocks(metrics_df)
-        
-        # 4. Map Tickers back to Readable Names
-        ranked_df['Index Name'] = ranked_df['Ticker'].map(TICKER_TO_NAME)
-        
-        # Get the Winner
-        best = ranked_df.iloc[0]
 
-    # --- STEP 2: RENDER UI (Instant) ---
-    
-    st.write("---")
-    st.markdown("### 🏆 Market Leaderboard (10-Year Score)")
+        metrics = metric_calculator.compute_metrics(
+            price_data,
+            market_ticker="^NSEI",
+            risk_free_rate=0.06
+        )
 
-    # --- GRID DISPLAY ---
-    cols = st.columns(len(ranked_df))
-    
-    for i, (idx, row) in enumerate(ranked_df.iterrows()):
-        index_name = row.get('Index Name', row['Ticker'])
-        score = row.get('FinalScore', 0) * 100
-        
+        ranked = metrics.copy()
+
+        ranked["CAGR_S"]   = normalize(ranked["CAGR"])
+        ranked["Sharpe_S"] = normalize(ranked["Sharpe"])
+        ranked["Vol_S"]    = 1 - normalize(ranked["Volatility"])
+        ranked["DD_S"]     = 1 - normalize(abs(ranked["MaxDrawdown"]))
+
+        ranked["Score"] = (
+            0.35 * ranked["CAGR_S"] +
+            0.25 * ranked["Sharpe_S"] +
+            0.20 * ranked["Vol_S"] +
+            0.20 * ranked["DD_S"]
+        ) * 100
+
+        ranked = ranked.sort_values("Score", ascending=False).reset_index(drop=True)
+
+        name_map = {v: k for k, v in data_fetch.ETF_INDEX_SYMBOLS.items()}
+        ranked["Name"] = ranked["Ticker"].map(name_map)
+
+    # =====================================================
+    # RESULT CARDS
+    # =====================================================
+    cols = st.columns(len(ranked))
+
+    for i, row in ranked.iterrows():
         with cols[i]:
-            delay = i * 0.1
-            rank_label = f"#{i+1}"
-            if i == 0: rank_label = "🥇 Winner"
-            
-            # Highlight user's choice
-            highlight_style = "border: 2px solid #2563eb;" if index_name == user_choice else ""
-
-            # HTML Card construction
-            html = f"""<div class="stock-card" style="animation-delay: {delay}s; {highlight_style}">"""
-            html += f"""<div class="card-header">{rank_label} {index_name}</div>"""
-            html += f"""<div class="big-score">{score:.1f}<span class="score-suffix">/100</span></div>"""
-            html += f"""<div class="score-label">Decision Score</div>"""
-            html += f"""<div class="metrics-grid">"""
-            html += f"""<div class="metric-item"><span class="metric-label">CAGR</span><span class="metric-val">{row['CAGR']*100:.1f}%</span></div>"""
-            html += f"""<div class="metric-item"><span class="metric-label">Max DD</span><span class="metric-val" style="color:#ef4444;">{row['MaxDrawdown']*100:.1f}%</span></div>"""
-            html += f"""<div class="metric-item"><span class="metric-label">Sharpe</span><span class="metric-val">{row['Sharpe']:.2f}</span></div>"""
-            html += f"""<div class="metric-item"><span class="metric-label">Vol</span><span class="metric-val">{row['Volatility']*100:.1f}%</span></div>"""
-            html += f"""</div></div>"""
-            
-            st.markdown(html, unsafe_allow_html=True)
-
-    st.write("---")
-    st.markdown("### 📌 Your Index Result")
-
-    # Find User Selection in Results
-    user_row = ranked_df[ranked_df["Index Name"] == user_choice]
-
-    if not user_row.empty:
-        user_row = user_row.iloc[0]
-        user_score = user_row.get('FinalScore', 0) * 100
-        best_score = best.get('FinalScore', 0) * 100
-
-        if user_choice == best['Index Name']:
-            st.success(f"🎉 You selected **{user_choice}**, the BEST performing index!")
-            st.balloons()
-        else:
-            diff = best_score - user_score
-            st.warning(f"⚠️ **{user_choice}** performs lower than **{best['Index Name']}**.")
+            label = "🥇 Winner" if i == 0 else f"#{i+1}"
 
             st.markdown(f"""
-            **Comparison:**
-            - Your Score: **{user_score:.1f}/100**
-            - Winner Score: **{best_score:.1f}/100**
-            - Gap: **{diff:.1f} points**
+            <div class="stock-card">
+                <div><b>{label}</b></div>
+                <div><b>{row['Name']}</b></div>
+                <div class="big">{row['Score']:.1f}/100</div>
+                <div class="small">Risk-Adjusted Score</div>
+                <hr>
+                <div class="metric">CAGR: {row['CAGR']*100:.2f}%</div>
+                <div class="metric">Sharpe: {row['Sharpe']:.2f}</div>
+                <div class="metric">Volatility: {row['Volatility']*100:.1f}%</div>
+                <div class="metric">Max DD: {row['MaxDrawdown']*100:.1f}%</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-            **Recommendation:** 👉 Consider switching to **{best['Index Name']}** for superior long-term results.
-            """)
-    else:
-        st.error(f"Could not calculate metrics for {user_choice}. Data might be missing.")
+    # =====================================================
+    # 📌 REASON / GUIDANCE MESSAGE
+    # =====================================================
+    st.markdown("---")
 
-# ==========================================
-# 5. EXPLANATION OF TERMS
-# ==========================================
-st.markdown('<div class="section-title">🧾 Explanation of Terms</div>', unsafe_allow_html=True)
-with st.expander("Show Detailed Definitions", expanded=False):
-    st.markdown("""
-    * **NIFTY 50:** Benchmark index of NSE, representing top 50 largest Indian companies.
-    * **SENSEX:** Benchmark index of BSE, 30 established companies.
-    * **Sector Rotation:** Strategy of shifting capital between sectors (e.g., Bank -> IT) based on economic cycles.
-    * **Correlation:** How closely two indices move together. High correlation means they offer less diversification.
-    * **YTD (Year to Date):** Return on investment from the start of the current year to today.
-    """)
+    top_row = ranked.iloc[0]
+    top_index = top_row["Name"]
 
-# ==========================================
-# 6. NAVIGATION (FOOTER)
-# ==========================================
-st.write(""); st.write("---"); st.write("")
+    if choice != "Select...":
+        selected_row = ranked[ranked["Name"] == choice].iloc[0]
 
-# Inject specific CSS for the footer buttons
-st.markdown("""
-<style>
-div.stButton:last-of-type > button {
-    padding: 0.4rem 1rem !important; 
-    font-size: 0.8rem !important; 
-    border-radius: 50px !important;
-    background: rgba(24, 40, 72, 0.8) !important; 
-    box-shadow: none !important; 
-    width: auto !important; 
-    margin: 0 auto;
-    white-space: nowrap !important;
-    color: white !important;
-}
-div.stButton:last-of-type > button:hover { 
-    background: #2563eb !important; 
-    transform: translateY(-2px); 
-}
-</style>
-""", unsafe_allow_html=True)
+        if choice == top_index:
+            st.success(
+                f"✅ **{top_index}** ranks highest based on 10-year "
+                f"risk-adjusted performance, making it the most optimal "
+                f"index for long-term academic comparison."
+            )
+        else:
+            st.info(
+                f"ℹ️ You selected **{choice}**, however **{top_index}** "
+                f"outperforms it on key metrics.\n\n"
+                f"**Reason to switch:**\n"
+                f"- Higher CAGR ({top_row['CAGR']*100:.1f}% vs {selected_row['CAGR']*100:.1f}%)\n"
+                f"- Better Sharpe Ratio ({top_row['Sharpe']:.2f} vs {selected_row['Sharpe']:.2f})\n"
+                f"- Lower volatility and drawdowns\n\n"
+                f"📌 *Hence, **{top_index}** offers a superior risk–return "
+                f"trade-off over the last decade.*"
+            )
 
-# Footer Layout
-c_back, _, c_dash = st.columns([1, 4, 1])
+    # =====================================================
+    # 🧾 EXPLANATION OF TERMS (DROPDOWN)
+    # =====================================================
+    st.markdown('<div class="section-title">🧾 Explanation of Terms</div>', unsafe_allow_html=True)
+    with st.expander("Show Detailed Definitions", expanded=False):
+        st.markdown("""
+        * **Risk-Adjusted Score:** A composite score (0–100) combining return and risk metrics.
+        * **CAGR (Compound Annual Growth Rate):** Average annual growth of the index over the last 10 years.
+        * **Sharpe Ratio:** Measures return earned per unit of risk. Higher is better.
+        * **Volatility:** Indicates fluctuations in index returns. Lower implies stability.
+        * **Maximum Drawdown:** Largest observed loss from peak, indicating downside risk.
+        """)
+
+
+# =====================================================
+# 🔻 BOTTOM NAVIGATION (VISIBLE FROM START)
+# =====================================================
+st.write("")
+st.markdown("---")
+st.write("")
+
+c_back, _, c_dash = st.columns([1, 6, 1])
+
 with c_back:
-    if st.button("⬅ Back to Menu"):
+    if st.button("⬅ Back to Menu", key="btn_index_back"):
         st.switch_page("pages/reinvestor.py")
 
 with c_dash:
-    if st.button("⬅ Dashboard", key="btn_home_nav"):
+    if st.button("⬅ Dashboard", key="btn_index_dashboard"):
         st.switch_page("pages/dashboard.py")

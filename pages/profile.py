@@ -1,208 +1,246 @@
 import streamlit as st
-import sys
-import os
+from mongo_db import watchlist_col
+from bson import ObjectId
+from theme_manager import get_theme # Keeping get_theme but unused or just remove imports entirely if careful
+# Removing apply_theme and render_theme_toggle logic entirely
 
-# Add parent directory to allow imports
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import auth_utils
-
-# --- PAGE CONFIG ---
+# --------------------------------------------------
+# PAGE CONFIG
+# --------------------------------------------------
 st.set_page_config(
-    page_title="User Profile",
+    page_title="My Profile",
     page_icon="👤",
     layout="wide"
 )
 
-# CHECK AUTHENTICATION
-if not auth_utils.check_auth():
-    st.warning("You must log in to access this page.")
-    st.switch_page("login.py")
+# --------------------------------------------------
+# 🔐 RESTORE SESSION FROM URL (REFRESH SAFE)
+# --------------------------------------------------
+params = st.query_params
+if "user_id" in params and "username" in params:
+    st.session_state.user_id = params["user_id"]
+    st.session_state.username = params["username"]
 
-# =============================================================
-# SESSION STATE
-# =============================================================
-if "watchlist" not in st.session_state:
-    st.session_state["watchlist"] = []
+# --------------------------------------------------
+# SESSION DATA
+# --------------------------------------------------
+user_id = st.session_state.get("user_id")
+username = st.session_state.get("username")
 
-# =============================================================
-# CUSTOM CSS (UNCHANGED + WHITE DASHBOARD BUTTON)
-# =============================================================
-st.markdown("""
+# --------------------------------------------------
+# SYNC SESSION BACK TO URL
+# --------------------------------------------------
+if user_id and username:
+    st.query_params["user_id"] = user_id
+    st.query_params["username"] = username
+
+# --------------------------------------------------
+# CSS STYLING
+# --------------------------------------------------
+# Static Light Mode Colors
+card_bg = "rgba(255,255,255,0.75)"
+card_text = "#1e293b"
+sub_text = "rgba(0,0,0,0.6)"
+
+st.markdown(f"""
 <style>
-/* Hide default Streamlit elements */
-[data-testid="stSidebar"],
-.stAppDeployButton,
-[data-testid="stToolbar"],
-[data-testid="stDecoration"] {
-    display: none !important;
-}
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap');
-body {
-    font-family: 'Outfit', sans-serif !important;
-}
+body, [data-testid="stAppViewContainer"] {{
+    font-family: 'Outfit', sans-serif;
+}}
+/* ... (CSS continues) ... */
 
-/* Reduce top spacing */
-/* Reduce top spacing */
-.block-container {
-    padding-top: 2rem !important;
-    padding-bottom: 2rem !important;
-}
 
-/* Profile card */
-.profile-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+/* ---------- LEFT PROFILE BOX ---------- */
+/* ---------- LEFT PROFILE BOX (TARGETING COLUMN 1) ---------- */
+/* ---------- LEFT PROFILE BOX (TARGETING CONTAINER) ---------- */
+[data-testid="column"]:nth-of-type(1) [data-testid="stVerticalBlockBorderWrapper"] {{
+    background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05)) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12) !important;
+    border-radius: 20px !important;
+    padding: 2rem !important;
+    backdrop-filter: blur(14px) !important;
+}}
+/* Center content inside the container */
+[data-testid="column"]:nth-of-type(1) [data-testid="stVerticalBlockBorderWrapper"] > div {{
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+}}
+
+.profile-avatar {{
+    font-size: 4rem;
+    background: linear-gradient(135deg, #3b82f6, #9333ea);
+    color: white;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem auto;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}}
+
+.profile-name {{
+    font-size: 1.5rem;
+    font-weight: 800;
+}}
+
+.profile-sub {{
+    opacity: 0.75;
+    margin-bottom: 1.2rem;
+}}
+
+/* ---------- RIGHT SIDE ---------- */
+.section-title {{
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}}
+
+.watchlist-card {{
+    background: {card_bg};
+    backdrop-filter: blur(16px);
+    border-radius: 18px;
+    padding: 1.6rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
     text-align: center;
     margin-bottom: 20px;
-    border-top: 5px solid #2563eb;
-}
+    color: {card_text};
+}}
 
-.profile-pic {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-}
+.watchlist-card:hover {{
+    transform: translateY(-6px);
+    box-shadow: 0 18px 45px rgba(59,130,246,0.25);
+}}
 
-.user-name {
+.stock-ticker {{
     font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e293b;
-}
+    font-weight: 800;
+}}
 
-.user-tag {
-    background: #dbeafe;
-    color: #2563eb;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
+.stock-sub {{
+    font-size: 0.85rem;
+    opacity: 0.7;
+    color: {sub_text} !important;
+}}
 
-/* Buttons */
+.empty-box {{
+    text-align: center;
+    padding: 3rem;
+    border-radius: 22px;
+    background: {card_bg};
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+    color: {card_text};
+}}
+</style>
+""", unsafe_allow_html=True)
+
+# --------------------------------------------------
+# FETCH WATCHLIST
+# --------------------------------------------------
+# --------------------------------------------------
+# FETCH WATCHLIST
+# --------------------------------------------------
+import pymongo
+watchlist = []
+if user_id:
+    try:
+        watchlist = list(watchlist_col.find({"user_id": user_id}))
+    except pymongo.errors.ServerSelectionTimeoutError:
+        st.error("⚠️ Connection Error: Unable to connect to the database. Please check your internet connection or try again later.")
+        watchlist = [] # Fallback to empty
+    except Exception as e:
+        st.error(f"⚠️ An error occurred: {e}")
+        watchlist = []
+
+# --------------------------------------------------
+# LAYOUT
+# --------------------------------------------------
+c_sidebar, c_content = st.columns([1.1, 3])
+
+# ---------- LEFT COLUMN ----------
+with c_sidebar:
+    # Use native container for robust boxing
+    with st.container(border=True):
+        st.markdown('<div class="profile-avatar">👤</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="profile-name">{username or "User"}</div>', unsafe_allow_html=True)
+        st.markdown('<div class="profile-sub">Smart Investor Assistant</div>', unsafe_allow_html=True)
+
+        # JOIN DATE
+        join_date = "Unknown"
+        try:
+            join_date = ObjectId(user_id).generation_time.strftime("%b %Y")
+        except:
+            pass
+
+        st.markdown(f"<p style='opacity:0.75;'>📅 Member since: <b>{join_date}</b></p>", unsafe_allow_html=True)
+
+        st.divider()
+
+        # THEME TOGGLE REMOVED
+
+        if st.button("🚪 Logout"):
+            st.session_state.clear()
+            st.query_params.clear()
+            st.switch_page("login.py")
+
+# ---------- RIGHT COLUMN ----------
+with c_content:
+    st.markdown("<div class='section-title'>⭐ My Watchlist</div>", unsafe_allow_html=True)
+
+    if not watchlist:
+        st.markdown("""
+        <div class="empty-box">
+            <h3>📭 No watchlist items</h3>
+            <p>Add stocks to see them here.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        cols = st.columns(3)
+        for idx, item in enumerate(watchlist):
+            with cols[idx % 3]:
+                st.markdown(f"""
+                <div class="watchlist-card">
+                    <div class="stock-ticker">{item['ticker']}</div>
+                    <div class="stock-sub">Saved Stock</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+# --------------------------------------------------
+# FOOTER & NAVIGATION
+# --------------------------------------------------
+st.markdown("""
+<style>
+div.stButton {
+    text-align: center !important;
+    display: flex !important;
+    justify-content: center !important;
+}
 div.stButton > button {
-    width: 100%;
-    border-radius: 8px;
-    font-weight: 600;
-}
-
-/* Clear button */
-.stClearButton > button {
-    width: auto !important;
-    background: #ef4444 !important;
-    color: white !important;
-    padding: 0.5rem 1rem;
-    margin-top: 1rem;
-    font-size: 0.9rem;
-    border: none;
-    transition: all 0.3s;
-}
-
-.stClearButton > button:hover {
-    background: #dc2626 !important;
-    transform: translateY(-1px);
-}
-
-/* ================================
-   WHITE DASHBOARD BUTTON (SAME STYLE)
-   ================================ */
-div.stButton:last-of-type > button {
     padding: 0.4rem 1rem !important;
     font-size: 0.8rem !important;
     border-radius: 50px !important;
-
-    background: #ffffff !important;
-    color: #1e293b !important;
-    border: 1px solid #e5e7eb !important;
-
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
-    width: auto !important;
-    margin: 0 auto;
-    white-space: nowrap !important;
+    background: rgba(24, 40, 72, 0.8) !important;
+    color: white !important;
+    border: none !important;
 }
-
-div.stButton:last-of-type > button:hover {
-    background: #f8fafc !important;
+div.stButton > button * {
+    color: white !important;
+}
+div.stButton > button:hover {
+    background: #2563eb !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.12) !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# =============================================================
-# PAGE TITLE
-# =============================================================
-st.markdown(
-    "<h1 style='text-align:center; margin-bottom:30px;'>👤 User Profile</h1>",
-    unsafe_allow_html=True
-)
+if st.button("⬅ Back to Dashboard"):
+    st.switch_page("pages/dashboard.py")
 
-# =============================================================
-# PROFILE LAYOUT
-# =============================================================
-col_left, col_right = st.columns([1, 2])
-
-with col_left:
-    st.markdown("""
-    <div class="profile-card">
-        <div class="profile-pic">👨‍💻</div>
-        <div class="user-name">Guest User</div>
-        <span class="user-tag">Beginner Investor</span>
-        <hr style="margin:20px 0; opacity:0.2;">
-        <p style="font-size:0.9rem; color:#64748b;">Member since: Dec 2025</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    with st.expander("⚙️ Account Settings"):
-        st.checkbox("Dark Mode (Coming Soon)", disabled=True)
-        st.checkbox("Email Notifications", value=True)
-        if st.button("Log Out"):
-            st.toast("Logged out successfully!")
-
-with col_right:
-    st.subheader("📊 My Activity")
-
-    tab1, tab2 = st.tabs(["Recent Views", "Saved Stocks"])
-
-    with tab1:
-        st.info("You recently viewed: **TATA MOTORS**, **RELIANCE**, **HDFCBANK**")
-
-    with tab2:
-        watchlist = st.session_state.watchlist
-        count = len(watchlist)
-
-        st.success(f"You have **{count}** saved stocks in your watchlist.")
-
-        if count > 0:
-            st.write("---")
-            st.markdown(f"**Your Watchlist ({count} items):**")
-            st.markdown("\n".join([f"* **{stock}**" for stock in watchlist]))
-
-            if st.button("🗑️ Clear Watchlist", key="clear_wl"):
-                st.session_state.watchlist = []
-                st.toast("Watchlist cleared!")
-                st.rerun()
-        else:
-            st.markdown("*Start exploring stocks to add them here!*")
-
-# =============================================================
-# DASHBOARD NAVIGATION (SAME PLACE, WHITE)
-# =============================================================
-st.write("")
 st.write("---")
-
-c1, c2, c3 = st.columns([5, 2, 5])
-with c2:
-    if st.button("⬅ Dashboard", key="btn_home_nav"):
-        st.switch_page("pages/dashboard.py")
-
-# =============================================================
-# FOOTER
-# =============================================================
-st.markdown(
-    "<div style='text-align:center; color:#94a3b8; font-size:0.8rem;'>"
-    "Smart Investor Assistant • v2.0"
-    "</div>",
-    unsafe_allow_html=True
-)
+st.markdown("<center style='opacity:0.6;'>Smart Investor Assistant</center>", unsafe_allow_html=True)

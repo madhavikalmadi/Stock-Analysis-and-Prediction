@@ -1,160 +1,121 @@
 import streamlit as st
-from db import execute  # Imports your database connection logic
-from sqlalchemy.exc import SQLAlchemyError
+import pandas as pd
+from bson import ObjectId
 
-# --- PAGE CONFIG ---
-st.set_page_config(page_title="Admin Panel", layout="centered")
-# from login import login (Removed)
+from mongo_db import users_col, watchlist_col, actions_col
 
-# if not login(): (Removed)
-#     st.stop()
+st.set_page_config(page_title="Admin Dashboard", layout="wide")
+# =====================================================
+# BACK TO LOGIN BUTTON
+# =====================================================
+col1, col2 = st.columns([8, 2])
 
-# --- SESSION STATE ---
-if "admin_logged_in" not in st.session_state:
-    st.session_state.admin_logged_in = False
-
-# --- NEO-BRUTALIST CSS ---
-st.markdown("""
-<style>
-/* Global background */
-[data-testid="stAppViewContainer"] {
-    background-color: #f2f2f2 !important;
-}
-
-/* Hide default Streamlit UI */
-#MainMenu, footer, header { visibility: hidden; }
-
-/* Main Admin Card */
-.admin-card {
-    width: 720px;
-    background: white;
-    border: 3px solid black;
-    box-shadow: 10px 10px 0 black;
-    padding: 40px;
-    margin: 80px auto 40px auto;
-}
-
-/* Typography */
-h1 {
-    text-align: center;
-    letter-spacing: 2px;
-    font-weight: 800;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-}
-
-.sub {
-    text-align: center;
-    font-size: 14px;
-    font-weight: 600;
-    color: #666;
-    margin-bottom: 25px;
-    text-transform: uppercase;
-}
-
-/* Form Elements */
-.stTextInput label {
-    font-weight: 700 !important;
-    text-transform: uppercase;
-}
-
-.stTextInput input {
-    background: #f5f5f5 !important;
-    border: 2px solid black !important;
-    border-radius: 0 !important;
-}
-
-/* Buttons */
-div.stButton > button {
-    width: 100%;
-    background: black !important;
-    color: white !important;
-    border: 2px solid black !important;
-    border-radius: 0 !important;
-    font-weight: 700 !important;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 10px 25px !important;
-}
-
-div.stButton > button:hover {
-    background: #FFDE59 !important;
-    color: black !important;
-    box-shadow: 4px 4px 0 black;
-}
-
-/* Table styling */
-table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-}
-
-thead th {
-    background: black;
-    color: white;
-    padding: 8px;
-    border: 2px solid black;
-}
-
-tbody td {
-    padding: 8px;
-    border: 2px solid black;
-    text-align: center;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# --- CARD WRAPPER START ---
-st.markdown('<div class="admin-card">', unsafe_allow_html=True)
-
-# --- LOGIC FLOW ---
-
-if not st.session_state.admin_logged_in:
-    # -------------------------
-    # ADMIN LOGIN SCREEN
-    # -------------------------
-    st.markdown("<h1>ADMIN</h1>", unsafe_allow_html=True)
-    st.markdown("<div class='sub'>SYSTEM CONTROL PANEL</div>", unsafe_allow_html=True)
-
-    user = st.text_input("ADMIN USER", placeholder="Username")
-    password = st.text_input("ADMIN PASSWORD", type="password", placeholder="••••••••")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    if st.button("LOGIN"):
-        if user == "madhuuu" and password == "1203":
-            st.session_state.admin_logged_in = True
-            st.rerun()
-        else:
-            st.error("Invalid Admin Credentials")
-
-    if st.button("← BACK TO LOGIN"):
+with col2:
+    if st.button("⬅ Back to Login"):
+        st.session_state.clear()
         st.switch_page("login.py")
 
+# Admin auth check removed by user request
+# if not st.session_state.get("is_admin"):
+#     st.error("Admin access only")
+#     st.stop()
+
+st.title("🛠 Admin Dashboard")
+
+# =====================================================
+# REGISTERED USERS
+# =====================================================
+st.subheader("👤 Registered Users")
+
+users = list(users_col.find({}, {"username": 1, "email": 1, "mobile": 1, "password": 1}))
+if users:
+    df_users = pd.DataFrame([
+        {
+            "User ID": str(u["_id"]), 
+            "Username": u["username"],
+            "Email": u.get("email", "N/A"),
+            "Mobile": u.get("mobile", "N/A"),
+            "Password": u.get("password", "****") # Show actual password as requested by user
+        }
+        for u in users
+    ])
+    st.dataframe(df_users, use_container_width=True)
 else:
-    # -------------------------
-    # ADMIN DASHBOARD CONTENT
-    # -------------------------
-    st.markdown("<h1>DASHBOARD</h1>", unsafe_allow_html=True)
-    st.markdown("<div class='sub'>REGISTERED USER DETAILS</div>", unsafe_allow_html=True)
+    st.info("No users found")
 
-    try:
-        users = execute("SELECT id, name, email FROM users ORDER BY id DESC", fetchall=True)
+st.divider()
 
-        if users:
-            st.write("### User List")
-            st.table(users)
-        else:
-            st.info("The database is currently empty.")
+# =====================================================
+# WATCHLIST (USER → STOCK)
+# =====================================================
+st.subheader("⭐ Watchlist (User → Stock)")
 
-    except Exception as e:
-        st.error(f"Error connecting to Database: {e}")
+watchlist_pipeline = [
+    {
+        "$addFields": {
+            "user_obj_id": { "$toObjectId": "$user_id" }
+        }
+    },
+    {
+        "$lookup": {
+            "from": "users",
+            "localField": "user_obj_id",
+            "foreignField": "_id",
+            "as": "user"
+        }
+    },
+    { "$unwind": "$user" },
+    {
+        "$project": {
+            "_id": 0,
+            "username": "$user.username",
+            "ticker": 1
+        }
+    }
+]
 
-    st.markdown("<br>", unsafe_allow_html=True)
+watchlist_data = list(watchlist_col.aggregate(watchlist_pipeline))
 
-    if st.button("LOGOUT"):
-        st.session_state.admin_logged_in = False
-        st.rerun()
+if watchlist_data:
+    st.dataframe(pd.DataFrame(watchlist_data), use_container_width=True)
+else:
+    st.info("No watchlist data found.")
 
-# --- CARD WRAPPER END ---
-st.markdown('</div>', unsafe_allow_html=True)
+st.divider()
+
+# =====================================================
+# USER ACTIVITY
+# =====================================================
+st.subheader("🔍 User Activity")
+
+activity_pipeline = [
+    {
+        "$addFields": {
+            "user_obj_id": { "$toObjectId": "$user_id" }
+        }
+    },
+    {
+        "$lookup": {
+            "from": "users",
+            "localField": "user_obj_id",
+            "foreignField": "_id",
+            "as": "user"
+        }
+    },
+    { "$unwind": "$user" },
+    {
+        "$project": {
+            "_id": 0,
+            "username": "$user.username",
+            "action": 1,
+            "value": 1
+        }
+    }
+]
+
+activity_data = list(actions_col.aggregate(activity_pipeline))
+
+if activity_data:
+    st.dataframe(pd.DataFrame(activity_data), use_container_width=True)
+else:
+    st.info("No user activity found.")

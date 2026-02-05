@@ -8,9 +8,8 @@ import os
 # PATH & IMPORTS
 # --------------------------------------------------
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import auth_utils
-from db import execute
 import data_fetch
+from mongo_db import actions_col, watchlist_col
 
 # --------------------------------------------------
 # PAGE CONFIG
@@ -18,33 +17,27 @@ import data_fetch
 st.set_page_config(page_title="Stock Search", page_icon="🔍", layout="wide")
 
 # --------------------------------------------------
-# AUTH CHECK (Non-blocking as requested)
+# 🔐 RESTORE SESSION FROM URL (REFRESH SAFE)
 # --------------------------------------------------
-auth_utils.check_auth() # Attempt to restore session if token exists
-# if not auth_utils.check_auth():
-#     st.warning("You must log in to access this page.")
-#     st.switch_page("login.py")
+params = st.query_params
+
+if "user_id" in params and "username" in params:
+    st.session_state.user_id = params["user_id"]
+    st.session_state.username = params["username"]
 
 # --------------------------------------------------
-# NAVIGATION CONTROLLER
+# SESSION STATE & PERSISTENCE
 # --------------------------------------------------
-if "page" in st.query_params:
-    page_name = st.query_params["page"]
-    if page_name == "profile":
-        st.switch_page("pages/profile.py") 
-    elif page_name == "search":
-        st.switch_page("pages/search.py")
-    elif page_name == "beginner":
-        st.switch_page("pages/beginner.py")
-    elif page_name == "reinvestor":
-        st.switch_page("pages/reinvestor.py")
-    elif page_name == "dashboard":
-        st.switch_page("pages/dashboard.py")
-    st.query_params.clear()
+# Sync back to URL if missing (allows refresh to work)
+user_id = st.session_state.get("user_id")
+username = st.session_state.get("username")
 
-# --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
+if user_id and username:
+    q = st.query_params
+    if "user_id" not in q or "username" not in q:
+        st.query_params["user_id"] = user_id
+        st.query_params["username"] = username
+
 if "watchlist" not in st.session_state:
     st.session_state.watchlist = []
 
@@ -52,176 +45,52 @@ if "search_query" not in st.session_state:
     st.session_state.search_query = ""
 
 # =============================================================
-# CSS ENGINE (COPIED FROM DASHBOARD)
+# CSS (KEEP YOUR ORIGINAL CSS HERE IF YOU WANT)
 # =============================================================
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap');
-
-/* Hide sidebar */
-[data-testid="stSidebar"],
-[data-testid="stSidebarNav"],
-[data-testid="stSidebarCollapsedControl"] {
-    display: none !important;
-}
-
-/* Global font */
-body, [data-testid="stAppViewContainer"] {
-    font-family: 'Outfit', sans-serif !important;
-    overflow-x: hidden;
-}
-
-/* Hide deploy button, menu, spinners */
-.stAppDeployButton { display: none !important; }
-#MainMenu, footer { visibility: hidden; height: 0; }
-[data-testid*="stProgress"],
-[data-testid*="stSpinner"],
-.stAlert:has(.stSpinner) { display: none !important; }
-
-/* Hide native Streamlit header */
-[data-testid="stHeader"] {
-    display: none !important;
-    visibility: hidden;
-    height: 0;
-}
-
-/* REMOVE HEADER ANCHORS */
-[data-testid="stMarkdownContainer"] h1 a,
-[data-testid="stMarkdownContainer"] h2 a,
-[data-testid="stMarkdownContainer"] h3 a,
-[data-testid="stMarkdownContainer"] h4 a,
-[data-testid="stMarkdownContainer"] h5 a,
-[data-testid="stMarkdownContainer"] h6 a {
-    display: none !important;
-}
-
-/* ==== CUSTOM FIXED HEADER BAR ==== */
 .custom-top-bar {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: 70px; /* Taller header */
-    background: #eff6ff; /* Light Blue Color */
+    height: 70px;
+    background: #eff6ff;
     box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
     display: flex;
-    align-items: center; /* Ensures vertical centering */
-    padding: 0 2rem; 
-    z-index: 99990;
+    align-items: center;
+    padding: 0 2rem;
+    z-index: 999;
 }
 .custom-top-bar-title {
     font-weight: 800;
     font-size: 1.2rem;
     color: #1e3a8a;
-    margin: 0 !important; 
 }
-
-/* Container for search and profile buttons */
-.nav-buttons-container {
-    margin-left: auto; /* Push buttons to the right */
-    display: flex; 
-    align-items: center;
-    gap: 10px; /* Space between search and profile buttons */
-    height: 100%; 
-}
-
-/* ===== SEARCH ICON STYLES (HTML Anchor) ===== */
-.search-btn-style {
-    background: none;
-    color: #1e3a8a !important;
-    padding: 0.5rem 0.8rem; 
-    border-radius: 999px;
-    font-size: 1.1rem;
-    border: 2px solid #3b82f6; /* Subtle blue border */
-    transition: all 0.3s ease;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
-    text-decoration: none !important; 
-    display: inline-block; 
-}
-.search-btn-style:hover {
-    background: #dbeafe; /* Very light blue background on hover */
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
-}
-
-/* ===== PROFILE BUTTON STYLES (PURE HTML ANCHOR STYLES) ===== */
-.profile-btn-style {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white !important;
-    padding: 0.5rem 1.2rem; 
-    border-radius: 999px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    border: none;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
-    transition: all 0.3s ease;
-    text-decoration: none !important; 
-    white-space: nowrap;
-    /* animation: pulse 2s infinite; REMOVED */
-    display: inline-block; 
-}
-
-.profile-btn-style:hover {
-    transform: translateY(-2px); 
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-}
-
-/* Main container (push content below custom bar) */
 .block-container {
-    padding-top: 6rem !important; /* Increased space for the taller header */
-    padding-bottom: 5rem !important;
-    max-width: 1200px;
-    position: relative;
-    z-index: 1;
-}
-
-/* ANIMATED CLOUD BACKGROUND */
-[data-testid="stAppViewContainer"]::before {
-    content: "";
-    position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: 
-        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.8), transparent 50%),
-        radial-gradient(circle at 80% 30%, rgba(219, 234, 254, 0.8), transparent 50%);
-    filter: blur(60px);
-    z-index: 0;
-    pointer-events: none;
+    padding-top: 6rem !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # =============================================================
-# CUSTOM FIXED HEADER BAR
+# HEADER (SESSION-SAFE)
 # =============================================================
-session_token = st.query_params.get("session", "")
-
-st.markdown(f"""
+st.markdown("""
 <div class="custom-top-bar">
     <div class="custom-top-bar-title">Smart Investor Assistant</div>
-    <div class="nav-buttons-container">
-        <a href="?page=search&session={session_token}" target="_self" class="search-btn-style">
-            🔍
-        </a>
-        <a href="?page=profile&session={session_token}" target="_self" class="profile-btn-style">
-            👤 My Profile
-        </a>
-    </div>
 </div>
 """, unsafe_allow_html=True)
 
 
+
 # --------------------------------------------------
-# COMPANY NAME MAP (Imported from generated file)
+# COMPANY NAME MAP
 # --------------------------------------------------
 from pages.search_data_map import STOCK_COMPANY_MAP
 
 # --------------------------------------------------
-# TICKER MAP (INDICES + STOCKS)
+# TICKER MAP
 # --------------------------------------------------
 TICKER_MAP = {
     "NIFTY 50": "^NSEI",
@@ -230,17 +99,14 @@ TICKER_MAP = {
     "BANK NIFTY": "^NSEBANK",
 }
 
-# Bluechips
 for t in data_fetch.BLUECHIP_TICKERS:
     clean = t.replace(".NS", "")
     TICKER_MAP[clean] = f"{clean}.NS"
 
-# ETFs / indices
 for name, symbol in data_fetch.ETF_INDEX_SYMBOLS.items():
     TICKER_MAP[name.upper()] = symbol
     TICKER_MAP[name] = symbol
 
-# Sector stocks
 for sector, subcats in data_fetch.MARKET_DATA.items():
     for _, tickers in subcats.items():
         for t in tickers:
@@ -258,43 +124,83 @@ def fetch_stock_data(symbol):
     if hist.empty:
         return None, "No data found."
 
-    price = hist["Close"].iloc[-1]
+    # Get latest row
+    latest = hist.iloc[-1]
+    price = latest["Close"]
     prev = hist["Close"].iloc[-2] if len(hist) > 1 else price
     change = ((price - prev) / prev) * 100 if prev != 0 else 0
 
     return {
         "ticker": symbol,
         "price": price,
-        "change": change
+        "change": change,
+        "open": latest["Open"],
+        "high": latest["High"],
+        "low": latest["Low"],
+        "volume": latest["Volume"]
     }, None
 
 # --------------------------------------------------
-# WATCHLIST
+# HELPERS
 # --------------------------------------------------
-def add_to_watchlist(ticker):
-    user_id = st.session_state.get("user_id")
+def get_stock_categories(ticker):
+    """Finds which sectors/indices a stock belongs to."""
+    tags = []
+    clean_ticker = ticker.replace(".NS", "")
+    
+    for sector, indices in data_fetch.MARKET_DATA.items():
+        for index_name, stocks in indices.items():
+            if clean_ticker in stocks:
+                # Add Index Name (e.g., 'NIFTY Bank')
+                tags.append(index_name)
+    return list(set(tags))
+
+# --------------------------------------------------
+# WATCHLIST (MongoDB)
+# --------------------------------------------------
+def add_to_watchlist(ticker, bound_user_id=None):
+    # Priority: Function Argument (Bound at render time) > Session State > Fallback
+    user_id = bound_user_id or st.session_state.get("user_id")
+
+    # Double Check if session was truly lost (Fall back to params)
     if not user_id:
-        st.toast("⚠ Not logged in. Watchlist saving disabled.")
+        params = st.query_params
+        if "user_id" in params:
+            user_id = params["user_id"]
+    
+    if not user_id:
+        # Debugging info to help diagnosis
+        debug_info = f"Session: {st.session_state.get('user_id')}, Bound: {bound_user_id}, URL: {st.query_params.get('user_id')}"
+        st.toast(f"⚠ Watchlist disabled (guest mode). Debug: {debug_info}")
         return
 
-    if ticker not in st.session_state.watchlist:
-        st.session_state.watchlist.append(ticker)
-        execute(
-            "INSERT INTO user_actions (user_id, action, value) VALUES (:u, 'save', :v)",
-            {"u": user_id, "v": ticker},
-        )
-        st.toast(f"⭐ Saved {ticker}")
+    # prevent duplicates
+    exists = watchlist_col.find_one({
+        "user_id": user_id,
+        "ticker": ticker
+    })
+
+    if exists:
+        st.toast("⭐ Already in watchlist")
+        return
+
+    watchlist_col.insert_one({
+        "user_id": user_id,
+        "ticker": ticker
+    })
+
+    st.toast(f"⭐ Saved {ticker}")
 
 # --------------------------------------------------
 # UI
 # --------------------------------------------------
 st.title("🔍 Stock Search")
 
-# Build dropdown options
-display_options = []
-for symbol in sorted(TICKER_MAP.keys()):
-    if symbol in STOCK_COMPANY_MAP:
-        display_options.append(f"{symbol} – {STOCK_COMPANY_MAP[symbol]}")
+display_options = [
+    f"{symbol} – {STOCK_COMPANY_MAP[symbol]}"
+    for symbol in sorted(TICKER_MAP.keys())
+    if symbol in STOCK_COMPANY_MAP
+]
 
 options = ["Select a Stock..."] + display_options
 
@@ -302,11 +208,7 @@ if "search_selection" not in st.session_state:
     st.session_state.search_selection = "Select a Stock..."
 
 with st.form("stock_search_form"):
-    selected = st.selectbox(
-        "Type to search Stock:",
-        options=options,
-        key="search_selection",
-    )
+    selected = st.selectbox("Type to search Stock:", options=options)
     submitted = st.form_submit_button("🚀 Search")
 
 # --------------------------------------------------
@@ -319,27 +221,103 @@ if submitted:
         stock_symbol = selected.split(" – ")[0]
         st.session_state.search_query = stock_symbol
 
-        execute(
-            "INSERT INTO user_actions (user_id, action, value) VALUES (:u, 'search', :v)",
-            {"u": st.session_state.get("user_id"), "v": stock_symbol},
-        )
+        # Log action locally (optional, can be removed if specific logic needed only on new search)
+        actions_col.insert_one({
+            "user_id": st.session_state.get("user_id"),
+            "action": "search",
+            "value": stock_symbol
+        })
 
-        stock_data, error = fetch_stock_data(f"{stock_symbol}.NS")
+# --------------------------------------------------
+# DISPLAY RESULTS (PERSISTENT)
+# --------------------------------------------------
+if st.session_state.search_query:
+    stock_symbol = st.session_state.search_query
+    # Redo the fetch or display
+    stock_data, error = fetch_stock_data(f"{stock_symbol}.NS")
 
-        if stock_data:
-            st.divider()
-            col1, col2, col3 = st.columns([1, 2, 1])
-            with col2:
-                st.metric(
-                    label=f"{stock_symbol}",
-                    value=f"₹ {stock_data['price']:.2f}",
-                    delta=f"{stock_data['change']:+.2f}%"
-                )
-                st.caption(STOCK_COMPANY_MAP.get(stock_symbol))
-                st.button(
-                    "⭐ Add to Watchlist",
-                    on_click=add_to_watchlist,
-                    args=(stock_symbol,)
-                )
-        else:
-            st.error(error)
+    if stock_data:
+        st.divider()
+        
+        # 1. HEADER & TAGS
+        c_head, c_btn = st.columns([3, 1])
+        with c_head:
+            st.markdown(f"### {stock_symbol} <span style='font-size:0.8em; color:gray;'>{STOCK_COMPANY_MAP.get(stock_symbol, '')}</span>", unsafe_allow_html=True)
+            
+            # Display Categories as Tags
+            tags = get_stock_categories(stock_symbol)
+            if tags:
+                # Simple badge styling
+                badges = "".join([f"<span style='background:#e0f2fe; color:#0369a1; padding:4px 8px; border-radius:12px; font-size:0.75rem; margin-right:5px; font-weight:600;'>{t}</span>" for t in tags])
+                st.markdown(badges, unsafe_allow_html=True)
+                st.write("") # Spacer
+
+        with c_btn:
+             # Use a callback-independent check for user_id to ensure button state
+            uid = st.session_state.get("user_id") or st.query_params.get("user_id")
+            
+            st.button(
+                "⭐ Add to Watchlist",
+                on_click=add_to_watchlist,
+                args=(stock_symbol, uid)
+            )
+
+        # 2. METRICS GRID
+        st.markdown("---")
+        m1, m2, m3, m4 = st.columns(4)
+        
+        with m1: st.metric("Current Price", f"₹ {stock_data['price']:.2f}", f"{stock_data['change']:+.2f}%")
+        with m2: st.metric("Open", f"₹ {stock_data['open']:.2f}")
+        with m3: st.metric("Day High", f"₹ {stock_data['high']:.2f}")
+        with m4: st.metric("Day Low", f"₹ {stock_data['low']:.2f}")
+
+        # Optional: Secondary metrics row if needed, e.g. Volume
+        # vol_str = f"{stock_data['volume']:,}"
+        # st.caption(f"Volume: {vol_str}")
+
+    else:
+        st.error(error)
+
+# --------------------------------------------------
+# FOOTER & NAVIGATION
+# --------------------------------------------------
+# Custom Button Style (from bluechip.py/profile.py)
+st.markdown("""
+<style>
+div.stButton {
+    text-align: center !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+div.stButton > button {
+    padding: 0.4rem 1rem !important; 
+    font-size: 0.8rem !important; 
+    border-radius: 50px !important;
+    background: rgba(24, 40, 72, 0.8) !important; 
+    box-shadow: none !important; 
+    width: auto !important; 
+    margin: 0 auto !important;
+    white-space: nowrap !important;
+    color: white !important;
+    display: block !important;
+}
+div.stButton > button:hover { 
+    background: #2563eb !important; 
+    transform: translateY(-2px); 
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Footer Layout (Centered via CSS)
+if st.button("⬅ Back to Dashboard", key="btn_search_back"):
+    st.switch_page("pages/dashboard.py")
+
+st.write("---")
+
+st.markdown("""
+<div style="margin-top: 10px; margin-bottom: 20px;">
+    <center style="opacity:0.6; font-size:0.85rem;">
+        Smart Investor Assistant 
+    </center>
+</div>
+""", unsafe_allow_html=True)

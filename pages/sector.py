@@ -25,10 +25,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CHECK AUTHENTICATION
-if not auth_utils.check_auth():
-    st.warning("You must log in to access this page.")
-    st.switch_page("login.py")
+# Auth check removed
+# if not auth_utils.check_auth():
+#     st.warning("You must log in to access this page.")
+#     st.switch_page("login.py")
 
 # ==========================================
 # 1. CSS STYLING
@@ -214,7 +214,7 @@ if start_analysis:
                         html_content = (
                             f'<div class="stock-card">'
                             f'<div class="card-header"><div class="stock-rank">#{j+1} {ticker_name}</div></div>'
-                            f'<div class="score-container"><div class="big-score">{score:.1f}<span class="score-suffix">/100</span></div><div class="score-label">Decision Score</div></div>'
+                            f'<div class="score-container"><div class="big-score">{score:.1f}<span class="score-suffix">/100</span></div><div class="score-label">Risk-Adjusted Score</div></div>'
                             f'<div class="metrics-grid">'
                             f'<div class="metric-item"><div class="metric-label">CAGR</div><div class="metric-val">{row["CAGR"]*100:.1f}%</div></div>'
                             f'<div class="metric-item right"><div class="metric-label">Max DD</div><div class="metric-val" style="color: #ef4444;">{row["MaxDrawdown"]*100:.1f}%</div></div>'
@@ -235,7 +235,7 @@ if start_analysis:
     st.markdown('<div class="section-title">🧾 Explanation of Terms</div>', unsafe_allow_html=True)
     with st.expander("Show Detailed Definitions", expanded=False):
         st.markdown("""
-        * **Decision Score:** A proprietary score (0-100) combining all metrics to rank the best long-term performers.
+        * **Risk-Adjusted Score:** A proprietary score (0-100) combining all metrics to rank the best long-term performers.
         * **CAGR (Compound Annual Growth Rate):** Average yearly growth of stock price.
         * **Max Drawdown:** The biggest percentage drop a stock has ever suffered (Measures worst-case risk).
         * **Sharpe Ratio:** Measures how much extra return you get for the risk you take. Higher is better.
