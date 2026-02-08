@@ -81,9 +81,21 @@ body, [data-testid="stAppViewContainer"] {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    transition: transform 0.3s ease;
+    transition: all 0.4s ease;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
-.glass-card:hover { transform: translateY(-12px); }
+.glass-card:hover { 
+    transform: translateY(-15px) scale(1.02);
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    border-color: rgba(255,255,255,0.9);
+}
+
+.card-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
 
 div.stButton > button {
     background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
@@ -118,18 +130,32 @@ st.markdown("""
 # MAIN MENU
 # -----------------------------------------------------------------------------
 col1, col2, col3 = st.columns([1, 10, 1])
+
+# PREPARE PARAMS
+import urllib.parse
+user_id = st.session_state.get("user_id", "")
+username = st.session_state.get("username", "")
+params_str = ""
+if user_id and username:
+    safe_user = urllib.parse.quote(str(user_id))
+    safe_name = urllib.parse.quote(str(username))
+    params_str = f"?user_id={safe_user}&username={safe_name}"
+
 with col2:
     c1, c2 = st.columns(2, gap="large")
 
     with c1:
-        st.markdown("""
-        <div class="glass-card">
-            <div style="font-size:3rem;">🏢</div>
-            <h2>Company Advisor</h2>
-            <p>Deep-dive into individual stocks</p>
-        </div>
+        st.markdown(f"""
+        <a href="company{params_str}" target="_self" style="text-decoration:none; color:inherit;">
+            <div class="glass-card">
+                <div class="card-icon">🏢</div>
+                <h2>Company Advisor</h2>
+                <p>Deep-dive into individual stocks</p>
+            </div>
+        </a>
         """, unsafe_allow_html=True)
 
+        st.write("") # SPACER
         if st.button("🚀 Start Company Analysis"):
             if "user_id" in st.session_state and "username" in st.session_state:
                 st.query_params["user_id"] = st.session_state.user_id
@@ -137,14 +163,17 @@ with col2:
             st.switch_page("pages/company.py")
 
     with c2:
-        st.markdown("""
-        <div class="glass-card">
-            <div style="font-size:3rem;">📈</div>
-            <h2>Index Advisor</h2>
-            <p>Compare market indices</p>
-        </div>
+        st.markdown(f"""
+        <a href="index{params_str}" target="_self" style="text-decoration:none; color:inherit;">
+            <div class="glass-card">
+                <div class="card-icon">📈</div>
+                <h2>Index Advisor</h2>
+                <p>Compare market indices</p>
+            </div>
+        </a>
         """, unsafe_allow_html=True)
 
+        st.write("") # SPACER
         if st.button("🚀 Start Index Analysis"):
             if "user_id" in st.session_state and "username" in st.session_state:
                 st.query_params["user_id"] = st.session_state.user_id
