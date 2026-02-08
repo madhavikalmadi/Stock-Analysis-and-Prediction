@@ -24,10 +24,14 @@ if "user_id" in params and "username" in params:
     st.session_state.authenticated = True
 
 # =====================================================
-# 🔐 AUTH GUARD (AFTER RESTORE)
+# 🔄 PERSIST SESSION (VERY IMPORTANT)
 # =====================================================
-if not st.session_state.get("authenticated"):
-    st.switch_page("login.py")
+if "user_id" in st.session_state and "username" in st.session_state:
+    st.query_params["user_id"] = st.session_state.user_id
+    st.query_params["username"] = st.session_state.username
+
+# ❌ NO LOGIN REDIRECT HERE
+# Dashboard already guarantees authentication
 
 # --------------------------------------------------
 # CSS STYLING
