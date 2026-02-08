@@ -756,9 +756,14 @@ st.markdown("<h3 style='margin-top:3rem; margin-bottom:1.5rem; font-weight:700;'
 col_path1, col_path2 = st.columns(2, gap="large")
 
 # Get current session details for links
+import urllib.parse
 user_id = st.session_state.get("user_id", "")
 username = st.session_state.get("username", "")
-params_str = f"?user_id={user_id}&username={username}" if user_id and username else ""
+params_str = ""
+if user_id and username:
+    safe_user = urllib.parse.quote(str(user_id))
+    safe_name = urllib.parse.quote(str(username))
+    params_str = f"?user_id={safe_user}&username={safe_name}"
 
 with col_path1:
     st.markdown(f"""
