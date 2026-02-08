@@ -30,6 +30,11 @@ if "user_id" in params and "username" in params:
 if not st.session_state.get("authenticated"):
     st.switch_page("login.py")
 
+# Sync params for navigation persistence
+if "user_id" in st.session_state and "username" in st.session_state:
+    st.query_params["user_id"] = st.session_state.user_id
+    st.query_params["username"] = st.session_state.username
+
 # =============================================================
 # SESSION STATE INIT
 # =============================================================
