@@ -1,7 +1,5 @@
 from pymongo import MongoClient
-import os
-import streamlit as st
-import certifi
+import os, streamlit as st, certifi
 
 MONGO_URI = os.getenv("MONGO_URI") or st.secrets.get("MONGO_URI", None)
 
@@ -18,5 +16,5 @@ if MONGO_URI:
         users_col = db["users"]
         actions_col = db["user_actions"]
         watchlist_col = db["watchlist"]
-    except Exception as e:
-        st.error("Database connection failed")
+    except Exception:
+        pass  # Never crash Streamlit app
