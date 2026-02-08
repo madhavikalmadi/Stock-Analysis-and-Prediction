@@ -50,118 +50,32 @@ if "user_id" in st.session_state and "username" in st.session_state:
 # ==========================================
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
-
-/* Hide sidebar */
-[data-testid="stSidebar"] { display: none !important; }
-
-/* GLOBAL BACKGROUND */
-body, [data-testid="stAppViewContainer"] {
-    font-family: 'Outfit', sans-serif !important;
-    background: linear-gradient(120deg, #eef2f3 0%, #8e9eab 100%) !important;
-    color: #1e293b;
-}
-
-/* Main container */
-.block-container {
-    padding-top: 3.5rem !important;
-    padding-bottom: 4rem !important;
-    max-width: 1200px;
-}
-
-/* TITLES */
-.main-title {
+<style>
+.stock-card {
+    background: white;
+    padding: 18px;
+    border-radius: 14px;
+    border-top: 5px solid #22c55e;
     text-align: center;
-    animation: slideInDown 0.8s ease-out;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
-.sub-title {
-    text-align: center;
-    color: #475569;
-    margin-bottom: 20px;
-}
+.big { font-size: 2rem; font-weight: 800; color:#16a34a; }
+.small { color:#64748b; font-size:0.8rem; }
+.metric { font-weight:700; }
 
-@keyframes slideInDown {
-    from { opacity: 0; transform: translateY(-40px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* PRIMARY BUTTONS */
 div.stButton > button {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    padding: 0.4rem 1rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 50px !important;
+    background: rgba(24, 40, 72, 0.85) !important;
     color: white !important;
-    border-radius: 12px !important;
-    padding: 0.6rem 1.4rem !important;
-    font-weight: 600 !important;
-    border: none !important;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25) !important;
-    transition: all 0.25s ease-in-out !important;
     white-space: nowrap !important;
 }
 div.stButton > button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-}
-
-/* FOOTER BUTTON */
-div.stButton:last-of-type > button {
-    background: rgba(24, 40, 72, 0.85) !important;
-    font-size: 0.8rem !important;
-    border-radius: 50px !important;
-    padding: 0.4rem 1.1rem !important;
-    box-shadow: none !important;
-}
-div.stButton:last-of-type > button:hover {
     background: #2563eb !important;
+    transform: translateY(-2px);
 }
-
-/* STOCK CARD */
-.stock-card {
-    background-color: white;
-    padding: 24px;
-    border-radius: 16px;
-    border-top: 5px solid #22c55e;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-    animation: fadeUp 0.6s ease-out;
-}
-
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.stock-rank {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: #1e293b;
-}
-
-.big-score {
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: #16a34a;
-}
-
-.metrics-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    padding-top: 15px;
-    border-top: 1px solid #e5e7eb;
-}
-
-.metric-label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #64748b;
-}
-.metric-val {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #334155;
-}
-</style>
+</style></style>
 """, unsafe_allow_html=True)
 
 # ==========================================
@@ -200,7 +114,7 @@ with c2:
             target_indices.append((selected_index, MARKET_DATA[selected_category][selected_index]))
 
         if target_indices:
-            start_analysis = st.button("🚀 Analyze Performance")
+            start_analysis = st.button("🚀 Analyze Performance", key="btn_sector_analyze")
 
 # ==========================================
 # ANALYSIS
@@ -252,13 +166,9 @@ st.write("")
 c_back, _, c_dash = st.columns([1, 6, 1])
 
 with c_back:
-    if st.button("⬅ Back to Menu"):
+    if st.button("⬅ Back to Menu", key="btn_sector_back"):
         st.switch_page("pages/beginner.py")
 
 with c_dash:
-    if st.button("⬅ Dashboard"):
-        if "user_id" in st.session_state:
-            st.query_params["user_id"] = st.session_state.user_id
-        if "username" in st.session_state:
-            st.query_params["username"] = st.session_state.username
+    if st.button("⬅ Dashboard", key="btn_sector_dashboard"):
         st.switch_page("pages/dashboard.py")
