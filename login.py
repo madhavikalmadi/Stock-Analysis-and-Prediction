@@ -12,6 +12,10 @@ if st.session_state.get("is_admin"):
     st.switch_page("pages/admin.py")
 
 if st.session_state.get("authenticated"):
+    # Ensure query params are set before redirect
+    if "user_id" in st.session_state and "username" in st.session_state:
+        st.query_params["user_id"] = st.session_state.user_id
+        st.query_params["username"] = st.session_state.username
     st.switch_page("pages/dashboard.py")
 
 # =====================================================
@@ -52,16 +56,19 @@ if not st.session_state.show_admin_login:
                 })
                 
                 if user:
-                    # ✅ SET SESSION STATE WITH ALL REQUIRED FIELDS
+                    user_id_str = str(user["_id"])
+                    
+                    # ✅ SET SESSION STATE WITH ALL REQUIRED FIELDS FIRST
                     st.session_state.authenticated = True
                     st.session_state.username = username
-                    st.session_state.user_id = str(user["_id"])
+                    st.session_state.user_id = user_id_str
                     
                     # ✅ SET QUERY PARAMS FOR PERSISTENCE
-                    st.query_params["user_id"] = str(user["_id"])
+                    st.query_params["user_id"] = user_id_str
                     st.query_params["username"] = username
                     
                     st.success("Login successful")
+                    # Small delay to ensure state is set
                     st.switch_page("pages/dashboard.py")
                 else:
                     st.error("User not found")
