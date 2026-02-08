@@ -755,9 +755,6 @@ st.markdown("<h3 style='margin-top:3rem; margin-bottom:1.5rem; font-weight:700;'
 
 col_path1, col_path2 = st.columns(2, gap="large")
 
-# Get session token to preserve login on navigation
-session_token = st.query_params.get("session", "")
-
 with col_path1:
     st.markdown(f"""
     <a href="beginner" target="_self" style="text-decoration:none; color:inherit; display:block; height:100%;">
