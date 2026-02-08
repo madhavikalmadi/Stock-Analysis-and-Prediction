@@ -115,9 +115,8 @@ col1, col2 = st.columns(2, gap="large")
 
 # ---------------- SINGLE COMPANY ----------------
 with col1:
-    st.markdown("<div class='input-box'><b>🔍 Single Company Analysis</b></div>", unsafe_allow_html=True)
     ticker = st.text_input("Ticker")
-    amount = st.number_input("Investment Amount ₹", value=None, placeholder="Optional")
+    amount = st.number_input("Investment Amount ₹", value=None)
     years = st.slider("Investment Horizon (Years)", 1, 20, 1)
 
     if st.button("🚀 Analyze Company", key="btn_company_analyze"):
@@ -148,9 +147,8 @@ with col1:
 
 # ---------------- MULTI COMPANY ----------------
 with col2:
-    st.markdown("<div class='input-box'><b>⚖️ Compare Companies</b></div>", unsafe_allow_html=True)
     tickers = st.text_input("Comma-separated tickers (e.g. TCS, INFY, RELIANCE)")
-    amount_m = st.number_input("Investment Amount ₹", value=None, placeholder="Optional", key="multi_amount")
+    amount_m = st.number_input("Investment Amount ₹", value=None, key="multi_amount")
     years_m = st.slider("Investment Horizon (Years)", 1, 20, 1, key="multi")
 
     if st.button("📊 Compare Companies", key="btn_company_compare"):
