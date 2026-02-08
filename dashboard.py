@@ -2,7 +2,6 @@ import sys
 import os
 import streamlit as st
 
-# Add parent directory to path to allow imports if needed
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # import auth_utils
@@ -13,20 +12,8 @@ import pytz
 import time
 import itertools
 from datetime import datetime
-
-
 # st.set_page_config(page_title="Stock App", layout="wide") # Commented out duplicate config
 
-# --- IMPORT LOCAL MODULES ---
-# Theme logic removed
-
-
-# =============================================================
-# WATCHLIST AND SEARCH INITIALIZATION
-# =============================================================
-# =============================================================
-# 🔐 RESTORE SESSION FROM URL (REFRESH SAFE)
-# =============================================================
 params = st.query_params
 
 if "user_id" in params and "username" in params:
@@ -54,6 +41,10 @@ if 'search_query' not in st.session_state:
 # =============================================================
 # END SESSION STATE
 # =============================================================
+
+# Add auth check after session restoration
+if not st.session_state.get("authenticated"):
+    st.switch_page("login.py")
 
 # =============================================================
 # CSS ENGINE
