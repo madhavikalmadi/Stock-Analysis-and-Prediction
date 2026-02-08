@@ -200,8 +200,9 @@ if st.button("🚀 Analyze Market Indices"):
     # =====================================================
     # 🧾 EXPLANATION OF TERMS (DROPDOWN)
     # =====================================================
-    st.markdown('<div class="section-title">🧾 Explanation of Terms</div>', unsafe_allow_html=True)
-    with st.expander("Show Detailed Definitions", expanded=False):
+    st.write("")
+    st.markdown("### 📚 Explanation of Key Terms")
+    with st.expander("Click to learn more about the metrics used above", expanded=False):
         st.markdown("""
         * **Risk-Adjusted Score:** A composite score (0–100) combining return and risk metrics.
         * **CAGR (Compound Annual Growth Rate):** Average annual growth of the index over the last 10 years.

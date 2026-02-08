@@ -191,6 +191,21 @@ except Exception as e:
     st.code(str(e))
 
 # ==================================================
+# EXPLANATION OF TERMS
+# ==================================================
+st.write("")
+st.markdown("### 📚 Explanation of Key Terms")
+with st.expander("Click to learn more about the metrics used above", expanded=False):
+    st.markdown("""
+    * **Final Score (0-100):** A composite rating that rewards high returns and stability while penalizing high risk.
+    * **CAGR (Compound Annual Growth Rate):** The average yearly return of the investment over the analyzed period.
+    * **Sharpe Ratio:** Measures risk-adjusted return. A higher Sharpe ratio (>1.0) means better returns for the risk taken.
+    * **Volatility:** Represents the fluctuation in price. Lower volatility suggests a more stable and safer investment.
+    * **Max Drawdown (Max DD):** The largest percentage drop from a peak to a trough. A smaller negative number (closer to 0%) is better.
+    * **Investor Type:** Categorization based on volatility and drawdown (Aggressive, Moderate, Conservative).
+    """)
+
+# ==================================================
 # FOOTER NAVIGATION
 # ==================================================
 st.write("")
