@@ -16,7 +16,11 @@ import scoring_system
 # --------------------------------------------------
 # PAGE CONFIG
 # --------------------------------------------------
-st.set_page_config(page_title="Bluechip Explorer", layout="wide")
+st.set_page_config(
+    page_title="Bluechip Explorer",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
 # ==================================================
 # 🔁 RESTORE SESSION FROM URL (ONLY RESTORE)
@@ -28,12 +32,11 @@ if "user_id" in params and "username" in params:
     st.session_state.username = params["username"]
     st.session_state.authenticated = True
 
-# ❗❗ IMPORTANT
-# ❌ DO NOT REDIRECT TO LOGIN HERE
-# Dashboard is the auth gate, not this page
+# ❌ NO LOGIN REDIRECT HERE
+# Dashboard is the auth gate
 
 # --------------------------------------------------
-# PERSIST SESSION (CRITICAL)
+# 🔄 PERSIST SESSION
 # --------------------------------------------------
 if "user_id" in st.session_state and "username" in st.session_state:
     st.query_params["user_id"] = st.session_state.user_id
@@ -93,21 +96,57 @@ COMPANY_NAME_MAP = {
 }
 
 # ==================================================
-# CSS STYLING
+# GLOBAL CSS (SAME AS DASHBOARD)
 # ==================================================
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
+
+/* Hide sidebar */
+[data-testid="stSidebar"] { display: none !important; }
+
+/* BACKGROUND */
+body, [data-testid="stAppViewContainer"] {
+    font-family: 'Outfit', sans-serif !important;
+    background: linear-gradient(120deg, #eef2f3 0%, #8e9eab 100%) !important;
+    color: #1e293b;
+}
+
+/* Container spacing */
+.block-container {
+    padding-top: 3.5rem !important;
+    padding-bottom: 4rem !important;
+    max-width: 1200px;
+}
+
+/* PRIMARY BUTTONS */
 div.stButton > button {
-    padding: 0.4rem 1rem !important;
-    font-size: 0.85rem !important;
-    border-radius: 50px !important;
-    background: rgba(24, 40, 72, 0.85) !important;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
     color: white !important;
+    border-radius: 12px !important;
+    padding: 0.6rem 1.4rem !important;
+    font-weight: 600 !important;
+    border: none !important;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25) !important;
+    transition: all 0.25s ease-in-out !important;
     white-space: nowrap !important;
 }
 div.stButton > button:hover {
-    background: #2563eb !important;
     transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+}
+
+/* FOOTER BUTTON STYLE */
+div.stButton:last-of-type > button {
+    background: rgba(24, 40, 72, 0.85) !important;
+    font-size: 0.8rem !important;
+    border-radius: 50px !important;
+    padding: 0.4rem 1.1rem !important;
+    box-shadow: none !important;
+}
+div.stButton:last-of-type > button:hover {
+    background: #2563eb !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -153,31 +192,32 @@ try:
 
             with cols[idx]:
                 st.metric(
-                    label=f"{ticker}",
+                    label=ticker,
                     value=f"{row.FinalScore*100:.1f}/100",
                     delta=f"CAGR {row.CAGR*100:.1f}%"
                 )
                 st.caption(company)
-                st.caption(f"Investor: {investor_type(row)}")
+                st.caption(f"Investor Type: {investor_type(row)}")
 
 except Exception as e:
     st.error("Something went wrong while loading Blue-Chip data.")
     st.code(str(e))
 
 # ==================================================
-# FOOTER NAV
+# FOOTER NAVIGATION
 # ==================================================
-st.write(""); st.write("---")
+st.write("")
+st.markdown("---")
+st.write("")
 
 c_back, _, c_dash = st.columns([1, 6, 1])
 
 with c_back:
-    if st.button("⬅ Back to Beginner", key="btn_bluechip_back"):
+    if st.button("⬅ Back to Beginner"):
         st.switch_page("pages/beginner.py")
 
 with c_dash:
-    if st.button("⬅ Dashboard", key="btn_bluechip_dashboard"):
-        # Preserve session state in query params
+    if st.button("⬅ Dashboard"):
         if "user_id" in st.session_state:
             st.query_params["user_id"] = st.session_state.user_id
         if "username" in st.session_state:
