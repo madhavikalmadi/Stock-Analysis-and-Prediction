@@ -108,6 +108,13 @@ div.stButton > button {
     font-weight: 600;
 }
 </style>
+
+<div class="area">
+<ul class="circles">
+<li></li><li></li><li></li><li></li><li></li>
+<li></li><li></li><li></li><li></li><li></li>
+</ul>
+</div>
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------
