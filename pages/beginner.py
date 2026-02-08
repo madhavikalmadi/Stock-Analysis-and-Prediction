@@ -150,6 +150,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.write("")
+st.write("")
+st.write("")
 
 # --------------------------------------------------
 # MAIN CONTENT
