@@ -45,11 +45,26 @@ if not st.session_state.show_admin_login:
             if not username or not password:
                 st.error("All fields are required")
             elif auth_utils.login_user(username, password):
-                # ✅ SET SESSION ONLY ONCE
-                st.session_state.authenticated = True
-                st.session_state.username = username
-                st.success("Login successful")
-                st.switch_page("pages/dashboard.py")
+                # ✅ GET USER FROM DATABASE TO RETRIEVE USER_ID
+                from mongo_db import users_col
+                user = users_col.find_one({
+                    "username": {"$regex": f"^{username}$", "$options": "i"}
+                })
+                
+                if user:
+                    # ✅ SET SESSION STATE WITH ALL REQUIRED FIELDS
+                    st.session_state.authenticated = True
+                    st.session_state.username = username
+                    st.session_state.user_id = str(user["_id"])
+                    
+                    # ✅ SET QUERY PARAMS FOR PERSISTENCE
+                    st.query_params["user_id"] = str(user["_id"])
+                    st.query_params["username"] = username
+                    
+                    st.success("Login successful")
+                    st.switch_page("pages/dashboard.py")
+                else:
+                    st.error("User not found")
             else:
                 st.error("Invalid username or password")
 

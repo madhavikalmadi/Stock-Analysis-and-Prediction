@@ -745,7 +745,11 @@ st.write("")
 
 # BUTTON: Go to Knowledge Hub
 if st.button("📚 Go to Knowledge Hub"):
-    # This assumes 'pages/stock_details.py' is your knowledge hub
+    # Preserve session state in query params
+    if "user_id" in st.session_state:
+        st.query_params["user_id"] = st.session_state.user_id
+    if "username" in st.session_state:
+        st.query_params["username"] = st.session_state.username
     st.switch_page("pages/stock_details.py")
 
 # =============================================================
@@ -777,6 +781,11 @@ with col_path1:
     
     st.write("") 
     if st.button("Start Beginner Journey", key="btn_beg"):
+        # Preserve session state in query params
+        if "user_id" in st.session_state:
+            st.query_params["user_id"] = st.session_state.user_id
+        if "username" in st.session_state:
+            st.query_params["username"] = st.session_state.username
         st.switch_page("pages/beginner.py")
 
 with col_path2:
@@ -798,6 +807,11 @@ with col_path2:
     
     st.write("") 
     if st.button("Start Reinvestor Journey", key="btn_inv"):
+        # Preserve session state in query params
+        if "user_id" in st.session_state:
+            st.query_params["user_id"] = st.session_state.user_id
+        if "username" in st.session_state:
+            st.query_params["username"] = st.session_state.username
         st.switch_page("pages/reinvestor.py")
 
 # =============================================================
