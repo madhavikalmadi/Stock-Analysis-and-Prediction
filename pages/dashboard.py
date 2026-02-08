@@ -755,9 +755,14 @@ st.markdown("<h3 style='margin-top:3rem; margin-bottom:1.5rem; font-weight:700;'
 
 col_path1, col_path2 = st.columns(2, gap="large")
 
+# Get current session details for links
+user_id = st.session_state.get("user_id", "")
+username = st.session_state.get("username", "")
+params_str = f"?user_id={user_id}&username={username}" if user_id and username else ""
+
 with col_path1:
     st.markdown(f"""
-    <a href="beginner" target="_self" style="text-decoration:none; color:inherit; display:block; height:100%;">
+    <a href="beginner{params_str}" target="_self" style="text-decoration:none; color:inherit; display:block; height:100%;">
         <div class="path-card p-left">
             <div class="path-icon">🌱</div>
             <div class="path-title">Beginner</div>
@@ -783,7 +788,7 @@ with col_path1:
 
 with col_path2:
     st.markdown(f"""
-    <a href="reinvestor" target="_self" style="text-decoration:none; color:inherit; display:block; height:100%;">
+    <a href="reinvestor{params_str}" target="_self" style="text-decoration:none; color:inherit; display:block; height:100%;">
         <div class="path-card p-right">
             <div class="path-icon">🔁</div>
             <div class="path-title">Reinvestor</div>
