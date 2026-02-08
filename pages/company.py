@@ -150,12 +150,17 @@ with col2:
 # FOOTER NAVIGATION
 # ==========================================
 st.write("---")
-c1, _, c2 = st.columns([1,4,1])
+c_back, _, c_dash = st.columns([1, 6, 1])
 
-with c1:
-    if st.button("⬅ Back"):
+with c_back:
+    if st.button("⬅ Back", key="btn_company_back"):
         st.switch_page("pages/reinvestor.py")
 
-with c2:
-    if st.button("⬅ Dashboard"):
+with c_dash:
+    if st.button("⬅ Dashboard", key="btn_company_dashboard"):
+        # Preserve session state in query params
+        if "user_id" in st.session_state:
+            st.query_params["user_id"] = st.session_state.user_id
+        if "username" in st.session_state:
+            st.query_params["username"] = st.session_state.username
         st.switch_page("pages/dashboard.py")

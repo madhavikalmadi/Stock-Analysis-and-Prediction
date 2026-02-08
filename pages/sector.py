@@ -198,12 +198,17 @@ if start_analysis:
 # FOOTER
 # ==========================================
 st.markdown("---")
-c_back, _, c_dash = st.columns([1, 4, 1])
+c_back, _, c_dash = st.columns([1, 6, 1])
 
 with c_back:
-    if st.button("⬅ Back to Menu"):
+    if st.button("⬅ Back to Menu", key="btn_sector_back"):
         st.switch_page("pages/beginner.py")
 
 with c_dash:
-    if st.button("⬅ Dashboard"):
+    if st.button("⬅ Dashboard", key="btn_sector_dashboard"):
+        # Preserve session state in query params
+        if "user_id" in st.session_state:
+            st.query_params["user_id"] = st.session_state.user_id
+        if "username" in st.session_state:
+            st.query_params["username"] = st.session_state.username
         st.switch_page("pages/dashboard.py")
