@@ -72,9 +72,16 @@ body, [data-testid="stAppViewContainer"] {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    transition: transform 0.3s ease;
+    transition: all 0.4s ease;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
-.glass-card:hover { transform: translateY(-12px); }
+.glass-card:hover {
+    transform: translateY(-15px) scale(1.02);
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    border-color: rgba(255,255,255,0.9);
+}
 
 .card-icon {
     font-size: 4rem;
@@ -147,8 +154,10 @@ with col2:
                 </div>
             </div>
         </a>
+        </a>
         """, unsafe_allow_html=True)
 
+        st.write("") # SPACER
         if st.button("🚀 Explore Blue-Chips"):
             if "user_id" in st.session_state and "username" in st.session_state:
                 st.query_params["user_id"] = st.session_state.user_id
@@ -169,6 +178,7 @@ with col2:
         </a>
         """, unsafe_allow_html=True)
 
+        st.write("") # SPACER
         if st.button("🚀 Explore Sectors"):
             if "user_id" in st.session_state and "username" in st.session_state:
                 st.query_params["user_id"] = st.session_state.user_id
