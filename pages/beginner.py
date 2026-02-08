@@ -27,9 +27,9 @@ st.set_page_config(
 if "page" in st.query_params:
     page_name = st.query_params["page"]
     if page_name == "bluechip":
-        st.switch_page("pages/bluechip.py") 
+        st.switch_page("bluechip.py") 
     elif page_name == "sector":
-        st.switch_page("pages/sector.py")
+        st.switch_page("sector.py")
     st.query_params.clear()
 
 # -----------------------------------------------------------------------------
@@ -152,7 +152,7 @@ with col2:
         """, unsafe_allow_html=True)
         st.write("") 
         if st.button("🚀 Explore Blue-Chips", key="btn_bluechip"):
-            st.switch_page("pages/bluechip.py")
+            st.switch_page("bluechip.py")
 
     # CARD 2: SECTOR VIEW
     with card_c2:
@@ -172,7 +172,7 @@ with col2:
         st.write("") 
         
         if st.button("🚀 Explore Sectors", key="btn_sectors"):
-            st.switch_page("pages/sector.py")
+            st.switch_page("sector.py")
 
 # -----------------------------------------------------------------------------
 # NAV (Dashboard Button)
@@ -199,4 +199,4 @@ div.stButton:last-of-type > button:hover { background: #2563eb !important; trans
 c1, c2, c3 = st.columns([5, 2, 5])
 with c2:
     if st.button("⬅ Dashboard", key="btn_home_nav"):
-        st.switch_page("pages/dashboard.py")
+        st.switch_page("dashboard.py")

@@ -258,8 +258,8 @@ div.stButton:last-of-type > button:hover {
 c_back, _, c_dash = st.columns([1, 4, 1])
 with c_back:
     if st.button("⬅ Back to Menu"):
-        st.switch_page("pages/beginner.py")
+        st.switch_page("beginner.py")
 
 with c_dash:
     if st.button("⬅ Dashboard", key="btn_home_nav"):
-        st.switch_page("pages/dashboard.py")
+        st.switch_page("dashboard.py")

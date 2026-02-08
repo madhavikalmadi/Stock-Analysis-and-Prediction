@@ -240,7 +240,7 @@ div.stButton > button:hover {
 """, unsafe_allow_html=True)
 
 if st.button("⬅ Back to Dashboard"):
-    st.switch_page("pages/dashboard.py")
+    st.switch_page("dashboard.py")
 
 st.write("---")
 st.markdown("<center style='opacity:0.6;'>Smart Investor Assistant</center>", unsafe_allow_html=True)

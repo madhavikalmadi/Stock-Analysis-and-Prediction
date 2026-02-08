@@ -37,7 +37,7 @@ if not st.session_state.show_admin_login:
                 st.error("All fields are required")
             elif auth_utils.login_user(username, password):
                 st.success("Login successful")
-                st.switch_page("pages/dashboard.py")
+                st.switch_page("dashboard.py")
             else:
                 st.error("Invalid username or password")
 
@@ -78,6 +78,6 @@ if st.session_state.show_admin_login:
             st.session_state.clear()
             st.session_state.is_admin = True
             st.success("Admin login successful")
-            st.switch_page("pages/admin.py")
+            st.switch_page("admin.py")
         else:
             st.error("Invalid admin credentials")

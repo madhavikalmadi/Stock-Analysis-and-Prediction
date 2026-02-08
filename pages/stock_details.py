@@ -471,7 +471,7 @@ def main():
     _, mid, _ = st.columns([5, 1.5, 5])
     with mid:
         if st.button("⬅ Dashboard", key="btm_nav", use_container_width=True):
-            st.switch_page("pages/dashboard.py")
+            st.switch_page("dashboard.py")
 
     st.markdown("<p class='footer-text'>© 2025 Smart Investor Assistant</p>", unsafe_allow_html=True)
 

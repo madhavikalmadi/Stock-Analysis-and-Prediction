@@ -535,7 +535,7 @@ with bh_col1:
             st.query_params["user_id"] = st.session_state.user_id
         if "username" in st.session_state:
             st.query_params["username"] = st.session_state.username
-        st.switch_page("pages/search.py")
+        st.switch_page("search.py")
 
 with bh_col2:
     if st.button("👤 Profile", key="header_profile_btn"):
@@ -544,7 +544,7 @@ with bh_col2:
             st.query_params["user_id"] = st.session_state.user_id
         if "username" in st.session_state:
             st.query_params["username"] = st.session_state.username
-        st.switch_page("pages/profile.py")
+        st.switch_page("profile.py")
 
 
 # =============================================================
@@ -753,7 +753,7 @@ st.write("")
 # BUTTON: Go to Knowledge Hub
 if st.button("📚 Go to Knowledge Hub"):
     # This assumes 'pages/stock_details.py' is your knowledge hub
-    st.switch_page("pages/stock_details.py")
+    st.switch_page("stock_details.py")
 
 # =============================================================
 # PATHWAYS (Animation added to inner description text)
@@ -784,7 +784,7 @@ with col_path1:
     
     st.write("") 
     if st.button("Start Beginner Journey", key="btn_beg"):
-        st.switch_page("pages/beginner.py")
+        st.switch_page("beginner.py")
 
 with col_path2:
     st.markdown(f"""
@@ -805,7 +805,7 @@ with col_path2:
     
     st.write("") 
     if st.button("Start Reinvestor Journey", key="btn_inv"):
-        st.switch_page("pages/reinvestor.py")
+        st.switch_page("reinvestor.py")
 
 # =============================================================
 # FOOTER

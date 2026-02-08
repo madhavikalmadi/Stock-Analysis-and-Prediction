@@ -28,9 +28,9 @@ st.set_page_config(
 if "page" in st.query_params:
     page_name = st.query_params["page"]
     if page_name == "company":
-        st.switch_page("pages/company.py") 
+        st.switch_page("company.py") 
     elif page_name == "index":
-        st.switch_page("pages/index.py")
+        st.switch_page("index.py")
     st.query_params.clear()
 
 # -----------------------------------------------------------------------------
@@ -171,7 +171,7 @@ with col2:
         
         # Redirect to company.py
         if st.button("🚀 Start Company Analysis", key="btn_company"):
-            st.switch_page("pages/company.py")
+            st.switch_page("company.py")
         
 
     # CARD 2: INDEX ADVISOR
@@ -193,7 +193,7 @@ with col2:
         
         # Redirect to index.py
         if st.button("🚀 Start Index Analysis", key="btn_index"):
-                st.switch_page("pages/index.py")
+                st.switch_page("index.py")
 
 
 # -----------------------------------------------------------------------------
@@ -221,4 +221,4 @@ div.stButton:last-of-type > button:hover { background: #2563eb !important; trans
 c1, c2, c3 = st.columns([5, 2, 5])
 with c2:
     if st.button("⬅ Dashboard", key="btn_home_nav"):
-        st.switch_page("pages/dashboard.py")
+        st.switch_page("dashboard.py")
