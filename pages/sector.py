@@ -275,7 +275,7 @@ c_back, _, c_dash = st.columns([1, 4, 1])
 with c_back:
     # BUG FIX: Removed try/except block which was blocking the switch
     if st.button("⬅ Back to Menu", key="btn_sector_back"):
-        st.switch_page("beginner.py")
+        st.switch_page("pages/beginner.py")
 
 with c_dash:
     if st.button("⬅ Dashboard", key="btn_home_nav"):

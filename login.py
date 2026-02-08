@@ -78,6 +78,6 @@ if st.session_state.show_admin_login:
             st.session_state.clear()
             st.session_state.is_admin = True
             st.success("Admin login successful")
-            st.switch_page("admin.py")
+            st.switch_page("pages/admin.py")
         else:
             st.error("Invalid admin credentials")
