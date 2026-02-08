@@ -169,20 +169,34 @@ st.write("")
 # --------------------------------------------------
 # MAIN CONTENT
 # --------------------------------------------------
+# ---------------- MAIN CONTENT ----------------
 col1, col2, col3 = st.columns([1, 10, 1])
+
+# PREPARE PARAMS
+import urllib.parse
+user_id = st.session_state.get("user_id", "")
+username = st.session_state.get("username", "")
+params_str = ""
+if user_id and username:
+    safe_user = urllib.parse.quote(str(user_id))
+    safe_name = urllib.parse.quote(str(username))
+    params_str = f"?user_id={safe_user}&username={safe_name}"
+
 with col2:
     c1, c2 = st.columns(2, gap="large")
 
     # ---------------- BLUE CHIP ----------------
     with c1:
-        st.markdown("""
-        <div class="glass-card">
-            <div class="card-icon">💎</div>
-            <div class="card-heading">Blue-Chip Advisor</div>
-            <div class="card-text">
-                Safest large-cap companies with consistent long-term growth.
+        st.markdown(f"""
+        <a href="bluechip{params_str}" target="_self" style="text-decoration:none; color:inherit;">
+            <div class="glass-card">
+                <div class="card-icon">💎</div>
+                <div class="card-heading">Blue-Chip Advisor</div>
+                <div class="card-text">
+                    Safest large-cap companies with consistent long-term growth.
+                </div>
             </div>
-        </div>
+        </a>
         """, unsafe_allow_html=True)
 
         if st.button("🚀 Explore Blue-Chips"):
@@ -193,14 +207,16 @@ with col2:
 
     # ---------------- SECTOR ----------------
     with c2:
-        st.markdown("""
-        <div class="glass-card">
-            <div class="card-icon">🏗️</div>
-            <div class="card-heading">Sector View</div>
-            <div class="card-text">
-                Identify trending sectors like IT, Banking, Auto & more.
+        st.markdown(f"""
+        <a href="sector{params_str}" target="_self" style="text-decoration:none; color:inherit;">
+            <div class="glass-card">
+                <div class="card-icon">🏗️</div>
+                <div class="card-heading">Sector View</div>
+                <div class="card-text">
+                    Identify trending sectors like IT, Banking, Auto & more.
+                </div>
             </div>
-        </div>
+        </a>
         """, unsafe_allow_html=True)
 
         if st.button("🚀 Explore Sectors"):
