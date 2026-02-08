@@ -166,14 +166,18 @@ try:
             ticker = row.Ticker.replace(".NS", "")
             company = COMPANY_NAME_MAP.get(ticker, ticker)
 
+            inv_type = investor_type(row)
+
             with cols[idx]:
-                st.metric(
-                    label=ticker,
-                    value=f"{row.FinalScore*100:.1f}/100",
-                    delta=f"CAGR {row.CAGR*100:.1f}%"
-                )
-                st.caption(company)
-                st.caption(f"Investor Type: {investor_type(row)}")
+                st.markdown(f"""
+                <div class="stock-card">
+                    <div class="metric" style="font-size:1.1rem; margin-bottom:5px;">{ticker}</div>
+                    <div class="big">{row.FinalScore*100:.1f}<span style="font-size:1rem; color:#94a3b8;">/100</span></div>
+                    <div class="small" style="margin: 8px 0; font-weight:600; height:40px; overflow:hidden; display:flex; align-items:center; justify-content:center;">{company}</div>
+                    <div class="small" style="color:#16a34a; font-weight:bold; background:rgba(22, 163, 74, 0.1); padding:4px 8px; border-radius:8px; display:inline-block; margin-bottom:5px;">CAGR {row.CAGR*100:.1f}%</div>
+                    <div class="small" style="opacity:0.8;">Type: {inv_type}</div>
+                </div>
+                """, unsafe_allow_html=True)
 
 except Exception as e:
     st.error("Something went wrong while loading Blue-Chip data.")
