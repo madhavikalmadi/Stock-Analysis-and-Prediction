@@ -202,7 +202,7 @@ c_back, _, c_dash = st.columns([1, 6, 1])
 
 with c_back:
     if st.button("⬅ Back to Menu", key="btn_index_back"):
-        st.switch_page("reinvestor.py")
+        st.switch_page("pages/reinvestor.py")
 
 with c_dash:
     if st.button("⬅ Dashboard", key="btn_index_dashboard"):
