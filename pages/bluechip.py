@@ -171,15 +171,15 @@ try:
             with cols[idx]:
                 st.markdown(f"""
 <div class="stock-card">
-<div class="metric" style="font-size:1.1rem; margin-bottom:5px;">{ticker}</div>
-<div class="big">{row.FinalScore*100:.1f}<span style="font-size:1rem; color:#94a3b8;">/100</span></div>
-<div class="metrics-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:15px 0;">
+<div class="metric" style="font-size:1.2rem; font-weight:800; color:#1e293b; margin-bottom:2px;">{ticker}</div>
+<div class="small" style="font-size:0.85rem; color:#64748b; margin-bottom:15px; min-height:30px; display:flex; align-items:center; justify-content:center; line-height:1.2;">{company}</div>
+<div class="big" style="margin-bottom:15px;">{row.FinalScore*100:.1f}<span style="font-size:1rem; color:#94a3b8;">/100</span></div>
+<div class="metrics-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; padding-top:15px; border-top:1px solid #eee;">
 <div><span class="small" style="font-weight:700;">CAGR</span><div style="font-weight:600;">{row.CAGR*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Sharpe</span><div style="font-weight:600;">{row.Sharpe:.2f}</div></div>
 <div><span class="small" style="font-weight:700;">Vol</span><div style="font-weight:600;">{row.Volatility*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Drawdown</span><div style="font-weight:600; color:#ef4444;">{row.MaxDrawdown*100:.1f}%</div></div>
 </div>
-<div class="small" style="font-weight:600; height:36px; display:flex; align-items:center; justify-content:center; border-top:1px solid #eee; padding-top:10px;">{company}</div>
 </div>
 """, unsafe_allow_html=True)
 
