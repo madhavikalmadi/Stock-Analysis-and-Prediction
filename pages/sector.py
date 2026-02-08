@@ -156,6 +156,9 @@ if start_analysis:
         progress.progress((i + 1) / len(target_indices))
 
     progress.empty()
+    st.write("")
+    st.write("")
+    st.write("")
     st.success(f"✅ Analysis Complete for {selected_category}")
 
 # ==========================================
