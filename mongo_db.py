@@ -1,19 +1,27 @@
 from pymongo import MongoClient
 import os
 import streamlit as st
-
-MONGO_URI = os.getenv("MONGO_URI") or st.secrets.get("MONGO_URI")
-
-if not MONGO_URI:
-    raise Exception("MONGO_URI not found in environment or Streamlit secrets")
-
 import certifi
 
-# Fix for SSL Handshake Error
-client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
+# Try to read MongoDB URI from environment or Streamlit secrets
+MONGO_URI = os.getenv("MONGO_URI") or st.secrets.get("MONGO_URI", None)
 
-db = client["stock_market_app"]
+# -------------------------------------------------
+# SAFE MODE: MongoDB is OPTIONAL
+# -------------------------------------------------
+if not MONGO_URI:
+    # Demo / No-DB mode
+    client = None
+    db = None
+    users_col = None
+    actions_col = None
+    watchlist_col = None
 
-users_col = db["users"]
-actions_col = db["user_actions"]
-watchlist_col = db["watchlist"]
+else:
+    # Production / DB mode
+    client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
+    db = client["stock_market_app"]
+
+    users_col = db["users"]
+    actions_col = db["user_actions"]
+    watchlist_col = db["watchlist"]
