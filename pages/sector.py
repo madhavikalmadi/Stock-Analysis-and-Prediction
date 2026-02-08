@@ -77,15 +77,18 @@ st.markdown("""
         to { opacity: 1; transform: translateY(0); }
     }
 
-    div.stButton > button {
-        background-color: #1e293b;
-        color: white;
-        border-radius: 8px;
-        height: 3rem;
-        width: 100%;
-        font-weight: 600;
-        margin-top: 28px;
-    }
+div.stButton > button {
+    padding: 0.4rem 1rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 50px !important;
+    background: rgba(24, 40, 72, 0.85) !important;
+    color: white !important;
+    white-space: nowrap !important;
+}
+div.stButton > button:hover {
+    background: #2563eb !important;
+    transform: translateY(-2px);
+}
 
     .stock-card {
         background-color: white;
@@ -197,7 +200,9 @@ if start_analysis:
 # ==========================================
 # FOOTER
 # ==========================================
+st.write("")
 st.markdown("---")
+st.write("")
 c_back, _, c_dash = st.columns([1, 6, 1])
 
 with c_back:

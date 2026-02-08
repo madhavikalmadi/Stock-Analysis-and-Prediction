@@ -93,6 +93,26 @@ COMPANY_NAME_MAP = {
 }
 
 # ==================================================
+# CSS STYLING
+# ==================================================
+st.markdown("""
+<style>
+div.stButton > button {
+    padding: 0.4rem 1rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 50px !important;
+    background: rgba(24, 40, 72, 0.85) !important;
+    color: white !important;
+    white-space: nowrap !important;
+}
+div.stButton > button:hover {
+    background: #2563eb !important;
+    transform: translateY(-2px);
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ==================================================
 # HEADER
 # ==================================================
 st.markdown("## 💎 Blue-Chip Explorer")

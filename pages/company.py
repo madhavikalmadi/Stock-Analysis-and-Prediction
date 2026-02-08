@@ -74,6 +74,18 @@ body, [data-testid="stAppViewContainer"] {
     box-shadow: 0 8px 25px rgba(0,0,0,0.07);
     margin-bottom: 15px;
 }
+div.stButton > button {
+    padding: 0.4rem 1rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 50px !important;
+    background: rgba(24, 40, 72, 0.85) !important;
+    color: white !important;
+    white-space: nowrap !important;
+}
+div.stButton > button:hover {
+    background: #2563eb !important;
+    transform: translateY(-2px);
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -149,7 +161,9 @@ with col2:
 # ==========================================
 # FOOTER NAVIGATION
 # ==========================================
+st.write("")
 st.write("---")
+st.write("")
 c_back, _, c_dash = st.columns([1, 6, 1])
 
 with c_back:
