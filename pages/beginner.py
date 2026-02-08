@@ -42,61 +42,114 @@ if "user_id" in st.session_state and "username" in st.session_state:
 # --------------------------------------------------
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
 
+/* Hide sidebar components */
 [data-testid="stSidebar"],
 [data-testid="stSidebarCollapsedControl"] {
-    display: none;
+    display: none !important;
 }
 
+/* Global Background */
 body, [data-testid="stAppViewContainer"] {
-    background: linear-gradient(120deg, #eef2f3 0%, #8e9eab 100%);
+    background: linear-gradient(120deg, #eef2f3 0%, #8e9eab 100%) !important;
     font-family: 'Outfit', sans-serif !important;
+    color: #1e293b;
     overflow-x: hidden;
 }
 
+/* Container Spacing */
 .block-container {
     padding-top: 4rem !important;
+    max-width: 1200px;
 }
 
+/* Glass Card Styling */
 .glass-card {
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(16px);
-    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
     padding: 3rem 2rem;
-    height: 350px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    height: 380px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     text-align: center;
-    transition: 0.4s ease;
+    transition: all 0.4s ease;
+    border: 1px solid rgba(255,255,255,0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .glass-card:hover {
     transform: translateY(-10px);
-    background: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    border-color: rgba(255,255,255,0.8);
 }
 
 .card-icon {
     font-size: 4rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    background: rgba(37, 99, 235, 0.1);
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
 }
 
 .card-heading {
     font-size: 1.8rem;
     font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
 }
 
 .card-text {
     font-size: 1rem;
-    opacity: 0.7;
-    margin-bottom: 1.5rem;
+    color: #475569;
+    margin-bottom: 2rem;
+    line-height: 1.6;
 }
 
+/* Premium Gradient Buttons */
 div.stButton > button {
     width: 100%;
-    border-radius: 14px;
-    padding: 0.8rem;
-    font-weight: 600;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 0.8rem 1.5rem !important;
+    font-weight: 700 !important;
+    border-radius: 12px !important;
+    font-size: 1rem !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
+
+div.stButton > button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4) !important;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+}
+
+/* Footer Button (Secondary) */
+div.stButton:last-of-type > button {
+    background: rgba(30, 41, 59, 0.9) !important;
+    font-size: 0.9rem !important;
+    margin-top: 1rem;
+}
+div.stButton:last-of-type > button:hover {
+    background: #0f172a !important;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.3) !important;
+}
+
+/* Typography */
+h1 { font-weight: 900 !important; color: #1e293b; }
+p { font-size: 1.1rem; color: #64748b; }
 </style>
 """, unsafe_allow_html=True)
 
