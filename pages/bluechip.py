@@ -183,6 +183,9 @@ try:
 </div>
 """, unsafe_allow_html=True)
 
+        st.write("")
+        st.write("")
+
 except Exception as e:
     st.error("Something went wrong while loading Blue-Chip data.")
     st.code(str(e))
