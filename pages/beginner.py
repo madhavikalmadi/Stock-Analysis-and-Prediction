@@ -16,6 +16,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Authentication check
+if not st.session_state.get("authenticated"):
+    st.switch_page("login.py")
+
 # --------------------------------------------------
 # 🔐 RESTORE SESSION FROM URL (REFRESH SAFE)
 # --------------------------------------------------

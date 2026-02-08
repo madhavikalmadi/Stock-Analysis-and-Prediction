@@ -1,22 +1,19 @@
 import streamlit as st
 import auth_utils
+from mongo_db import users_col
 
 st.set_page_config(page_title="Login", layout="centered")
 
-st.title("🔐 Smart Investor Assistant")
-
 # =====================================================
-# REDIRECT IF ALREADY LOGGED IN
+# 🔁 REDIRECT IF ALREADY LOGGED IN
 # =====================================================
 if st.session_state.get("is_admin"):
     st.switch_page("pages/admin.py")
 
 if st.session_state.get("authenticated"):
-    # Ensure query params are set before redirect
-    if "user_id" in st.session_state and "username" in st.session_state:
-        st.query_params["user_id"] = st.session_state.user_id
-        st.query_params["username"] = st.session_state.username
     st.switch_page("pages/dashboard.py")
+
+st.title("🔐 Smart Investor Assistant")
 
 # =====================================================
 # SESSION STATE INIT
@@ -25,7 +22,7 @@ if "show_admin_login" not in st.session_state:
     st.session_state.show_admin_login = False
 
 # =====================================================
-# ADMIN LOGIN BUTTON (VISIBLE INITIALLY)
+# ADMIN LOGIN BUTTON
 # =====================================================
 if not st.session_state.show_admin_login:
     col1, col2, col3 = st.columns([6, 3, 3])
@@ -49,29 +46,24 @@ if not st.session_state.show_admin_login:
             if not username or not password:
                 st.error("All fields are required")
             elif auth_utils.login_user(username, password):
-                # ✅ GET USER FROM DATABASE TO RETRIEVE USER_ID
-                from mongo_db import users_col
                 user = users_col.find_one({
                     "username": {"$regex": f"^{username}$", "$options": "i"}
                 })
-                
-                if user:
-                    user_id_str = str(user["_id"])
-                    
-                    # ✅ SET SESSION STATE WITH ALL REQUIRED FIELDS FIRST
+
+                if not user:
+                    st.error("User not found")
+                else:
+                    # ✅ SESSION STATE (SOURCE OF TRUTH)
                     st.session_state.authenticated = True
                     st.session_state.username = username
-                    st.session_state.user_id = user_id_str
-                    
-                    # ✅ SET QUERY PARAMS FOR PERSISTENCE
-                    st.query_params["user_id"] = user_id_str
+                    st.session_state.user_id = str(user["_id"])
+
+                    # ✅ OPTIONAL (persistence only)
+                    st.query_params["user_id"] = st.session_state.user_id
                     st.query_params["username"] = username
-                    
+
                     st.success("Login successful")
-                    # Small delay to ensure state is set
                     st.switch_page("pages/dashboard.py")
-                else:
-                    st.error("User not found")
             else:
                 st.error("Invalid username or password")
 
@@ -99,7 +91,7 @@ if not st.session_state.show_admin_login:
                     st.error("Username already exists.")
 
 # =====================================================
-# ADMIN LOGIN (SEPARATE FLOW)
+# ADMIN LOGIN
 # =====================================================
 if st.session_state.show_admin_login:
     st.subheader("🛠 Admin Login")
@@ -109,7 +101,6 @@ if st.session_state.show_admin_login:
 
     if st.button("Login as Admin"):
         if admin_user == "admin" and admin_pass == "admin123":
-            # ✅ ADMIN SESSION (DO NOT CLEAR EVERYTHING)
             st.session_state.is_admin = True
             st.session_state.authenticated = False
             st.session_state.show_admin_login = False

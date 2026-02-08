@@ -16,6 +16,10 @@ from mongo_db import actions_col, watchlist_col
 # --------------------------------------------------
 st.set_page_config(page_title="Stock Search", page_icon="🔍", layout="wide")
 
+# Authentication check
+if not st.session_state.get("authenticated"):
+    st.switch_page("login.py")
+
 # --------------------------------------------------
 # 🔐 RESTORE SESSION FROM URL (REFRESH SAFE)
 # --------------------------------------------------

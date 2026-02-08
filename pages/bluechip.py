@@ -19,6 +19,10 @@ import auth_utils
 
 st.set_page_config(page_title="Bluechip Explorer", layout="wide")
 
+# Authentication check
+if not st.session_state.get("authenticated"):
+    st.switch_page("login.py")
+
 # --------------------------------------------------
 # 🔐 RESTORE SESSION FROM URL (REFRESH SAFE)
 # --------------------------------------------------
