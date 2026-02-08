@@ -172,14 +172,16 @@ try:
                 st.markdown(f"""
 <div class="stock-card">
 <div class="metric" style="font-size:1.2rem; font-weight:800; color:#1e293b; margin-bottom:2px;">{ticker}</div>
-<div class="small" style="font-size:0.85rem; color:#64748b; margin-bottom:15px; min-height:30px; display:flex; align-items:center; justify-content:center; line-height:1.2;">{company}</div>
-<div class="big" style="margin-bottom:15px;">{row.FinalScore*100:.1f}<span style="font-size:1rem; color:#94a3b8;">/100</span></div>
+<div class="small" style="font-size:0.85rem; color:#64748b; margin-bottom:10px; min-height:30px; display:flex; align-items:center; justify-content:center; line-height:1.2;">{company}</div>
+<div class="small" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin-bottom:2px;">Risk-Adjusted Score</div>
+<div class="big" style="margin-bottom:15px; color:#059669;">{row.FinalScore*100:.1f}<span style="font-size:1rem; color:#94a3b8;">/100</span></div>
 <div class="metrics-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; padding-top:15px; border-top:1px solid #eee;">
 <div><span class="small" style="font-weight:700;">CAGR</span><div style="font-weight:600;">{row.CAGR*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Sharpe</span><div style="font-weight:600;">{row.Sharpe:.2f}</div></div>
 <div><span class="small" style="font-weight:700;">Vol</span><div style="font-weight:600;">{row.Volatility*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Drawdown</span><div style="font-weight:600; color:#ef4444;">{row.MaxDrawdown*100:.1f}%</div></div>
 </div>
+<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:5px; border-radius:6px;">Profile: <span style="color:#2563eb;">{inv_type}</span></div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -197,12 +199,15 @@ st.write("")
 st.markdown("### 📚 Explanation of Key Terms")
 with st.expander("Click to learn more about the metrics used above", expanded=False):
     st.markdown("""
-    * **Final Score (0-100):** A composite rating that rewards high returns and stability while penalizing high risk.
+    * **Risk-Adjusted Score (0-100):** A composite rating that indicates the quality of a stock. Higher scores mean better risk-adjusted returns (high growth with controlled volatility).
     * **CAGR (Compound Annual Growth Rate):** The average yearly return of the investment over the analyzed period.
-    * **Sharpe Ratio:** Measures risk-adjusted return. A higher Sharpe ratio (>1.0) means better returns for the risk taken.
-    * **Volatility:** Represents the fluctuation in price. Lower volatility suggests a more stable and safer investment.
-    * **Max Drawdown (Max DD):** The largest percentage drop from a peak to a trough. A smaller negative number (closer to 0%) is better.
-    * **Investor Type:** Categorization based on volatility and drawdown (Aggressive, Moderate, Conservative).
+    * **Sharpe Ratio:** Measures how much return you are getting for each unit of risk. (>1.0 is considered good).
+    * **Volatility:** Represents price fluctuations. Lower volatility means a smoother, safer investment ride.
+    * **Max Drawdown (Max DD):** The largest percentage drop from a peak to a trough. Closer to 0% is safer.
+    * **Investor Profile:**
+        * **Conservative:** Low volatility (<30%), steady returns (Sharpe > 0.7). Best for safety-first investors.
+        * **Aggressive:** High volatility (>35%) or deep drawdowns. High risk, potential for high reward.
+        * **Moderate:** Balanced risk and return profile. Suitable for most long-term investors.
     """)
 
 # ==================================================
