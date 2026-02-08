@@ -16,13 +16,9 @@ from mongo_db import actions_col, watchlist_col
 # --------------------------------------------------
 st.set_page_config(page_title="Stock Search", page_icon="🔍", layout="wide")
 
-# Authentication check
-if not st.session_state.get("authenticated"):
-    st.switch_page("login.py")
-
-# --------------------------------------------------
-# 🔐 RESTORE SESSION FROM URL (REFRESH SAFE)
-# --------------------------------------------------
+# =====================================================
+# 🔁 RESTORE SESSION FROM URL (VERY IMPORTANT)
+# =====================================================
 params = st.query_params
 
 if "user_id" in params and "username" in params:
@@ -30,20 +26,11 @@ if "user_id" in params and "username" in params:
     st.session_state.username = params["username"]
     st.session_state.authenticated = True
 
-# --------------------------------------------------
-# SESSION STATE & PERSISTENCE
-# --------------------------------------------------
-# Sync back to URL if missing (allows refresh to work)
-user_id = st.session_state.get("user_id")
-username = st.session_state.get("username")
-
-if user_id and username:
-    # Ensure authenticated flag is set if we have valid session
-    st.session_state.authenticated = True
-    q = st.query_params
-    if "user_id" not in q or "username" not in q:
-        st.query_params["user_id"] = user_id
-        st.query_params["username"] = username
+# =====================================================
+# 🔐 AUTH GUARD (AFTER RESTORE)
+# =====================================================
+if not st.session_state.get("authenticated"):
+    st.switch_page("login.py")
 
 if "watchlist" not in st.session_state:
     st.session_state.watchlist = []

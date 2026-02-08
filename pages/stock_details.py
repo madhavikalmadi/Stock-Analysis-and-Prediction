@@ -19,35 +19,21 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Authentication check
-if not st.session_state.get("authenticated"):
-    st.switch_page("login.py")
-
-# --------------------------------------------------
-# 🔐 RESTORE SESSION FROM URL (REFRESH SAFE)
-# --------------------------------------------------
+# =====================================================
+# 🔁 RESTORE SESSION FROM URL (VERY IMPORTANT)
+# =====================================================
 params = st.query_params
+
 if "user_id" in params and "username" in params:
     st.session_state.user_id = params["user_id"]
     st.session_state.username = params["username"]
     st.session_state.authenticated = True
 
-# Sync back to URL if missing (allows refresh to work)
-user_id = st.session_state.get("user_id")
-username = st.session_state.get("username")
-
-if user_id and username:
-    # Ensure authenticated flag is set if we have valid session
-    st.session_state.authenticated = True
-    q = st.query_params
-    if "user_id" not in q or "username" not in q:
-        st.query_params["user_id"] = user_id
-        st.query_params["username"] = username
-
-# Auth check removed
-# if not auth_utils.check_auth():
-#     st.warning("You must log in to access this page.")
-#     st.switch_page("login.py")
+# =====================================================
+# 🔐 AUTH GUARD (AFTER RESTORE)
+# =====================================================
+if not st.session_state.get("authenticated"):
+    st.switch_page("login.py")
 
 # OPTIMIZATION: Cache the network request to prevent lag on reload
 @st.cache_data(ttl=86400, show_spinner=False)
