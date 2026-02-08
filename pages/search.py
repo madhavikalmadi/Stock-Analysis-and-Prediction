@@ -313,7 +313,7 @@ div.stButton > button:hover {
 
 # Footer Layout (Centered via CSS)
 if st.button("⬅ Back to Dashboard", key="btn_search_back"):
-    st.switch_page("dashboard.py")
+    st.switch_page("pages/dashboard.py")
 
 st.write("---")
 

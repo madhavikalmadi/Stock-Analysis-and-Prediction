@@ -9,7 +9,7 @@ st.title("🔐 Smart Investor Assistant")
 # REDIRECT IF ALREADY LOGGED IN
 # =====================================================
 if st.session_state.get("authenticated"):
-    st.switch_page("dashboard.py")
+    st.switch_page("pages/dashboard.py")
 
 if st.session_state.get("is_admin"):
     st.switch_page("pages/admin.py")
@@ -51,7 +51,7 @@ if not st.session_state.show_admin_login:
                 st.session_state.user_id = username  # or actual user_id if you return it
 
                 st.success("Login successful")
-                st.switch_page("dashboard.py")
+                st.switch_page("pages/dashboard.py")
             else:
                 st.error("Invalid username or password")
 

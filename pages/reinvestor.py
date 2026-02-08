@@ -221,4 +221,4 @@ div.stButton:last-of-type > button:hover { background: #2563eb !important; trans
 c1, c2, c3 = st.columns([5, 2, 5])
 with c2:
     if st.button("⬅ Dashboard", key="btn_home_nav"):
-        st.switch_page("dashboard.py")
+        st.switch_page("pages/dashboard.py")
