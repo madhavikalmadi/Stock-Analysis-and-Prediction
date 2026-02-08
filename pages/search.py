@@ -10,6 +10,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import data_fetch
 from mongo_db import actions_col, watchlist_col
+from mongo_db import actions_col
 
 # --------------------------------------------------
 # PAGE CONFIG
