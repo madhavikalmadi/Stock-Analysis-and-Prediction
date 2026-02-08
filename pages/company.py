@@ -161,11 +161,11 @@ st.write("")
 st.markdown("### 📚 Explanation of Key Terms")
 with st.expander("Click to learn more about the metrics used above", expanded=False):
     st.markdown("""
-    * **Final Score (0-100):** A composite rating that rewards high returns and stability while penalizing high risk.
-    * **CAGR (Compound Annual Growth Rate):** The average yearly return of the investment over the analyzed period.
-    * **Sharpe Ratio:** Measures risk-adjusted return. A higher Sharpe ratio (>1.0) means better returns for the risk taken.
-    * **Volatility:** Represents the fluctuation in price. Lower volatility suggests a more stable and safer investment.
-    * **Max Drawdown (Max DD):** The largest percentage drop from a peak to a trough. A smaller negative number (closer to 0%) is better.
+    * **Final Score (0-100):** Use this to compare companies quickly. Higher score = Better mix of safety and profit.
+    * **CAGR (Yearly Growth):** How fast the company is growing every year. 20% CAGR means your money is compounding fast!
+    * **Sharpe Ratio (Smart Return):** Tells you if the returns are real or just luck. Above 1.0 means the company is fundamentally strong.
+    * **Volatility (Stability):** Low volatility means the stock prices moves gently. High volatility means it's a rollercoaster. Beginners should prefer Low.
+    * **Max Drawdown (Max Loss):** The maximum you could have lost if you bought at the peak. If this is high (e.g., -60%), be careful!
     """)
 
 # ==================================================

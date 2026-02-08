@@ -199,15 +199,15 @@ st.write("")
 st.markdown("### 📚 Explanation of Key Terms")
 with st.expander("Click to learn more about the metrics used above", expanded=False):
     st.markdown("""
-    * **Risk-Adjusted Score (0-100):** A composite rating that indicates the quality of a stock. Higher scores mean better risk-adjusted returns (high growth with controlled volatility).
-    * **CAGR (Compound Annual Growth Rate):** The average yearly return of the investment over the analyzed period.
-    * **Sharpe Ratio:** Measures how much return you are getting for each unit of risk. (>1.0 is considered good).
-    * **Volatility:** Represents price fluctuations. Lower volatility means a smoother, safer investment ride.
-    * **Max Drawdown (Max DD):** The largest percentage drop from a peak to a trough. Closer to 0% is safer.
+    * **Risk-Adjusted Score (0-100):** Think of this as a "Safety + Growth" score. Higher is better. It finds stocks that give good returns without being too risky.
+    * **CAGR (Yearly Growth):** How much your money grows on average each year. A higher percentage is better.
+    * **Sharpe Ratio (Efficiency):** Measures "Bang for your Buck". A score above 1.0 means the stock is generating smart returns for the risk taken.
+    * **Volatility (Price Swings):** How much the price jumps up and down. Lower is better because it means a smooth, stress-free ride.
+    * **Max Drawdown (Worst Drop):** The worst percentage drop the stock has seen from its peak. A small drop (closer to 0%) means it recovers better from crashes.
     * **Investor Profile:**
-        * **Conservative:** Low volatility (<30%), steady returns (Sharpe > 0.7). Best for safety-first investors.
-        * **Aggressive:** High volatility (>35%) or deep drawdowns. High risk, potential for high reward.
-        * **Moderate:** Balanced risk and return profile. Suitable for most long-term investors.
+        * **Conservative:** Safety First. Low risk, steady returns.
+        * **Aggressive:** Risk Taker. High possible gains, but big drops possible.
+        * **Moderate:** Balanced. A mix of safety and growth.
     """)
 
 # ==================================================

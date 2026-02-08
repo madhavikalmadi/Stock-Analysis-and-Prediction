@@ -163,11 +163,11 @@ st.write("")
 st.markdown("### 📚 Explanation of Key Terms")
 with st.expander("Click to learn more about the metrics used above", expanded=False):
     st.markdown("""
-    * **Final Score (0-100):** A composite rating that rewards high returns and stability while penalizing high risk.
-    * **CAGR (Compound Annual Growth Rate):** The average yearly return of the investment over the analyzed period.
-    * **Sharpe Ratio:** Measures risk-adjusted return. A higher Sharpe ratio (>1.0) means better returns for the risk taken.
-    * **Volatility:** Represents the fluctuation in price. Lower volatility suggests a more stable and safer investment.
-    * **Max Drawdown (Max DD):** The largest percentage drop from a peak to a trough. A smaller negative number (closer to 0%) is better.
+    * **Final Score (0-100):** A simplified rating. 100 is excellent, 0 is poor. We calculate this by balancing growth (good) vs risk (bad).
+    * **CAGR (Yearly Growth):** The average annual return. If you see 15%, it means the sector grew by about 15% every year on average.
+    * **Sharpe Ratio (Efficiency):** Shows if the growth is "worth the risk". >1.0 is great. It means you aren't gambling, you're investing smartly.
+    * **Volatility (Risk):** Measures how "bumpy" the ride is. High volatility means the price changes wildly. Low is stable and calm.
+    * **Max Drawdown (Worst Drop):** The worst crash this sector faced from its peak. Smaller negative numbers (e.g., -10% vs -50%) are much safer.
     """)
 
 # ==========================================
