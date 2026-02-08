@@ -221,15 +221,15 @@ if submitted:
         stock_symbol = selected.split(" – ")[0]
         st.session_state.search_query = stock_symbol
 
-       if actions_col:
-    actions_col.insert_one({
-        "user_id": st.session_state.get("user_id"),
-        "action": "search",
-        "value": stock_symbol
-    })
-else:
-    # Optional: silent fail or debug toast
-    st.toast("⚠ Activity logging unavailable", icon="⚠️")
+        if actions_col:
+            actions_col.insert_one({
+                "user_id": st.session_state.get("user_id"),
+                "action": "search",
+                "value": stock_symbol
+            })
+        else:
+            # Optional: silent fail or debug toast
+            st.toast("⚠ Activity logging unavailable", icon="⚠️")
 
 # --------------------------------------------------
 # DISPLAY RESULTS (PERSISTENT)
