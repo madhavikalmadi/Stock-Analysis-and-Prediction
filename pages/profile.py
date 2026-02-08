@@ -20,6 +20,7 @@ params = st.query_params
 if "user_id" in params and "username" in params:
     st.session_state.user_id = params["user_id"]
     st.session_state.username = params["username"]
+    st.session_state.authenticated = True
 
 # --------------------------------------------------
 # SESSION DATA
@@ -31,6 +32,8 @@ username = st.session_state.get("username")
 # SYNC SESSION BACK TO URL
 # --------------------------------------------------
 if user_id and username:
+    # Ensure authenticated flag is set if we have valid session
+    st.session_state.authenticated = True
     st.query_params["user_id"] = user_id
     st.query_params["username"] = username
 

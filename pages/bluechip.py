@@ -33,6 +33,8 @@ user_id = st.session_state.get("user_id")
 username = st.session_state.get("username")
 
 if user_id and username:
+    # Ensure authenticated flag is set if we have valid session
+    st.session_state.authenticated = True
     q = st.query_params
     if "user_id" not in q or "username" not in q:
         st.query_params["user_id"] = user_id
