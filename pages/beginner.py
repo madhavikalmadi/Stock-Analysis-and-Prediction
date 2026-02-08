@@ -75,17 +75,38 @@ body, [data-testid="stAppViewContainer"] {
     transition: all 0.4s ease;
     border: 1px solid rgba(255,255,255,0.3);
     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden; /* For shine effect */
 }
 .glass-card:hover {
-    transform: translateY(-15px) scale(1.02);
+    transform: translateY(-12px);
     background: rgba(255,255,255,0.85);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-    border-color: rgba(255,255,255,0.9);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255, 255, 255, 1);
 }
+
+/* Shine Effect */
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent);
+    transform: skewX(-25deg);
+    transition: 0.5s;
+    pointer-events: none;
+}
+.glass-card:hover::before { left: 150%; transition: 0.7s ease-in-out; }
 
 .card-icon {
     font-size: 4rem;
     margin-bottom: 1rem;
+    transition: transform 0.6s ease;
+}
+.glass-card:hover .card-icon {
+    transform: rotateY(180deg);
 }
 .card-heading {
     font-size: 1.8rem;
