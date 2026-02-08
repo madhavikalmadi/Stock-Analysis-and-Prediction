@@ -16,6 +16,25 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# --------------------------------------------------
+# 🔐 RESTORE SESSION FROM URL (REFRESH SAFE)
+# --------------------------------------------------
+params = st.query_params
+if "user_id" in params and "username" in params:
+    st.session_state.user_id = params["user_id"]
+    st.session_state.username = params["username"]
+    st.session_state.authenticated = True
+
+# Sync back to URL if missing (allows refresh to work)
+user_id = st.session_state.get("user_id")
+username = st.session_state.get("username")
+
+if user_id and username:
+    q = st.query_params
+    if "user_id" not in q or "username" not in q:
+        st.query_params["user_id"] = user_id
+        st.query_params["username"] = username
+
 # Auth check removed
 # if not auth_utils.check_auth():
 #     st.warning("You must log in to access this page.")
@@ -199,4 +218,9 @@ div.stButton:last-of-type > button:hover { background: #2563eb !important; trans
 c1, c2, c3 = st.columns([5, 2, 5])
 with c2:
     if st.button("⬅ Dashboard", key="btn_home_nav"):
+        # Preserve session state in query params
+        if "user_id" in st.session_state:
+            st.query_params["user_id"] = st.session_state.user_id
+        if "username" in st.session_state:
+            st.query_params["username"] = st.session_state.username
         st.switch_page("pages/dashboard.py")
