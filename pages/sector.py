@@ -50,7 +50,6 @@ if "user_id" in st.session_state and "username" in st.session_state:
 # ==========================================
 st.markdown("""
 <style>
-<style>
 .stock-card {
     background: white;
     padding: 18px;
@@ -75,7 +74,7 @@ div.stButton > button:hover {
     background: #2563eb !important;
     transform: translateY(-2px);
 }
-</style></style>
+</style>
 """, unsafe_allow_html=True)
 
 # ==========================================
@@ -137,16 +136,20 @@ if start_analysis:
 
                 cols = st.columns(len(top5))
                 for j, (_, row) in enumerate(top5.iterrows()):
+                    ticker_name = row['Ticker'].replace('.NS','')
                     with cols[j]:
                         st.markdown(f"""
                         <div class="stock-card">
-                            <div class="stock-rank">#{j+1} {row['Ticker'].replace('.NS','')}</div>
-                            <div class="big-score">{row['FinalScore']*100:.1f}/100</div>
-                            <div class="metrics-grid">
-                                <div><span class="metric-label">CAGR</span><div class="metric-val">{row['CAGR']*100:.1f}%</div></div>
-                                <div><span class="metric-label">Sharpe</span><div class="metric-val">{row['Sharpe']:.2f}</div></div>
-                                <div><span class="metric-label">Volatility</span><div class="metric-val">{row['Volatility']*100:.1f}%</div></div>
-                                <div><span class="metric-label">Max DD</span><div class="metric-val">{row['MaxDrawdown']*100:.1f}%</div></div>
+                            <div class="metric" style="font-size:1.2rem; font-weight:800; color:#1e293b; margin-bottom:2px;">{ticker_name}</div>
+                            <div class="small" style="font-size:0.85rem; color:#64748b; margin-bottom:10px; min-height:30px; display:flex; align-items:center; justify-content:center; line-height:1.2;">Rank #{j+1}</div>
+                            <div class="small" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin-bottom:2px;">Risk-Adjusted Score</div>
+                            <div class="big" style="margin-bottom:15px; color:#059669;">{row['FinalScore']*100:.1f}<span style="font-size:1rem; color:#94a3b8;">/100</span></div>
+                            
+                            <div class="metrics-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; padding-top:15px; border-top:1px solid #eee;">
+                                <div><span class="small" style="font-weight:700;">CAGR</span><div style="font-weight:600;">{row['CAGR']*100:.1f}%</div></div>
+                                <div><span class="small" style="font-weight:700;">Sharpe</span><div style="font-weight:600;">{row['Sharpe']:.2f}</div></div>
+                                <div><span class="small" style="font-weight:700;">Vol</span><div style="font-weight:600;">{row['Volatility']*100:.1f}%</div></div>
+                                <div><span class="small" style="font-weight:700;">Drawdown</span><div style="font-weight:600; color:#ef4444;">{row['MaxDrawdown']*100:.1f}%</div></div>
                             </div>
                         </div>
                         """, unsafe_allow_html=True)
