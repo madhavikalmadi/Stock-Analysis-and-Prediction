@@ -8,11 +8,11 @@ st.title("🔐 Smart Investor Assistant")
 # =====================================================
 # REDIRECT IF ALREADY LOGGED IN
 # =====================================================
-if st.session_state.get("authenticated"):
-    st.switch_page("pages/dashboard.py")
-
 if st.session_state.get("is_admin"):
     st.switch_page("pages/admin.py")
+
+if st.session_state.get("authenticated"):
+    st.switch_page("pages/dashboard.py")
 
 # =====================================================
 # SESSION STATE INIT
@@ -45,11 +45,9 @@ if not st.session_state.show_admin_login:
             if not username or not password:
                 st.error("All fields are required")
             elif auth_utils.login_user(username, password):
-                # ✅ SET SESSION STATE EXPLICITLY
+                # ✅ SET SESSION ONLY ONCE
                 st.session_state.authenticated = True
                 st.session_state.username = username
-                st.session_state.user_id = username  # or actual user_id if you return it
-
                 st.success("Login successful")
                 st.switch_page("pages/dashboard.py")
             else:
@@ -89,9 +87,9 @@ if st.session_state.show_admin_login:
 
     if st.button("Login as Admin"):
         if admin_user == "admin" and admin_pass == "admin123":
-            # ❌ DO NOT CLEAR SESSION COMPLETELY
-            st.session_state.authenticated = False
+            # ✅ ADMIN SESSION (DO NOT CLEAR EVERYTHING)
             st.session_state.is_admin = True
+            st.session_state.authenticated = False
             st.session_state.show_admin_login = False
 
             st.success("Admin login successful")
