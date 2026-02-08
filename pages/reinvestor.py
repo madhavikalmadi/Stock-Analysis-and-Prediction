@@ -131,6 +131,9 @@ with col2:
         """, unsafe_allow_html=True)
 
         if st.button("🚀 Start Company Analysis"):
+            if "user_id" in st.session_state and "username" in st.session_state:
+                st.query_params["user_id"] = st.session_state.user_id
+                st.query_params["username"] = st.session_state.username
             st.switch_page("pages/company.py")
 
     with c2:
@@ -143,6 +146,9 @@ with col2:
         """, unsafe_allow_html=True)
 
         if st.button("🚀 Start Index Analysis"):
+            if "user_id" in st.session_state and "username" in st.session_state:
+                st.query_params["user_id"] = st.session_state.user_id
+                st.query_params["username"] = st.session_state.username
             st.switch_page("pages/index.py")
 
 # -----------------------------------------------------------------------------
@@ -153,4 +159,7 @@ st.markdown("---")
 _, c_mid, _ = st.columns([4, 2, 4])
 with c_mid:
     if st.button("⬅ Dashboard"):
+        if "user_id" in st.session_state and "username" in st.session_state:
+            st.query_params["user_id"] = st.session_state.user_id
+            st.query_params["username"] = st.session_state.username
         st.switch_page("pages/dashboard.py")
