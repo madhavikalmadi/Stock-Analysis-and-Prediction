@@ -9,8 +9,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pandas as pd
 import yfinance as yf
 import pytz
-import time
-import itertools
 from datetime import datetime
 # st.set_page_config(page_title="Stock App", layout="wide") # Commented out duplicate config
 
@@ -29,6 +27,8 @@ if "user_id" in params and "username" in params:
 # =====================================================
 if not st.session_state.get("authenticated"):
     st.switch_page("login.py")
+    st.stop()
+
 
 # Sync params for navigation persistence
 if "user_id" in st.session_state and "username" in st.session_state:
@@ -42,9 +42,7 @@ if 'watchlist' not in st.session_state:
     st.session_state['watchlist'] = []
 if 'search_query' not in st.session_state:
     st.session_state['search_query'] = ""
-# =============================================================
-# END SESSION STATE
-# ============================================================='
+
 
 # =============================================================
 # CSS ENGINE

@@ -17,7 +17,7 @@ from mongo_db import actions_col, watchlist_col
 st.set_page_config(page_title="Stock Search", page_icon="🔍", layout="wide")
 
 # =====================================================
-# 🔁 RESTORE SESSION FROM URL (VERY IMPORTANT)
+# 🔁 RESTORE SESSION FROM URL (SOURCE OF TRUTH)
 # =====================================================
 params = st.query_params
 
@@ -27,11 +27,18 @@ if "user_id" in params and "username" in params:
     st.session_state.authenticated = True
 
 # =====================================================
-# 🔐 AUTH GUARD (AFTER RESTORE)
+# 🔄 PERSIST SESSION BACK TO URL (VERY IMPORTANT)
 # =====================================================
-if not st.session_state.get("authenticated"):
-    st.switch_page("login.py")
+if "user_id" in st.session_state and "username" in st.session_state:
+    st.query_params["user_id"] = st.session_state.user_id
+    st.query_params["username"] = st.session_state.username
 
+# ❌ NO LOGIN REDIRECT HERE
+# Dashboard already guarantees authentication
+
+# =====================================================
+# SESSION DEFAULTS
+# =====================================================
 if "watchlist" not in st.session_state:
     st.session_state.watchlist = []
 
@@ -39,7 +46,7 @@ if "search_query" not in st.session_state:
     st.session_state.search_query = ""
 
 # =============================================================
-# CSS (KEEP YOUR ORIGINAL CSS HERE IF YOU WANT)
+# CSS
 # =============================================================
 st.markdown("""
 <style>
@@ -68,15 +75,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =============================================================
-# HEADER (SESSION-SAFE)
+# HEADER
 # =============================================================
 st.markdown("""
 <div class="custom-top-bar">
     <div class="custom-top-bar-title">Smart Investor Assistant</div>
 </div>
 """, unsafe_allow_html=True)
-
-
 
 # --------------------------------------------------
 # COMPANY NAME MAP
@@ -118,11 +123,10 @@ def fetch_stock_data(symbol):
     if hist.empty:
         return None, "No data found."
 
-    # Get latest row
     latest = hist.iloc[-1]
     price = latest["Close"]
     prev = hist["Close"].iloc[-2] if len(hist) > 1 else price
-    change = ((price - prev) / prev) * 100 if prev != 0 else 0
+    change = ((price - prev) / prev) * 100 if prev else 0
 
     return {
         "ticker": symbol,
@@ -138,43 +142,28 @@ def fetch_stock_data(symbol):
 # HELPERS
 # --------------------------------------------------
 def get_stock_categories(ticker):
-    """Finds which sectors/indices a stock belongs to."""
     tags = []
-    clean_ticker = ticker.replace(".NS", "")
-    
+    clean = ticker.replace(".NS", "")
     for sector, indices in data_fetch.MARKET_DATA.items():
         for index_name, stocks in indices.items():
-            if clean_ticker in stocks:
-                # Add Index Name (e.g., 'NIFTY Bank')
+            if clean in stocks:
                 tags.append(index_name)
     return list(set(tags))
 
 # --------------------------------------------------
-# WATCHLIST (MongoDB)
+# WATCHLIST (MongoDB SAFE)
 # --------------------------------------------------
 def add_to_watchlist(ticker, bound_user_id=None):
-    # Priority: Function Argument (Bound at render time) > Session State > Fallback
     user_id = bound_user_id or st.session_state.get("user_id")
 
-    # Double Check if session was truly lost (Fall back to params)
     if not user_id:
-        params = st.query_params
-        if "user_id" in params:
-            user_id = params["user_id"]
-    
+        user_id = st.query_params.get("user_id")
+
     if not user_id:
-        # Debugging info to help diagnosis
-        debug_info = f"Session: {st.session_state.get('user_id')}, Bound: {bound_user_id}, URL: {st.query_params.get('user_id')}"
-        st.toast(f"⚠ Watchlist disabled (guest mode). Debug: {debug_info}")
+        st.toast("⚠ Login required to use watchlist")
         return
 
-    # prevent duplicates
-    exists = watchlist_col.find_one({
-        "user_id": user_id,
-        "ticker": ticker
-    })
-
-    if exists:
+    if watchlist_col.find_one({"user_id": user_id, "ticker": ticker}):
         st.toast("⭐ Already in watchlist")
         return
 
@@ -198,9 +187,6 @@ display_options = [
 
 options = ["Select a Stock..."] + display_options
 
-if "search_selection" not in st.session_state:
-    st.session_state.search_selection = "Select a Stock..."
-
 with st.form("stock_search_form"):
     selected = st.selectbox("Type to search Stock:", options=options)
     submitted = st.form_submit_button("🚀 Search")
@@ -209,9 +195,7 @@ with st.form("stock_search_form"):
 # ACTION
 # --------------------------------------------------
 if submitted:
-    if selected == "Select a Stock...":
-        st.warning("Please select a stock.")
-    else:
+    if selected != "Select a Stock...":
         stock_symbol = selected.split(" – ")[0]
         st.session_state.search_query = stock_symbol
 
@@ -221,105 +205,50 @@ if submitted:
                 "action": "search",
                 "value": stock_symbol
             })
-        else:
-            # Optional: silent fail or debug toast
-            st.toast("⚠ Activity logging unavailable", icon="⚠️")
 
 # --------------------------------------------------
-# DISPLAY RESULTS (PERSISTENT)
+# DISPLAY RESULTS
 # --------------------------------------------------
 if st.session_state.search_query:
     stock_symbol = st.session_state.search_query
-    # Redo the fetch or display
     stock_data, error = fetch_stock_data(f"{stock_symbol}.NS")
 
     if stock_data:
         st.divider()
-        
-        # 1. HEADER & TAGS
+
         c_head, c_btn = st.columns([3, 1])
         with c_head:
-            st.markdown(f"### {stock_symbol} <span style='font-size:0.8em; color:gray;'>{STOCK_COMPANY_MAP.get(stock_symbol, '')}</span>", unsafe_allow_html=True)
-            
-            # Display Categories as Tags
-            tags = get_stock_categories(stock_symbol)
-            if tags:
-                # Simple badge styling
-                badges = "".join([f"<span style='background:#e0f2fe; color:#0369a1; padding:4px 8px; border-radius:12px; font-size:0.75rem; margin-right:5px; font-weight:600;'>{t}</span>" for t in tags])
-                st.markdown(badges, unsafe_allow_html=True)
-                st.write("") # Spacer
-
-        with c_btn:
-             # Use a callback-independent check for user_id to ensure button state
-            uid = st.session_state.get("user_id") or st.query_params.get("user_id")
-            
-            st.button(
-                "⭐ Add to Watchlist",
-                on_click=add_to_watchlist,
-                args=(stock_symbol, uid)
+            st.markdown(
+                f"### {stock_symbol} <span style='font-size:0.8em; color:gray;'>"
+                f"{STOCK_COMPANY_MAP.get(stock_symbol,'')}</span>",
+                unsafe_allow_html=True
             )
 
-        # 2. METRICS GRID
+            tags = get_stock_categories(stock_symbol)
+            if tags:
+                badges = "".join([
+                    f"<span style='background:#e0f2fe; padding:4px 8px; border-radius:12px; font-size:0.75rem; margin-right:5px;'>{t}</span>"
+                    for t in tags
+                ])
+                st.markdown(badges, unsafe_allow_html=True)
+
+        with c_btn:
+            uid = st.session_state.get("user_id")
+            st.button("⭐ Add to Watchlist", on_click=add_to_watchlist, args=(stock_symbol, uid))
+
         st.markdown("---")
         m1, m2, m3, m4 = st.columns(4)
-        
-        with m1: st.metric("Current Price", f"₹ {stock_data['price']:.2f}", f"{stock_data['change']:+.2f}%")
+        with m1: st.metric("Price", f"₹ {stock_data['price']:.2f}", f"{stock_data['change']:+.2f}%")
         with m2: st.metric("Open", f"₹ {stock_data['open']:.2f}")
-        with m3: st.metric("Day High", f"₹ {stock_data['high']:.2f}")
-        with m4: st.metric("Day Low", f"₹ {stock_data['low']:.2f}")
-
-        # Optional: Secondary metrics row if needed, e.g. Volume
-        # vol_str = f"{stock_data['volume']:,}"
-        # st.caption(f"Volume: {vol_str}")
+        with m3: st.metric("High", f"₹ {stock_data['high']:.2f}")
+        with m4: st.metric("Low", f"₹ {stock_data['low']:.2f}")
 
     else:
         st.error(error)
 
 # --------------------------------------------------
-# FOOTER & NAVIGATION
+# FOOTER
 # --------------------------------------------------
-# Custom Button Style (from bluechip.py/profile.py)
-st.markdown("""
-<style>
-div.stButton {
-    text-align: center !important;
-    display: flex !important;
-    justify-content: center !important;
-}
-div.stButton > button {
-    padding: 0.4rem 1rem !important; 
-    font-size: 0.8rem !important; 
-    border-radius: 50px !important;
-    background: rgba(24, 40, 72, 0.8) !important; 
-    box-shadow: none !important; 
-    width: auto !important; 
-    margin: 0 auto !important;
-    white-space: nowrap !important;
-    color: white !important;
-    display: block !important;
-}
-div.stButton > button:hover { 
-    background: #2563eb !important; 
-    transform: translateY(-2px); 
-}
-</style>
-""", unsafe_allow_html=True)
-
-# Footer Layout (Centered via CSS)
-if st.button("⬅ Back to Dashboard", key="btn_search_back"):
-    # Preserve session state in query params
-    if "user_id" in st.session_state:
-        st.query_params["user_id"] = st.session_state.user_id
-    if "username" in st.session_state:
-        st.query_params["username"] = st.session_state.username
+st.markdown("---")
+if st.button("⬅ Back to Dashboard"):
     st.switch_page("pages/dashboard.py")
-
-st.write("---")
-
-st.markdown("""
-<div style="margin-top: 10px; margin-bottom: 20px;">
-    <center style="opacity:0.6; font-size:0.85rem;">
-        Smart Investor Assistant 
-    </center>
-</div>
-""", unsafe_allow_html=True)
