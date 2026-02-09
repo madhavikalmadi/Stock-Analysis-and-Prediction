@@ -17,15 +17,26 @@ def login_user(username, password):
 
     stored_password = user.get("password")
 
-    # ✅ IMPORTANT FIX:
-    # MongoDB may return password as str (old users) or bytes (new users)
-    if isinstance(stored_password, str):
-        stored_password = stored_password.encode("utf-8")
+    # ✅ FIX: Support Plain Text Passwords (for Admin Visibility)
+    if stored_password == password:
+         return True
+         
+    # Fallback to bcrypt for existing hashed passwords
+    try:
+        # Convert to bytes for bcrypt if it's a string, BUT only if it looks like a hash
+        if isinstance(stored_password, str):
+             if stored_password.startswith("$2b$"):
+                 stored_password = stored_password.encode("utf-8")
+             else:
+                 # If it's a string but doesn't look like a hash, and didn't match above, it's just wrong
+                 return False
 
-    return bcrypt.checkpw(
-        password.encode("utf-8"),
-        stored_password
-    )
+        return bcrypt.checkpw(
+            password.encode("utf-8"),
+            stored_password
+        )
+    except:
+        return False
 
 
 # ---------------------------------
@@ -35,14 +46,15 @@ def signup_user(username, password, email, mobile):
     if users_col.find_one({"username": username}):
         return False
 
-    hashed_password = bcrypt.hashpw(
-        password.encode("utf-8"),
-        bcrypt.gensalt()
-    )
+    # ❌ DISABLED: bcrypt.hashpw (User requested visible passwords)
+    # hashed_password = bcrypt.hashpw(
+    #     password.encode("utf-8"),
+    #     bcrypt.gensalt()
+    # )
 
     users_col.insert_one({
         "username": username,
-        "password": hashed_password,  # ✅ STORE AS BYTES
+        "password": password,  # ✅ STORE AS PLAIN TEXT
         "email": email,
         "mobile": mobile
     })
