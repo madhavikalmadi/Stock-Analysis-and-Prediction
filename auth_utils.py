@@ -43,8 +43,11 @@ def login_user(username, password):
 # SIGNUP USER
 # ---------------------------------
 def signup_user(username, password, email, mobile):
-    if users_col.find_one({"username": username}):
-        return False
+    if len(password) < 8:
+         return False
+    # ✅ Case-insensitive check to prevent collisions (Madhu vs madhu)
+    if users_col.find_one({"username": {"$regex": f"^{username}$", "$options": "i"}}):
+         return False
 
     # ❌ DISABLED: bcrypt.hashpw (User requested visible passwords)
     # hashed_password = bcrypt.hashpw(
