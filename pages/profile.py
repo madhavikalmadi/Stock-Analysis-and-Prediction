@@ -146,6 +146,9 @@ body, [data-testid="stAppViewContainer"] {{
 # FETCH WATCHLIST
 # --------------------------------------------------
 import pymongo
+user_id = st.session_state.get("user_id")
+username = st.session_state.get("username")
+
 watchlist = []
 if user_id:
     try:
