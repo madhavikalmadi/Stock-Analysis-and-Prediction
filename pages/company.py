@@ -203,7 +203,10 @@ with st.expander("Click to learn more about the metrics used above", expanded=Fa
     * **Sharpe:** A measure of risk-adjusted return. >1 is good, >2 is excellent. shows if returns are due to smarts or risk luck.
     * **Vol (Volatility):** How much the stock price fluctuates. Low vol = stable; High vol = risky/rollercoaster.
     * **Drawdown (Max Loss):** The worst possible drop from a peak to a trough. If this is -50%, it means the stock once lost half its value.
-    * **Verdict:** A quick summary (e.g., "Strong Buy", "Avoid") based on the combination of growth and risk metrics.
+    * **Verdict:** A quick summary based on the combination of growth and risk:
+        * **✅ Strong Buy:** High Growth (>12%) and High Stability (Sharpe > 0.5).
+        * **⚠️ Moderate:** Moderate Growth (>8%) or Higher Risk. Good for aggressive investors.
+        * **❌ Avoid:** Low Growth or Poor Stability. History shows inconsistent returns.
     """)
 
 # ==================================================
