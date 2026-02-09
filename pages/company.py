@@ -109,7 +109,9 @@ def run_analysis(tickers):
 # ==================================================
 # MAIN UI
 # ==================================================
-st.markdown("<h1 style='text-align:center;'>🏢 Company Advisor</h1>", unsafe_allow_html=True)
+st.markdown("## 🏢 Company Advisor")
+st.markdown("### Analytics & Stock Comparison")
+st.markdown("---")
 
 col1, col2 = st.columns(2, gap="large")
 
@@ -153,12 +155,12 @@ with col1:
 
 # ---------------- MULTI COMPANY ----------------
 with col2:
-    st.markdown("<div class='input-box'><b>⚖️ Compare Companies</b></div>", unsafe_allow_html=True)
+    st.markdown("<div class='input-box'><b>⚖️ Multi Companies</b></div>", unsafe_allow_html=True)
     tickers = st.text_input("Comma-separated tickers (e.g. TCS, INFY, RELIANCE)")
     amount_m = st.number_input("Investment Amount ₹", value=None, key="multi_amount")
     years_m = st.slider("Investment Horizon (Years)", 1, 20, 1, key="multi")
 
-    if st.button("📊 Compare Companies", key="btn_company_compare"):
+    if st.button("📊 Multi Companies", key="btn_company_compare"):
         lst = [resolve_ticker(t.strip()) for t in tickers.split(",") if t.strip()]
         if len(lst) < 2:
             st.warning("Please enter at least 2 companies.")
