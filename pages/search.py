@@ -199,7 +199,7 @@ if submitted:
         stock_symbol = selected.split(" – ")[0]
         st.session_state.search_query = stock_symbol
 
-        if actions_col:
+        if actions_col is not None:
             actions_col.insert_one({
                 "user_id": st.session_state.get("user_id"),
                 "action": "search",
