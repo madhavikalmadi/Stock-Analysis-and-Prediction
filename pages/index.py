@@ -206,10 +206,10 @@ if st.button("🚀 Analyze Market Indices"):
     with st.expander("Click to learn more about the metrics used above", expanded=False):
         st.markdown("""
         * **Risk-Adjusted Score:** Our "Best of the Best" score. It picks indices that make money consistently without crashing often.
-        * **CAGR (Yearly Growth):** The average speed at which your wealth grows each year.
-        * **Sharpe Ratio (Efficiency):** Returns divided by Risk. A high Sharpe ratio means you are getting "paid" well for the risk you take.
-        * **Volatility (Price Swings):** Indices with lower volatility are smoother and easier to hold during bad times.
-        * **Maximum Drawdown (Crash Safety):** Measures how deep the index fell during the worst market crash. Lower drops mean your capital is safer.
+        * **CAGR** (Yearly Growth): The average speed at which your wealth grows each year.
+        * **Sharpe** (Efficiency): Returns divided by Risk. A high Sharpe ratio means you are getting "paid" well for the risk you take.
+        * **Vol** (Volatility): Indices with lower volatility are smoother and easier to hold during bad times.
+        * **Maximum DD** (Crash Safety): Measures how deep the index fell during the worst market crash. Lower drops mean your capital is safer.
         """)
 
 

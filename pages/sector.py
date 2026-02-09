@@ -168,11 +168,11 @@ st.write("")
 st.markdown("### 📚 Explanation of Key Terms")
 with st.expander("Click to learn more about the metrics used above", expanded=False):
     st.markdown("""
-    * **Final Score (0-100):** A simplified rating. 100 is excellent, 0 is poor. We calculate this by balancing growth (good) vs risk (bad).
-    * **CAGR (Yearly Growth):** The average annual return. If you see 15%, it means the sector grew by about 15% every year on average.
-    * **Sharpe Ratio (Efficiency):** Shows if the growth is "worth the risk". >1.0 is great. It means you aren't gambling, you're investing smartly.
-    * **Volatility (Risk):** Measures how "bumpy" the ride is. High volatility means the price changes wildly. Low is stable and calm.
-    * **Max Drawdown (Worst Drop):** The worst crash this sector faced from its peak. Smaller negative numbers (e.g., -10% vs -50%) are much safer.
+    * **Risk-Adjusted Score:** A simplified rating. 100 is excellent, 0 is poor. We calculate this by balancing growth (good) vs risk (bad).
+    * **CAGR** (Yearly Growth): The average annual return. If you see 15%, it means the sector grew by about 15% every year on average.
+    * **Sharpe** (Efficiency): Shows if the growth is "worth the risk". >1.0 is great. It means you aren't gambling, you're investing smartly.
+    * **Vol** (Risk): Measures how "bumpy" the ride is. High volatility means the price changes wildly. Low is stable and calm.
+    * **Drawdown** (Worst Drop): The worst crash this sector faced from its peak. Smaller negative numbers (e.g., -10% vs -50%) are much safer.
     """)
 
 # ==========================================

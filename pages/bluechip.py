@@ -199,12 +199,12 @@ st.write("")
 st.markdown("### 📚 Explanation of Key Terms")
 with st.expander("Click to learn more about the metrics used above", expanded=False):
     st.markdown("""
-    * **Risk-Adjusted Score (0-100):** Think of this as a "Safety + Growth" score. Higher is better. It finds stocks that give good returns without being too risky.
-    * **CAGR (Yearly Growth):** How much your money grows on average each year. A higher percentage is better.
-    * **Sharpe Ratio (Efficiency):** Measures "Bang for your Buck". A score above 1.0 means the stock is generating smart returns for the risk taken.
-    * **Volatility (Price Swings):** How much the price jumps up and down. Lower is better because it means a smooth, stress-free ride.
-    * **Max Drawdown (Worst Drop):** The worst percentage drop the stock has seen from its peak. A small drop (closer to 0%) means it recovers better from crashes.
-    * **Investor Profile:**
+    * **Risk-Adjusted Score:** Think of this as a "Safety + Growth" score. Higher is better. It finds stocks that give good returns without being too risky.
+    * **CAGR** (Yearly Growth): How much your money grows on average each year. A higher percentage is better.
+    * **Sharpe** (Efficiency): Measures "Bang for your Buck". A score above 1.0 means the stock is generating smart returns for the risk taken.
+    * **Vol** (Volatility): How much the price jumps up and down. Lower is better because it means a smooth, stress-free ride.
+    * **Drawdown** (Worst Drop): The worst percentage drop the stock has seen from its peak. A small drop (closer to 0%) means it recovers better from crashes.
+    * **Profile** (Investor Type):
         * **Conservative:** Safety First. Low risk, steady returns.
         * **Aggressive:** Risk Taker. High possible gains, but big drops possible.
         * **Moderate:** Balanced. A mix of safety and growth.
