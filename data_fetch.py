@@ -2,6 +2,25 @@ import yfinance as yf
 import pandas as pd
 import streamlit as st
 
+
+@st.cache_data(ttl=3600)
+def get_stock_data(symbol):
+    try:
+        data = yf.download(symbol, start="2021-01-01", progress=False)
+        if data.empty:
+            return pd.DataFrame()
+        
+        # We need to return a DataFrame where the column name is the symbol
+        # so that compute_metrics can identify the ticker.
+        if isinstance(data.columns, pd.MultiIndex):
+            df = data['Close']
+        else:
+            df = data[['Close']].rename(columns={'Close': symbol})
+        
+        return df.ffill().bfill()
+    except Exception:
+        return pd.DataFrame()
+
 # --------------------------------------------------------------
 # CONFIGURATION
 # --------------------------------------------------------------

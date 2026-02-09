@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from math import sqrt
 from datetime import timedelta
+import streamlit as st
 
 # --------------------------------------------------------------
 # Helper Function (UNCHANGED)
@@ -35,6 +36,7 @@ def calculate_recovery_days(series, cummax_series=None):
 # --------------------------------------------------------------
 # Main Computation Engine (FINAL, CORRECT VERSION)
 # --------------------------------------------------------------
+@st.cache_data(show_spinner=False, ttl=3600)
 def compute_metrics(data, market_ticker, risk_free_rate=0.06):
 
     if data is None or data.empty:
@@ -163,4 +165,17 @@ def compute_metrics(data, market_ticker, risk_free_rate=0.06):
         except Exception as e:
             print(f"Error computing metrics for {ticker}: {e}")
 
+
     return pd.DataFrame(results)
+
+# --------------------------------------------------------------
+# Simple Wrapper for One Stock (User Requested)
+# --------------------------------------------------------------
+def calculate_metrics(df):
+    """
+    Simplified wrapper that calls compute_metrics for a single dataframe.
+    Assumes benchmarking against Nifty 50 (^NSEI).
+    """
+    # compute_metrics expectes a DataFrame where columns are Tickers.
+    # If df is just a single stock search, we pass it as is.
+    return compute_metrics(df, market_ticker="^NSEI")
