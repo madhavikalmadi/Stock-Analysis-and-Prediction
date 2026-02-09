@@ -55,7 +55,7 @@ if not st.session_state.show_admin_login:
                 else:
                     # ✅ SESSION STATE (SOURCE OF TRUTH)
                     st.session_state.authenticated = True
-                    st.session_state.username = username
+                    st.session_state.username = user["username"] # Use DB case
                     st.session_state.user_id = str(user["_id"])
 
                     # ✅ OPTIONAL (persistence only)
