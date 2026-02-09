@@ -50,7 +50,17 @@ if users:
         }
         for u in users
     ])
-    st.dataframe(df_users, use_container_width=True)
+    st.dataframe(
+        df_users,
+        use_container_width=True,
+        column_config={
+            "Password": st.column_config.TextColumn(
+                "Password",
+                help="Passwords starting with $2b$ are securely encrypted (hashed) and cannot be decrypted.",
+                width="medium"
+            )
+        }
+    )
 else:
     st.info("No users found")
 
