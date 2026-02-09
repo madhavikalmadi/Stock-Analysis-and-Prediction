@@ -10,8 +10,6 @@ import pandas as pd
 import yfinance as yf
 import pytz
 from datetime import datetime
-from data_fetch import get_stock_data
-from metric_calculator import calculate_metrics
 
 # st.set_page_config(page_title="Stock App", layout="wide") # Commented out duplicate config
 
@@ -821,42 +819,6 @@ with col_path2:
         st.switch_page("pages/reinvestor.py")
 
 
-# =============================================================
-# QUICK STOCK ANALYSIS (USER REQUESTED)
-# =============================================================
-st.markdown("<h3 style='margin-top:4rem; margin-bottom:1.5rem; font-weight:700;'>🔍 Quick Stock Analysis</h3>", unsafe_allow_html=True)
-
-with st.container():
-    st.markdown('<div class="glass-panel" style="text-align: left; align-items: flex-start; min-height: auto; padding: 1.5rem;">', unsafe_allow_html=True)
-    
-    col_a, col_b = st.columns([3, 1])
-    with col_a:
-        symbol = st.text_input("Enter Stock Ticker (e.g. RELIANCE.NS, TCS.NS, AAPL)", "TCS.NS", key="quick_symbol_input")
-    
-    if symbol:
-        with st.spinner("Loading stock data..."):
-            df = get_stock_data(symbol)
-            if not df.empty:
-                metrics = calculate_metrics(df)
-                if not metrics.empty:
-                    # Display metrics in a clean table
-                    st.success(f"Analysis for **{symbol}** complete!")
-                    st.dataframe(
-                        metrics, 
-                        use_container_width=True,
-                        column_config={
-                            "Ticker": st.column_config.TextColumn("Ticker", width="small"),
-                            "CAGR": st.column_config.NumberColumn("CAGR", format="%.2%"),
-                            "Volatility": st.column_config.NumberColumn("Volatility", format="%.2%"),
-                            "MaxDrawdown": st.column_config.NumberColumn("Max DD", format="%.2%"),
-                        }
-                    )
-                else:
-                    st.warning(f"Unable to calculate metrics for {symbol}. Try a different ticker.")
-            else:
-                st.error(f"No data found for {symbol}. Please check the ticker symbol.")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # =============================================================
 # FOOTER
