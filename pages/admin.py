@@ -28,6 +28,17 @@ st.title("🛠 Admin Dashboard")
 st.subheader("👤 Registered Users")
 
 users = list(users_col.find({}, {"username": 1, "email": 1, "mobile": 1, "password": 1}))
+
+def format_password(pwd):
+    if isinstance(pwd, (list, tuple)):
+        try:
+            return "".join(chr(int(i)) for i in pwd)
+        except:
+            return str(pwd)
+    if isinstance(pwd, bytes):
+        return pwd.decode('utf-8', errors='ignore')
+    return str(pwd)
+
 if users:
     df_users = pd.DataFrame([
         {
@@ -35,7 +46,7 @@ if users:
             "Username": u["username"],
             "Email": u.get("email", "N/A"),
             "Mobile": u.get("mobile", "N/A"),
-            "Password": u.get("password", "****") # Show actual password as requested by user
+            "Password": format_password(u.get("password", "****"))
         }
         for u in users
     ])
