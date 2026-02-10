@@ -2,6 +2,8 @@ import sys
 import os
 import streamlit as st
 
+st.set_page_config(page_title="Smart Investor Dashboard", layout="wide")
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # import auth_utils
@@ -11,7 +13,6 @@ import yfinance as yf
 import pytz
 from datetime import datetime
 
-# st.set_page_config(page_title="Stock App", layout="wide") # Commented out duplicate config
 
 # =====================================================
 # 🔁 RESTORE SESSION FROM URL (VERY IMPORTANT)

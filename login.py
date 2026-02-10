@@ -62,7 +62,7 @@ if not st.session_state.show_admin_login:
                     st.query_params["user_id"] = st.session_state.user_id
                     st.query_params["username"] = username
 
-                    st.success("Login successful")
+                    # st.success("Login successful")
                     st.switch_page("pages/dashboard.py")
             else:
                 st.error("Invalid username or password")
@@ -100,7 +100,7 @@ if st.session_state.show_admin_login:
     admin_pass = st.text_input("Admin Password", type="password")
 
     if st.button("Login as Admin"):
-        if admin_user == "admin" and admin_pass == "admin123":
+        if admin_user == "admin" and admin_pass == "aprilfool1203":
             st.session_state.is_admin = True
             st.session_state.authenticated = False
             st.session_state.show_admin_login = False
