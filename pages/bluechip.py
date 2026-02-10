@@ -220,7 +220,7 @@ st.write("")
 c_back, _, c_dash = st.columns([1, 6, 1])
 
 with c_back:
-    if st.button("⬅ Back to Beginner", key="btn_bluechip_back"):
+    if st.button("⬅ Back to Menu", key="btn_bluechip_back"):
         st.switch_page("pages/beginner.py")
 
 with c_dash:
