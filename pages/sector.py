@@ -74,6 +74,18 @@ div.stButton > button:hover {
     background: #2563eb !important;
     transform: translateY(-2px);
 }
+
+/* Standardize Selectbox and Info Box heights */
+[data-testid="stSelectbox"] > div, 
+[data-testid="stAlert"] {
+    min-height: 45px !important;
+}
+
+/* Ensure the info box content is centered and fits nicely */
+[data-testid="stAlert"] > div {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -115,7 +127,8 @@ with c2:
         if target_indices:
             start_analysis = st.button("🚀 Analyze Performance", key="btn_sector_analyze")
     else:
-        st.write("") # Spacer
+        # Invisible label spacer to align with left column selectbox label
+        st.markdown('<p style="margin-bottom: 24px;"></p>', unsafe_allow_html=True)
         st.info("👈 Please select a category first.")
 
 # ==========================================
