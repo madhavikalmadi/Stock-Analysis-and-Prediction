@@ -114,6 +114,10 @@ with c2:
 
         if target_indices:
             start_analysis = st.button("🚀 Analyze Performance", key="btn_sector_analyze")
+    else:
+        st.write("") # Spacer
+        st.info("👈 Please select a category first.")
+            start_analysis = st.button("🚀 Analyze Performance", key="btn_sector_analyze")
 
 # ==========================================
 # ANALYSIS
