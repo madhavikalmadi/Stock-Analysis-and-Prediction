@@ -117,7 +117,6 @@ with c2:
     else:
         st.write("") # Spacer
         st.info("👈 Please select a category first.")
-            start_analysis = st.button("🚀 Analyze Performance", key="btn_sector_analyze")
 
 # ==========================================
 # ANALYSIS
