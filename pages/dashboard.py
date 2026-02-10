@@ -26,9 +26,12 @@ if "user_id" in params and "username" in params:
 # =====================================================
 # 🔐 AUTH GUARD (AFTER RESTORE)
 # =====================================================
-if not st.session_state.get("authenticated"):
-    st.switch_page("login.py")
-    st.stop()
+# Dashboard already guarantees authentication or admin access
+if not st.session_state.get("authenticated") and not st.session_state.get("is_admin"):
+    # If no session, double check params as a final fallback
+    if "user_id" not in params or "username" not in params:
+        st.switch_page("login.py")
+        st.stop()
 
 
 # Sync params for navigation persistence

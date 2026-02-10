@@ -189,9 +189,6 @@ with col2:
 
         st.write("") # SPACER
         if st.button("🚀 Explore Blue-Chips"):
-            if "user_id" in st.session_state and "username" in st.session_state:
-                st.query_params["user_id"] = st.session_state.user_id
-                st.query_params["username"] = st.session_state.username
             st.switch_page("pages/bluechip.py")
 
     # ---------------- SECTOR ----------------
@@ -210,9 +207,6 @@ with col2:
 
         st.write("") # SPACER
         if st.button("🚀 Explore Sectors"):
-            if "user_id" in st.session_state and "username" in st.session_state:
-                st.query_params["user_id"] = st.session_state.user_id
-                st.query_params["username"] = st.session_state.username
             st.switch_page("pages/sector.py")
 
 # --------------------------------------------------
@@ -222,7 +216,4 @@ st.write("")
 st.write("---")
 
 if st.button("⬅ Back to Dashboard"):
-    if "user_id" in st.session_state and "username" in st.session_state:
-        st.query_params["user_id"] = st.session_state.user_id
-        st.query_params["username"] = st.session_state.username
     st.switch_page("pages/dashboard.py")

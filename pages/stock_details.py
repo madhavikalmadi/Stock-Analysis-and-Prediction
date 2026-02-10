@@ -486,11 +486,6 @@ def main():
     _, mid, _ = st.columns([5, 1.5, 5])
     with mid:
         if st.button("⬅ Dashboard", key="btm_nav", use_container_width=True):
-            # Preserve session state in query params
-            if "user_id" in st.session_state:
-                st.query_params["user_id"] = st.session_state.user_id
-            if "username" in st.session_state:
-                st.query_params["username"] = st.session_state.username
             st.switch_page("pages/dashboard.py")
 
     st.markdown("<p class='footer-text'>© 2025 Smart Investor Assistant</p>", unsafe_allow_html=True)
