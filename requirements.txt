@@ -6,3 +6,6 @@ pymongo
 dnspython
 certifi
 bcrypt
+streamlit-lottie
+requests
+pytz
