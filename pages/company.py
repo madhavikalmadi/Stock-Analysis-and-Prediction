@@ -253,9 +253,9 @@ with st.expander("Click to learn more about the metrics used above", expanded=Fa
     * **Vol (Volatility):** How much the stock price fluctuates. Low vol = stable; High vol = risky/rollercoaster.
     * **Drawdown (Max Loss):** The worst possible drop from a peak to a trough. If this is -50%, it means the stock once lost half its value.
     * **Verdict:** A quick summary based on the combination of growth and risk:
-        * **✅ Strong Buy:** High Growth (>12%) and High Stability (Sharpe > 0.5).
-        * **⚠️ Moderate:** Moderate Growth (>8%) or Higher Risk. Good for aggressive investors.
-        * **❌ Avoid:** Low Growth or Poor Stability. History shows inconsistent returns.
+        * **✅ Strong Buy:** High Growth (**CAGR > 12%**) and High Stability (**Sharpe > 0.5**).
+        * **⚠️ Moderate:** Decent Growth (**CAGR > 8%**) or Moderate Stability (**Sharpe > 0.3**).
+        * **❌ Avoid:** Low Growth (**CAGR < 8%**) or Poor Stability (**Sharpe < 0.3**).
     """)
 
 # ==================================================
