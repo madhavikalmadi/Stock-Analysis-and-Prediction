@@ -88,17 +88,17 @@ def resolve_ticker(user_input):
 
 def get_recommendation_text(cagr, sharpe):
     if sharpe > 0.5 and cagr > 0.12:
-        return ("✅ Strong Buy", "Steady Growth", "High returns (>12%) with solid stability.")
+        return ("✅ Strong Buy", "Steady Growth", "The company is growing fast and is very stable.")
     elif sharpe > 0.3 and cagr > 0.08:
-        return ("⚠️ Moderate", "Higher Risk", "Decent growth but lower stability or higher risk.")
+        return ("⚠️ Moderate", "Higher Risk", "The company has decent growth but comes with more ups and downs.")
     else:
         # Determine specific reason for Avoid
         if cagr < 0.08:
-            reason = "Historical growth is too low (CAGR < 8%)."
+            reason = "The company is growing too slowly to be a good investment."
         elif sharpe <= 0.3:
-            reason = "Risk is too high relative to returns (Sharpe < 0.3)."
+            reason = "The stock price is too shaky and unpredictable compared to its profits."
         else:
-            reason = "Inconsistent historical performance."
+            reason = "The company's performance has been too unstable and risky."
         return ("❌ Avoid", "Inconsistent History", reason)
 
 def run_analysis(tickers):
@@ -253,9 +253,9 @@ with st.expander("Click to learn more about the metrics used above", expanded=Fa
     * **Vol (Volatility):** How much the stock price fluctuates. Low vol = stable; High vol = risky/rollercoaster.
     * **Drawdown (Max Loss):** The worst possible drop from a peak to a trough. If this is -50%, it means the stock once lost half its value.
     * **Verdict:** A quick summary based on the combination of growth and risk:
-        * **✅ Strong Buy:** High Growth (**CAGR > 12%**) and High Stability (**Sharpe > 0.5**).
-        * **⚠️ Moderate:** Decent Growth (**CAGR > 8%**) or Moderate Stability (**Sharpe > 0.3**).
-        * **❌ Avoid:** Low Growth (**CAGR < 8%**) or Poor Stability (**Sharpe < 0.3**).
+        * **✅ Strong Buy:** High growth with very good price stability.
+        * **⚠️ Moderate:** Decent growth but with more frequent price changes.
+        * **❌ Avoid:** Very slow growth or highly unpredictable price swings.
     """)
 
 # ==================================================
