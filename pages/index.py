@@ -194,10 +194,10 @@ if st.button("🚀 Analyze Market Indices"):
         You selected <b>{choice}</b>, but <b>{top_index}</b> has shown better results over time.
     </div>
     <div style="margin-top:15px; display:inline-block; text-align:left; background:white; padding:15px; border-radius:10px; border:1px solid #e0f2fe;">
-        <b>Why consider a change?</b><br>
-        🚀 Grows your money faster over time.<br>
-        💎 Makes more profit with less stress.<br>
-        🛡️ Stays more stable when the market is shaky.<br>
+        <b>How does the growth compare?</b><br>
+        📈 **Faster Speed:** Your money grows at a much quicker pace here.<br>
+        🚀 **Stronger Power:** It has a better ability to build wealth over the years.<br>
+        ✅ **Reliable Growth:** It moves upward more consistently than other indices.<br>
     </div>
     <div style="margin-top:15px; font-weight:700; color:#0369a1;">
         📌 <i>In short, {top_index} has given a smoother and more rewarding ride for investors.</i>

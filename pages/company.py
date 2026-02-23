@@ -91,7 +91,7 @@ def get_recommendation_text(cagr, sharpe):
         return {
             "verdict": "✅ Strong Buy",
             "desc": "A Star Performer",
-            "reason": "This company is growing beautifully and feels safe and stable for your money.",
+            "reason": "This stock shows high growth power and stays very steady over time.",
             "color": "#059669", 
             "bg": "#ecfdf5"
         }
@@ -99,17 +99,17 @@ def get_recommendation_text(cagr, sharpe):
         return {
             "verdict": "⚠️ Moderate",
             "desc": "Good Potential",
-            "reason": "It has great growth, but the price moves around a bit like a rollercoaster.",
+            "reason": "It has good growth speed, but the upward path can be a bit bumpy.",
             "color": "#b45309", 
             "bg": "#fffbeb"
         }
     else:
         if cagr < 0.08:
-            reason = "This company is moving a bit too slowly to help your money grow well."
+            reason = "The growth speed is too slow to significantly increase your wealth."
         elif sharpe <= 0.3:
-            reason = "The stock price is very jumpy, making it a bit too risky right now."
+            reason = "The growth is very inconsistent, making the stock quite risky."
         else:
-            reason = "The performance hasn't been consistent enough to trust it fully."
+            reason = "The upward growth hasn't been reliable enough to trust it fully."
         return {
             "verdict": "❌ Avoid",
             "desc": "Wait and See",
