@@ -132,17 +132,34 @@ with col1:
                 st.session_state.single_result = None
             else:
                 st.session_state.single_result = result.iloc[0]
+                # Store inputs for calculation
+                st.session_state.single_amount = amount if amount else 0
+                st.session_state.single_years = years
     
     # Display Single Company Result
     if "single_result" in st.session_state and st.session_state.single_result is not None:
         row = st.session_state.single_result
         reco, desc = get_recommendation_text(row.CAGR, row.Sharpe)
+        
+        # Calculate Potential Returns
+        amt = st.session_state.get("single_amount", 0)
+        yrs = st.session_state.get("single_years", 1)
+        future_val = amt * ((1 + row.CAGR) ** yrs)
+        profit = future_val - amt
+
         st.markdown(f"""
 <div class="stock-card">
 <div class="metric" style="font-size:1.2rem; font-weight:800; color:#1e293b; margin-bottom:2px;">{row.Ticker.replace('.NS','')}</div>
 <div class="small" style="font-size:0.85rem; color:#64748b; margin-bottom:10px; min-height:30px; display:flex; align-items:center; justify-content:center; line-height:1.2;">{desc}</div>
 <div class="small" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin-bottom:2px;">Risk-Adjusted Score</div>
 <div class="big" style="margin-bottom:15px; color:#059669;">{row.FinalScore*100:.1f}<span style="font-size:1rem; color:#94a3b8;">/100</span></div>
+
+<div style="background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 15px; border: 1px solid #e2e8f0;">
+    <div class="small" style="font-weight:700; color:#475569; margin-bottom:4px;">ESTIMATED RETURNS ({yrs}Y)</div>
+    <div style="font-size:1.1rem; font-weight:800; color:#047857;">₹{future_val:,.0f}</div>
+    <div style="font-size:0.85rem; font-weight:600; color:#10b981;">+ ₹{profit:,.0f} Profit</div>
+</div>
+
 <div class="metrics-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; padding-top:15px; border-top:1px solid #eee;">
 <div><span class="small" style="font-weight:700;">CAGR</span><div style="font-weight:600;">{row.CAGR*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Sharpe</span><div style="font-weight:600;">{row.Sharpe:.2f}</div></div>
@@ -168,21 +185,38 @@ with col2:
         else:
             ranked = run_analysis(lst)
             st.session_state.multi_result = ranked
+            # Store inputs for calculation
+            st.session_state.multi_amount = amount_m if amount_m else 0
+            st.session_state.multi_years = years_m
 
     # Display Multi Company Result
     if "multi_result" in st.session_state and st.session_state.multi_result is not None:
         ranked = st.session_state.multi_result
+        amt_m = st.session_state.get("multi_amount", 0)
+        yrs_m = st.session_state.get("multi_years", 1)
+        
         st.write("")
         for idx, row in ranked.sort_values("FinalScore", ascending=False).iterrows():
             # Re-calculate verdict for each
             reco_m, desc_m = get_recommendation_text(row.CAGR, row.Sharpe)
             
+            # Calculate Potential Returns
+            future_val_m = amt_m * ((1 + row.CAGR) ** yrs_m)
+            profit_m = future_val_m - amt_m
+
             st.markdown(f"""
 <div class="stock-card" style="margin-bottom:20px;">
 <div class="metric" style="font-size:1.2rem; font-weight:800; color:#1e293b; margin-bottom:2px;">{row.Ticker.replace('.NS','')}</div>
 <div class="small" style="font-size:0.85rem; color:#64748b; margin-bottom:10px; min-height:30px; display:flex; align-items:center; justify-content:center; line-height:1.2;">{desc_m}</div>
 <div class="small" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin-bottom:2px;">Risk-Adjusted Score</div>
 <div class="big" style="margin-bottom:15px; color:#059669;">{row.FinalScore*100:.1f}<span style="font-size:1rem; color:#94a3b8;">/100</span></div>
+
+<div style="background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 15px; border: 1px solid #e2e8f0;">
+    <div class="small" style="font-weight:700; color:#475569; margin-bottom:4px;">ESTIMATED RETURNS ({yrs_m}Y)</div>
+    <div style="font-size:1.1rem; font-weight:800; color:#047857;">₹{future_val_m:,.0f}</div>
+    <div style="font-size:0.85rem; font-weight:600; color:#10b981;">+ ₹{profit_m:,.0f} Profit</div>
+</div>
+
 <div class="metrics-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; padding-top:15px; border-top:1px solid #eee;">
 <div><span class="small" style="font-weight:700;">CAGR</span><div style="font-weight:600;">{row.CAGR*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Sharpe</span><div style="font-weight:600;">{row.Sharpe:.2f}</div></div>
