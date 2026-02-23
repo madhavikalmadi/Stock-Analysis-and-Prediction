@@ -191,7 +191,7 @@ with col1:
 <div><span class="small" style="font-weight:700;">Vol</span><div style="font-weight:600;">{row.Volatility*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Drawdown</span><div style="font-weight:600; color:#ef4444;">{row.MaxDrawdown*100:.1f}%</div></div>
 </div>
-<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:8px; border-radius:6px; text-align:left;">
+<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:8px; border-radius:6px; text-align:center;">
     Verdict: <span style="color:#2563eb;">{res['verdict']}</span><br>
     <span style="font-size:0.75rem; color:#64748b; font-weight:400;">Reason: {res['reason']}</span>
 </div>
@@ -252,7 +252,7 @@ with col2:
 <div><span class="small" style="font-weight:700;">Vol</span><div style="font-weight:600;">{row.Volatility*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Drawdown</span><div style="font-weight:600; color:#ef4444;">{row.MaxDrawdown*100:.1f}%</div></div>
 </div>
-<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:8px; border-radius:6px; text-align:left;">
+<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:8px; border-radius:6px; text-align:center;">
     Verdict: <span style="color:#2563eb;">{res_m['verdict']}</span><br>
     <span style="font-size:0.75rem; color:#64748b; font-weight:400;">Reason: {res_m['reason']}</span>
 </div>
