@@ -182,21 +182,28 @@ if st.button("🚀 Analyze Market Indices"):
 
         if choice == top_index:
             st.success(
-                f"✅ **{top_index}** ranks highest based on 10-year "
-                f"risk-adjusted performance, making it the most optimal "
-                f"index for long-term academic comparison."
+                f"✅ **{top_index}** is a star performer! It has grown faster and stayed "
+                f"more stable than other indices over the last decade, making it a "
+                f"great choice for long-term growth."
             )
         else:
-            st.info(
-                f"ℹ️ You selected **{choice}**, however **{top_index}** "
-                f"outperforms it on key metrics.\n\n"
-                f"**Reason to switch:**\n"
-                f"- Higher CAGR ({top_row['CAGR']*100:.1f}% vs {selected_row['CAGR']*100:.1f}%)\n"
-                f"- Better Sharpe Ratio ({top_row['Sharpe']:.2f} vs {selected_row['Sharpe']:.2f})\n"
-                f"- Lower volatility and drawdowns\n\n"
-                f"📌 *Hence, **{top_index}** offers a superior risk–return "
-                f"trade-off over the last decade.*"
-            )
+            st.markdown(f"""
+<div style="background:#f0f9ff; border-left: 5px solid #0ea5e9; padding:20px; border-radius:12px; text-align:center; margin-top:20px;">
+    <div style="font-size:1.1rem; font-weight:800; color:#0369a1; margin-bottom:10px;">ℹ️ Comparison Insight</div>
+    <div style="font-size:0.95rem; color:#0c4a6e; line-height:1.6;">
+        You selected <b>{choice}</b>, but <b>{top_index}</b> has shown better results over time.
+    </div>
+    <div style="margin-top:15px; display:inline-block; text-align:left; background:white; padding:15px; border-radius:10px; border:1px solid #e0f2fe;">
+        <b>Why consider a change?</b><br>
+        🚀 Grows your money faster over time.<br>
+        💎 Makes more profit with less stress.<br>
+        🛡️ Stays more stable when the market is shaky.<br>
+    </div>
+    <div style="margin-top:15px; font-weight:700; color:#0369a1;">
+        📌 <i>In short, {top_index} has given a smoother and more rewarding ride for investors.</i>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
     # =====================================================
     # 🧾 EXPLANATION OF TERMS (DROPDOWN)
@@ -206,10 +213,10 @@ if st.button("🚀 Analyze Market Indices"):
     with st.expander("Click to learn more about the metrics used above", expanded=False):
         st.markdown("""
         * **Risk-Adjusted Score:** Our "Best of the Best" score. It picks indices that make money consistently without crashing often.
-        * **CAGR** (Yearly Growth): The average speed at which your wealth grows each year.
-        * **Sharpe** (Efficiency): Returns divided by Risk. A high Sharpe ratio means you are getting "paid" well for the risk you take.
-        * **Vol** (Volatility): Indices with lower volatility are smoother and easier to hold during bad times.
-        * **Maximum DD** (Crash Safety): Measures how deep the index fell during the worst market crash. Lower drops mean your capital is safer.
+        * **CAGR (Yearly Growth):** The average speed at which your wealth grows each year.
+        * **Sharpe (Investment Efficiency):** Shows if you are getting "paid" well for the risk you take. Higher is better.
+        * **Vol (Price Fluctuations):** Indices with lower volatility are smoother and easier to hold during bad market times.
+        * **Maximum DD (Worst Crash):** Measures the deepest fall the index ever saw. Smaller falls mean your money is safer.
         """)
 
 
