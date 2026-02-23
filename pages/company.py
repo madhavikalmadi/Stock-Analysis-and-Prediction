@@ -88,11 +88,18 @@ def resolve_ticker(user_input):
 
 def get_recommendation_text(cagr, sharpe):
     if sharpe > 0.5 and cagr > 0.12:
-        return ("✅ Strong Buy", "Steady Growth")
+        return ("✅ Strong Buy", "Steady Growth", "High returns (>12%) with solid stability.")
     elif sharpe > 0.3 and cagr > 0.08:
-        return ("⚠️ Moderate", "Higher Risk")
+        return ("⚠️ Moderate", "Higher Risk", "Decent growth but lower stability or higher risk.")
     else:
-        return ("❌ Avoid", "Inconsistent History")
+        # Determine specific reason for Avoid
+        if cagr < 0.08:
+            reason = "Historical growth is too low (CAGR < 8%)."
+        elif sharpe <= 0.3:
+            reason = "Risk is too high relative to returns (Sharpe < 0.3)."
+        else:
+            reason = "Inconsistent historical performance."
+        return ("❌ Avoid", "Inconsistent History", reason)
 
 def run_analysis(tickers):
     market = "NIFTYBEES.NS"
@@ -139,7 +146,7 @@ with col1:
     # Display Single Company Result
     if "single_result" in st.session_state and st.session_state.single_result is not None:
         row = st.session_state.single_result
-        reco, desc = get_recommendation_text(row.CAGR, row.Sharpe)
+        reco, desc, reason = get_recommendation_text(row.CAGR, row.Sharpe)
         
         # Calculate Potential Returns
         amt = st.session_state.get("calc_amount_s", 0)
@@ -166,7 +173,10 @@ with col1:
 <div><span class="small" style="font-weight:700;">Vol</span><div style="font-weight:600;">{row.Volatility*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Drawdown</span><div style="font-weight:600; color:#ef4444;">{row.MaxDrawdown*100:.1f}%</div></div>
 </div>
-<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:5px; border-radius:6px;">Verdict: <span style="color:#2563eb;">{reco}</span></div>
+<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:8px; border-radius:6px;">
+    Verdict: <span style="color:#2563eb;">{reco}</span><br>
+    <span style="font-size:0.75rem; color:#64748b; font-weight:400;">Reason: {reason}</span>
+</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -198,7 +208,7 @@ with col2:
         st.write("")
         for idx, row in ranked.sort_values("FinalScore", ascending=False).iterrows():
             # Re-calculate verdict for each
-            reco_m, desc_m = get_recommendation_text(row.CAGR, row.Sharpe)
+            reco_m, desc_m, reason_m = get_recommendation_text(row.CAGR, row.Sharpe)
             
             # Calculate Potential Returns
             future_val_m = amt_m * ((1 + row.CAGR) ** yrs_m)
@@ -223,7 +233,10 @@ with col2:
 <div><span class="small" style="font-weight:700;">Vol</span><div style="font-weight:600;">{row.Volatility*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Drawdown</span><div style="font-weight:600; color:#ef4444;">{row.MaxDrawdown*100:.1f}%</div></div>
 </div>
-<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:5px; border-radius:6px;">Verdict: <span style="color:#2563eb;">{reco_m}</span></div>
+<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:8px; border-radius:6px;">
+    Verdict: <span style="color:#2563eb;">{reco_m}</span><br>
+    <span style="font-size:0.75rem; color:#64748b; font-weight:400;">Reason: {reason_m}</span>
+</div>
 </div>
 """, unsafe_allow_html=True)
 
