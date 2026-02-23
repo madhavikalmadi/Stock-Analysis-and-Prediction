@@ -169,41 +169,53 @@ if st.button("🚀 Analyze Market Indices"):
 </div>
 """, unsafe_allow_html=True)
 
-    # =====================================================
-    # 📌 REASON / GUIDANCE MESSAGE
-    # =====================================================
-    st.markdown("---")
-
     top_row = ranked.iloc[0]
     top_index = top_row["Name"]
 
-    if choice != "Select...":
-        selected_row = ranked[ranked["Name"] == choice].iloc[0]
-
-        if choice == top_index:
-            st.success(
-                f"✅ **{top_index}** is a star performer! It has grown faster and stayed "
-                f"more stable than other indices over the last decade, making it a "
-                f"great choice for long-term growth."
-            )
-        else:
-            st.markdown(f"""
-<div style="background:#f0f9ff; border-left: 5px solid #0ea5e9; padding:20px; border-radius:12px; text-align:center; margin-top:20px;">
-    <div style="font-size:1.1rem; font-weight:800; color:#0369a1; margin-bottom:10px;">ℹ️ Comparison Insight</div>
-    <div style="font-size:0.95rem; color:#0c4a6e; line-height:1.6;">
-        You selected <b>{choice}</b>, but <b>{top_index}</b> has shown better results over time.
+    # =====================================================
+    # 🏆 MARKET LEADER INSIGHT (ALWAYS SHOWN)
+    # =====================================================
+    st.markdown("---")
+    st.markdown(f"""
+<div style="background:#f8fafc; border: 1px solid #e2e8f0; padding:25px; border-radius:15px; text-align:center;">
+    <h3 style="color:#1e293b; margin-bottom:15px;">🚀 Why {top_index} is the Market Leader</h3>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; text-align:left;">
+        <div style="background:white; padding:15px; border-radius:10px; border-top:4px solid #059669;">
+            <b style="color:#059669;">📈 Peak Growth Speed</b><br>
+            <span style="font-size:0.85rem; color:#64748b;">It powers your wealth faster than any other index in this list.</span>
+        </div>
+        <div style="background:white; padding:15px; border-radius:10px; border-top:4px solid #2563eb;">
+            <b style="color:#2563eb;">💎 Superior Efficiency</b><br>
+            <span style="font-size:0.85rem; color:#64748b;">It generates the most profit for every unit of risk taken.</span>
+        </div>
+        <div style="background:white; padding:15px; border-radius:10px; border-top:4px solid #8b5cf6;">
+            <b style="color:#8b5cf6;">🛡️ Market Resilience</b><br>
+            <span style="font-size:0.85rem; color:#64748b;">It recovers more reliably from crashes than its competitors.</span>
+        </div>
     </div>
-    <div style="margin-top:15px; display:inline-block; text-align:left; background:white; padding:15px; border-radius:10px; border:1px solid #e0f2fe;">
-        <b>How does the growth compare?</b><br>
-        📈 **Faster Speed:** Your money grows at a much quicker pace here.<br>
-        🚀 **Stronger Power:** It has a better ability to build wealth over the years.<br>
-        ✅ **Reliable Growth:** It moves upward more consistently than other indices.<br>
-    </div>
-    <div style="margin-top:15px; font-weight:700; color:#0369a1;">
-        📌 <i>In short, {top_index} has given a smoother and more rewarding ride for investors.</i>
+    <div style="margin-top:20px; font-size:1rem; font-weight:600; color:#1e293b;">
+        📌 {top_index} stands out because it offers the perfect balance of "Aggressive Growth" and "Safety."
     </div>
 </div>
 """, unsafe_allow_html=True)
+
+    # =====================================================
+    # 📌 USER SELECTION COMPARISON (SUPPLEMENTARY)
+    # =====================================================
+    if choice != "Select...":
+        selected_row = ranked[ranked["Name"] == choice].iloc[0]
+
+        if choice != top_index:
+            st.markdown(f"""
+<div style="background:#f0f9ff; border-left: 5px solid #0ea5e9; padding:20px; border-radius:12px; text-align:center; margin-top:20px;">
+    <div style="font-size:1.1rem; font-weight:800; color:#0369a1; margin-bottom:10px;">⚖️ Your Selection vs The Leader</div>
+    <div style="font-size:0.95rem; color:#0c4a6e; line-height:1.6;">
+        You selected <b>{choice}</b>, but <b>{top_index}</b> has shown stronger growth speed and better reliability over the last decade.
+    </div>
+</div>
+""", unsafe_allow_html=True)
+        else:
+            st.success(f"🌟 Great Choice! **{choice}** is currently the top-performing index on our leaderboard.")
 
     # =====================================================
     # 🧾 EXPLANATION OF TERMS (DROPDOWN)
