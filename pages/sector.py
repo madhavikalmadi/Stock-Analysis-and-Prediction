@@ -150,22 +150,40 @@ if start_analysis:
                 ranked = scoring_system.rank_stocks(metrics)
                 top5 = ranked[ranked["Ticker"] != market_ticker].head(5)
 
-                cols = st.columns(len(top5))
+                # Get Top Ticker and calculate summary
+                top_stock = top5.iloc[0]
+                top_ticker = top_stock['Ticker'].replace('.NS','')
+
+                # Center the cards by wrapping in a centered container
+                st.markdown("<div style='display:flex; justify-content:center; gap:1.5rem; flex-wrap:wrap;'>", unsafe_allow_html=True)
+                cols_count = len(top5)
+                cols = st.columns(5) # Standardize to 5 columns for balance
+                
                 for j, (_, row) in enumerate(top5.iterrows()):
                     ticker_name = row['Ticker'].replace('.NS','')
                     with cols[j]:
                         st.markdown(f"""
 <div class="stock-card">
 <div class="metric" style="font-size:1.2rem; font-weight:800; color:#1e293b; margin-bottom:2px;">{ticker_name}</div>
-<div class="small" style="font-size:0.85rem; color:#64748b; margin-bottom:10px; min-height:30px; display:flex; align-items:center; justify-content:center; line-height:1.2;">Rank #{j+1}</div>
-<div class="small" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin-bottom:2px;">Risk-Adjusted Score</div>
+<div class="small" style="font-size:0.85rem; color:#64748b; margin-bottom:10px; min-height:40px; display:flex; align-items:center; justify-content:center; line-height:1.2;">Leader #{j+1} in {idx_name}</div>
+<div class="small" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin-bottom:2px;">Growth Score</div>
 <div class="big" style="margin-bottom:15px; color:#059669;">{row['FinalScore']*100:.1f}<span style="font-size:1rem; color:#94a3b8;">/100</span></div>
 <div class="metrics-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; padding-top:15px; border-top:1px solid #eee;">
-<div><span class="small" style="font-weight:700;">CAGR</span><div style="font-weight:600;">{row['CAGR']*100:.1f}%</div></div>
-<div><span class="small" style="font-weight:700;">Sharpe</span><div style="font-weight:600;">{row['Sharpe']:.2f}</div></div>
-<div><span class="small" style="font-weight:700;">Vol</span><div style="font-weight:600;">{row['Volatility']*100:.1f}%</div></div>
-<div><span class="small" style="font-weight:700;">Drawdown</span><div style="font-weight:600; color:#ef4444;">{row['MaxDrawdown']*100:.1f}%</div></div>
+<div><span class="small" style="font-weight:700;">Yearly Growth</span><div style="font-weight:600;">{row['CAGR']*100:.1f}%</div></div>
+<div><span class="small" style="font-weight:700;">Efficiency</span><div style="font-weight:600;">{row['Sharpe']:.2f}</div></div>
 </div>
+</div>
+""", unsafe_allow_html=True)
+                
+                # Market Leader Insight for Sector
+                st.markdown(f"""
+<div style="background:#f8fafc; border: 1px solid #e2e8f0; padding:20px; border-radius:15px; text-align:center; margin-top:25px; margin-bottom:30px;">
+    <h4 style="color:#1e293b; margin-bottom:12px;">🏗️ {idx_name}: Sector Growth Insight</h4>
+    <div style="font-size:1rem; color:#475569; line-height:1.6; max-width:800px; margin:0 auto;">
+        <b>{top_ticker}</b> is currently the champion of this sector. It shows the <b>strongest wealth-building power</b> 
+        and the most <b>reliable upward trend</b> compared to its peers. For investors looking for 
+        sector-specific growth, it offers the best balance of speed and safety.
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -184,11 +202,11 @@ st.write("")
 st.markdown("### 📚 Explanation of Key Terms")
 with st.expander("Click to learn more about the metrics used above", expanded=False):
     st.markdown("""
-    * **Risk-Adjusted Score:** A simplified rating. 100 is excellent, 0 is poor. We calculate this by balancing growth (good) vs risk (bad).
-    * **CAGR** (Yearly Growth): The average annual return. If you see 15%, it means the sector grew by about 15% every year on average.
-    * **Sharpe** (Efficiency): Shows if the growth is "worth the risk". >1.0 is great. It means you aren't gambling, you're investing smartly.
-    * **Vol** (Risk): Measures how "bumpy" the ride is. High volatility means the price changes wildly. Low is stable and calm.
-    * **Drawdown** (Worst Drop): The worst crash this sector faced from its peak. Smaller negative numbers (e.g., -10% vs -50%) are much safer.
+    * **Growth Score:** A simplified rating from 0 to 100. It picks stocks that grow wealth consistently without extreme risk.
+    * **Yearly Growth (CAGR):** The average speed at which the stock price has climbed each year.
+    * **Efficiency (Sharpe):** Measures if the stock is generating smart returns for the risk taken. Higher is better.
+    * **Risk (Vol):** How much the price jumps up and down. Lower means a calmer, smoother ride.
+    * **Worst Drop (Drawdown):** The deepest fall the stock has seen. Small drops mean it recovers faster from market crashes.
     """)
 
 # ==========================================

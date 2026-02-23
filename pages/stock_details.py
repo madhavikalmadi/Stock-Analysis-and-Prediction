@@ -181,6 +181,9 @@ def render_beginner_zone(lotties):
         * **Growth (The Calf):** You buy a baby calf. It gives **zero milk**. It eats all the food (profits) to grow bigger. You only make money when you sell the huge cow 5 years later.
         
         **Coal India** often has a Dividend Yield of 5-8%. This means if you invest ₹1 Lakh, they might pay you ₹5,000 - ₹8,000 cash per year just for holding the stock, regardless of the stock price!
+        
+        > [!TIP]
+        > **Growth Power Tip:** If you are young, focus on "Growth Stocks" (The Calf). They don't pay cash now, but they grow your total wealth much faster over 5-10 years.
         """)
 
     # 10. DEMAT ACCOUNT

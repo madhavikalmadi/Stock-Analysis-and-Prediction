@@ -180,10 +180,9 @@ with col2:
                 <div class="card-icon">💎</div>
                 <div class="card-heading">Blue-Chip Advisor</div>
                 <div class="card-text">
-                    Safest large-cap companies with consistent long-term growth.
+                    High-quality leaders built for consistent wealth and long-term growth.
                 </div>
             </div>
-        </a>
         </a>
         """, unsafe_allow_html=True)
 
@@ -199,7 +198,7 @@ with col2:
                 <div class="card-icon">🏗️</div>
                 <div class="card-heading">Sector View</div>
                 <div class="card-text">
-                    Identify trending sectors like IT, Banking, Auto & more.
+                    Explore high-growth sectors like IT, Banking, and Auto to find winners.
                 </div>
             </div>
         </a>
