@@ -1,8 +1,15 @@
-import streamlit as st
+import sys
+import os
+import yfinance as yf
+import data_fetch
+import metric_calculator
 from mongo_db import watchlist_col
 from bson import ObjectId
-from theme_manager import get_theme # Keeping get_theme but unused or just remove imports entirely if careful
-# Removing apply_theme and render_theme_toggle logic entirely
+import pandas as pd
+# --------------------------------------------------
+# PATH SETUP
+# --------------------------------------------------
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # --------------------------------------------------
 # PAGE CONFIG
@@ -10,7 +17,8 @@ from theme_manager import get_theme # Keeping get_theme but unused or just remov
 st.set_page_config(
     page_title="My Profile",
     page_icon="👤",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 # =====================================================
@@ -140,25 +148,64 @@ body, [data-testid="stAppViewContainer"] {{
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------
-# FETCH WATCHLIST
+# ADVISORY LOGIC (COPIED/REUSED)
 # --------------------------------------------------
-# --------------------------------------------------
-# FETCH WATCHLIST
-# --------------------------------------------------
-import pymongo
+def get_recommendation_text(cagr, sharpe):
+    if sharpe > 0.5 and cagr > 0.12:
+        return {"verdict": "✅ Strong Buy", "color": "#059669", "bg": "#ecfdf5"}
+    elif sharpe > 0.3 and cagr > 0.08:
+        return {"verdict": "⚠️ Moderate", "color": "#b45309", "bg": "#fffbeb"}
+    else:
+        return {"verdict": "❌ Avoid", "color": "#dc2626", "bg": "#fef2f2"}
+
+def get_persona(avg_cagr, avg_sharpe):
+    if avg_cagr > 0.15: return "🚀 Growth Seeker", "Focuses on high-speed wealth building."
+    if avg_sharpe > 0.6: return "🛡️ Safety First", "Prioritizes steady, low-risk returns."
+    return "⚖️ Balanced Builder", "A healthy mix of growth and stability."
+
 user_id = st.session_state.get("user_id")
 username = st.session_state.get("username")
 
+# --------------------------------------------------
+# FETCH WATCHLIST
+# --------------------------------------------------
+# --------------------------------------------------
+# FETCH WATCHLIST
+# --------------------------------------------------
 watchlist = []
+analyzed_watchlist = []
+avg_cagr = 0
+avg_sharpe = 0
+
 if user_id:
     try:
         watchlist = list(watchlist_col.find({"user_id": user_id}))
-    except pymongo.errors.ServerSelectionTimeoutError:
-        st.error("⚠️ Connection Error: Unable to connect to the database. Please check your internet connection or try again later.")
-        watchlist = [] # Fallback to empty
+        if watchlist:
+            tickers = [item['ticker'] for item in watchlist]
+            # Fetch 10y data for all watchlist stocks + Sensex for reference
+            full_data = data_fetch.fetch_stock_data(tickers + ["^NSEI"])
+            if not full_data.empty:
+                metrics = metric_calculator.compute_metrics(full_data, "^NSEI")
+                for item in watchlist:
+                    m = metrics[metrics["Ticker"] == item['ticker']]
+                    if not m.empty:
+                        row = m.iloc[0]
+                        res = get_recommendation_text(row['CAGR'], row['Sharpe'])
+                        analyzed_watchlist.append({
+                            "ticker": item['ticker'],
+                            "cagr": row['CAGR'],
+                            "sharpe": row['Sharpe'],
+                            "verdict": res['verdict'],
+                            "color": res['color'],
+                            "bg": res['bg']
+                        })
+                
+                if analyzed_watchlist:
+                    avg_cagr = sum(a['cagr'] for a in analyzed_watchlist) / len(analyzed_watchlist)
+                    avg_sharpe = sum(a['sharpe'] for a in analyzed_watchlist) / len(analyzed_watchlist)
+
     except Exception as e:
-        st.error(f"⚠️ An error occurred: {e}")
-        watchlist = []
+        st.error(f"⚠️ Error loading profile data: {e}")
 
 # --------------------------------------------------
 # LAYOUT
@@ -184,7 +231,20 @@ with c_sidebar:
 
         st.divider()
 
-        # THEME TOGGLE REMOVED
+        # INVESTOR PERSONA
+        if analyzed_watchlist:
+            persona, desc = get_persona(avg_cagr, avg_sharpe)
+            st.markdown(f"""
+            <div style="background:rgba(59,130,246,0.1); padding:15px; border-radius:12px; border:1px solid rgba(59,130,246,0.2); margin-top:10px;">
+                <div style="font-size:0.8rem; text-transform:uppercase; font-weight:700; opacity:0.6; margin-bottom:5px;">Investor Persona</div>
+                <div style="font-size:1.1rem; font-weight:800; color:#2563eb;">{persona}</div>
+                <div style="font-size:0.8rem; opacity:0.8; line-height:1.2; margin-top:5px;">{desc}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.info("Add stocks to your watchlist to see your investor persona!")
+
+        st.divider()
 
         if st.button("🚪 Logout"):
             st.session_state.clear()
@@ -195,21 +255,45 @@ with c_sidebar:
 with c_content:
     st.markdown("<div class='section-title'>⭐ My Watchlist</div>", unsafe_allow_html=True)
 
-    if not watchlist:
+    if not analyzed_watchlist:
         st.markdown("""
         <div class="empty-box">
-            <h3>📭 No watchlist items</h3>
-            <p>Add stocks to see them here.</p>
+            <h3>📭 Your Watchlist is Empty</h3>
+            <p>Go to Stock Search or Company Advisor to add stocks and unlock your growth summary.</p>
         </div>
         """, unsafe_allow_html=True)
     else:
+        # GROWTH SUMMARY WIDGET
+        st.markdown(f"""
+        <div style="background:linear-gradient(90deg, #1e293b 0%, #334155 100%); color:white; padding:25px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); margin-bottom:30px; display:flex; justify-content:space-around; align-items:center; text-align:center;">
+            <div>
+                <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; opacity:0.7; margin-bottom:5px;">Avg Wealth Speed</div>
+                <div style="font-size:2rem; font-weight:900; color:#10b981;">{avg_cagr*100:.1f}%<span style="font-size:1rem; opacity:0.6;">/year</span></div>
+            </div>
+            <div style="width:1px; height:50px; background:rgba(255,255,255,0.1);"></div>
+            <div>
+                <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; opacity:0.7; margin-bottom:5px;">Market Efficiency</div>
+                <div style="font-size:2rem; font-weight:900; color:#3b82f6;">{avg_sharpe:.2f}</div>
+            </div>
+            <div style="width:1px; height:50px; background:rgba(255,255,255,0.1);"></div>
+            <div>
+                <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; opacity:0.7; margin-bottom:5px;">Saved Assets</div>
+                <div style="font-size:2rem; font-weight:900;">{len(analyzed_watchlist)}</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
         cols = st.columns(3)
-        for idx, item in enumerate(watchlist):
+        for idx, item in enumerate(analyzed_watchlist):
             with cols[idx % 3]:
                 st.markdown(f"""
-                <div class="watchlist-card">
+                <div class="watchlist-card" style="border-top:4px solid {item['color']};">
+                    <div style="font-size:0.7rem; font-weight:700; color:{item['color']}; text-transform:uppercase; margin-bottom:8px;">{item['verdict']}</div>
                     <div class="stock-ticker">{item['ticker']}</div>
-                    <div class="stock-sub">Saved Stock</div>
+                    <div style="display:flex; justify-content:center; gap:15px; margin-top:10px; font-weight:600; font-size:0.9rem;">
+                        <span style="color:#059669;">📈 {item['cagr']*100:.1f}%</span>
+                        <span style="color:#2563eb;">🛡️ {item['sharpe']:.2f}</span>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
 
