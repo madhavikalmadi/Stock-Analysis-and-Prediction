@@ -132,9 +132,9 @@ with col1:
                 st.session_state.single_result = None
             else:
                 st.session_state.single_result = result.iloc[0]
-                # Store inputs for calculation
-                st.session_state.single_amount = amount if amount else 0
-                st.session_state.single_years = years
+                # Store inputs for calculation (use distinct keys to avoid widget collision)
+                st.session_state.calc_amount_s = amount if amount else 0
+                st.session_state.calc_years_s = years
     
     # Display Single Company Result
     if "single_result" in st.session_state and st.session_state.single_result is not None:
@@ -142,8 +142,8 @@ with col1:
         reco, desc = get_recommendation_text(row.CAGR, row.Sharpe)
         
         # Calculate Potential Returns
-        amt = st.session_state.get("single_amount", 0)
-        yrs = st.session_state.get("single_years", 1)
+        amt = st.session_state.get("calc_amount_s", 0)
+        yrs = st.session_state.get("calc_years_s", 1)
         future_val = amt * ((1 + row.CAGR) ** yrs)
         profit = future_val - amt
 
@@ -185,15 +185,15 @@ with col2:
         else:
             ranked = run_analysis(lst)
             st.session_state.multi_result = ranked
-            # Store inputs for calculation
-            st.session_state.multi_amount = amount_m if amount_m else 0
-            st.session_state.multi_years = years_m
+            # Store inputs for calculation (use distinct keys to avoid widget collision)
+            st.session_state.calc_amount_m = amount_m if amount_m else 0
+            st.session_state.calc_years_m = years_m
 
     # Display Multi Company Result
     if "multi_result" in st.session_state and st.session_state.multi_result is not None:
         ranked = st.session_state.multi_result
-        amt_m = st.session_state.get("multi_amount", 0)
-        yrs_m = st.session_state.get("multi_years", 1)
+        amt_m = st.session_state.get("calc_amount_m", 0)
+        yrs_m = st.session_state.get("calc_years_m", 1)
         
         st.write("")
         for idx, row in ranked.sort_values("FinalScore", ascending=False).iterrows():
