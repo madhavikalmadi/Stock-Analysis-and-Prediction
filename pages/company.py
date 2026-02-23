@@ -88,18 +88,35 @@ def resolve_ticker(user_input):
 
 def get_recommendation_text(cagr, sharpe):
     if sharpe > 0.5 and cagr > 0.12:
-        return ("✅ Strong Buy", "Steady Growth", "The company is growing fast and is very stable.")
+        return {
+            "verdict": "✅ Strong Buy",
+            "desc": "A Star Performer",
+            "reason": "This company is growing beautifully and feels safe and stable for your money.",
+            "color": "#059669", 
+            "bg": "#ecfdf5"
+        }
     elif sharpe > 0.3 and cagr > 0.08:
-        return ("⚠️ Moderate", "Higher Risk", "The company has decent growth but comes with more ups and downs.")
+        return {
+            "verdict": "⚠️ Moderate",
+            "desc": "Good Potential",
+            "reason": "It has great growth, but the price moves around a bit like a rollercoaster.",
+            "color": "#b45309", 
+            "bg": "#fffbeb"
+        }
     else:
-        # Determine specific reason for Avoid
         if cagr < 0.08:
-            reason = "The company is growing too slowly to be a good investment."
+            reason = "This company is moving a bit too slowly to help your money grow well."
         elif sharpe <= 0.3:
-            reason = "The stock price is too shaky and unpredictable compared to its profits."
+            reason = "The stock price is very jumpy, making it a bit too risky right now."
         else:
-            reason = "The company's performance has been too unstable and risky."
-        return ("❌ Avoid", "Inconsistent History", reason)
+            reason = "The performance hasn't been consistent enough to trust it fully."
+        return {
+            "verdict": "❌ Avoid",
+            "desc": "Wait and See",
+            "reason": reason,
+            "color": "#dc2626", 
+            "bg": "#fef2f2"
+        }
 
 def run_analysis(tickers):
     market = "NIFTYBEES.NS"
@@ -146,7 +163,8 @@ with col1:
     # Display Single Company Result
     if "single_result" in st.session_state and st.session_state.single_result is not None:
         row = st.session_state.single_result
-        reco, desc, reason = get_recommendation_text(row.CAGR, row.Sharpe)
+        res = get_recommendation_text(row.CAGR, row.Sharpe)
+        desc = res["desc"]
         
         # Calculate Potential Returns
         amt = st.session_state.get("calc_amount_s", 0)
@@ -173,9 +191,10 @@ with col1:
 <div><span class="small" style="font-weight:700;">Vol</span><div style="font-weight:600;">{row.Volatility*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Drawdown</span><div style="font-weight:600; color:#ef4444;">{row.MaxDrawdown*100:.1f}%</div></div>
 </div>
-<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:8px; border-radius:6px;">
-    Verdict: <span style="color:#2563eb;">{reco}</span><br>
-    <span style="font-size:0.75rem; color:#64748b; font-weight:400;">Reason: {reason}</span>
+
+<div style="margin-top:15px; background:{res['bg']}; color:{res['color']}; padding:15px; border-radius:12px; border: 1px solid {res['color']}33; text-align:left;">
+    <div style="font-weight:800; font-size:1.1rem; margin-bottom:4px;">{res['verdict']}</div>
+    <div style="font-size:0.85rem; font-weight:600; opacity:0.9; line-height:1.4;">{res['reason']}</div>
 </div>
 </div>
 """, unsafe_allow_html=True)
@@ -208,7 +227,8 @@ with col2:
         st.write("")
         for idx, row in ranked.sort_values("FinalScore", ascending=False).iterrows():
             # Re-calculate verdict for each
-            reco_m, desc_m, reason_m = get_recommendation_text(row.CAGR, row.Sharpe)
+            res_m = get_recommendation_text(row.CAGR, row.Sharpe)
+            desc_m = res_m["desc"]
             
             # Calculate Potential Returns
             future_val_m = amt_m * ((1 + row.CAGR) ** yrs_m)
@@ -233,9 +253,10 @@ with col2:
 <div><span class="small" style="font-weight:700;">Vol</span><div style="font-weight:600;">{row.Volatility*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Drawdown</span><div style="font-weight:600; color:#ef4444;">{row.MaxDrawdown*100:.1f}%</div></div>
 </div>
-<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:8px; border-radius:6px;">
-    Verdict: <span style="color:#2563eb;">{reco_m}</span><br>
-    <span style="font-size:0.75rem; color:#64748b; font-weight:400;">Reason: {reason_m}</span>
+
+<div style="margin-top:15px; background:{res_m['bg']}; color:{res_m['color']}; padding:15px; border-radius:12px; border: 1px solid {res_m['color']}33; text-align:left;">
+    <div style="font-weight:800; font-size:1.1rem; margin-bottom:4px;">{res_m['verdict']}</div>
+    <div style="font-size:0.85rem; font-weight:600; opacity:0.9; line-height:1.4;">{res_m['reason']}</div>
 </div>
 </div>
 """, unsafe_allow_html=True)
@@ -253,9 +274,9 @@ with st.expander("Click to learn more about the metrics used above", expanded=Fa
     * **Vol (Volatility):** How much the stock price fluctuates. Low vol = stable; High vol = risky/rollercoaster.
     * **Drawdown (Max Loss):** The worst possible drop from a peak to a trough. If this is -50%, it means the stock once lost half its value.
     * **Verdict:** A quick summary based on the combination of growth and risk:
-        * **✅ Strong Buy:** High growth with very good price stability.
-        * **⚠️ Moderate:** Decent growth but with more frequent price changes.
-        * **❌ Avoid:** Very slow growth or highly unpredictable price swings.
+        * **✅ Strong Buy:** A star performer with high growth and very safe stability.
+        * **⚠️ Moderate:** Good potential for growth, but the price waves can be a bit bumpy.
+        * **❌ Avoid:** Moving a bit too slowly or carries too much risk for most investors.
     """)
 
 # ==================================================
