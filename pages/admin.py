@@ -1,245 +1,225 @@
 import streamlit as st
 import pandas as pd
-from bson import ObjectId
 
 from mongo_db import users_col, watchlist_col, actions_col
 
-st.set_page_config(page_title="Admin Dashboard", layout="wide")
 # =====================================================
-# BACK TO LOGIN BUTTON
+# PAGE CONFIG
 # =====================================================
-col1, col2 = st.columns([8, 2])
+st.set_page_config(
+    page_title="Admin Dashboard",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
-with col2:
-    if st.button("⬅ Back to Login"):
+# =====================================================
+# NAVIGATION
+# =====================================================
+col_main, col_nav = st.columns([8, 2])
+with col_nav:
+    if st.button("⬅ Back to Login", use_container_width=True):
         st.session_state.clear()
         st.switch_page("login.py")
 
-# Admin auth check removed by user request
-# if not st.session_state.get("is_admin"):
-#     st.error("Admin access only")
-#     st.stop()
-
 # =====================================================
-# CUSTOM CSS FOR STUNNING UI
+# CUSTOM PROFESSIONAL UI
 # =====================================================
 st.markdown("""
 <style>
-    /* Sleek gradient background for the main title */
     .admin-title {
-        background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-weight: 800;
-        margin-bottom: 0px;
+        font-weight: 900;
+        letter-spacing: 1px;
     }
-    
-    /* Premium Metric Cards */
+
     div[data-testid="metric-container"] {
-        background-color: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        transition: all 0.25s ease-in-out;
     }
+
     div[data-testid="metric-container"]:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-6px);
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.55);
     }
-    
-    /* Make metric labels bolder and lighter */
-    div[data-testid="metric-container"] > div {
-        font-weight: 600 !important;
-        color: #8892b0 !important;
-    }
-    
-    /* Make metric values pop */
-    div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
+
+    div[data-testid="stMetricValue"] {
+        font-size: 2.6rem !important;
         font-weight: 800 !important;
-        color: #e6f1ff !important;
-        font-size: 2.5rem !important;
+        color: #eaf2ff !important;
+    }
+
+    div[data-testid="metric-container"] label {
+        font-weight: 600;
+        color: #9aa7c7;
     }
 </style>
 """, unsafe_allow_html=True)
 
+# =====================================================
+# HEADER
+# =====================================================
 st.markdown('<h1 class="admin-title">🛠 Admin Dashboard</h1>', unsafe_allow_html=True)
-st.markdown("Monitor user engagement, manage registered accounts, and track platform activity in real-time.")
+st.caption("Central control panel to monitor users, watchlists, and activity logs.")
 st.divider()
+
+# =====================================================
+# HELPER FUNCTIONS
+# =====================================================
+def safe_password_display(pwd):
+    """Safely format stored password (hashed / legacy formats)."""
+    if isinstance(pwd, (list, tuple)):
+        try:
+            return "".join(chr(int(i)) for i in pwd)
+        except:
+            return "Encrypted"
+    if isinstance(pwd, bytes):
+        return pwd.decode("utf-8", errors="ignore")
+    return str(pwd)
 
 # =====================================================
 # DATA FETCHING
 # =====================================================
 users = list(users_col.find({}, {"username": 1, "email": 1, "mobile": 1, "password": 1}))
 
-watchlist_pipeline = [
-    {
-        "$addFields": {
-            "user_obj_id": { "$toObjectId": "$user_id" }
-        }
-    },
-    {
-        "$lookup": {
-            "from": "users",
-            "localField": "user_obj_id",
-            "foreignField": "_id",
-            "as": "user"
-        }
-    },
-    { "$unwind": "$user" },
-    {
-        "$project": {
-            "_id": 0,
-            "username": "$user.username",
-            "ticker": 1
-        }
-    }
-]
-watchlist_data = list(watchlist_col.aggregate(watchlist_pipeline))
+watchlist_data = list(watchlist_col.aggregate([
+    {"$addFields": {"user_obj_id": {"$toObjectId": "$user_id"}}},
+    {"$lookup": {
+        "from": "users",
+        "localField": "user_obj_id",
+        "foreignField": "_id",
+        "as": "user"
+    }},
+    {"$unwind": "$user"},
+    {"$project": {"_id": 0, "username": "$user.username", "ticker": 1}}
+]))
 
-activity_pipeline = [
-    {
-        "$addFields": {
-            "user_obj_id": { "$toObjectId": "$user_id" }
-        }
-    },
-    {
-        "$lookup": {
-            "from": "users",
-            "localField": "user_obj_id",
-            "foreignField": "_id",
-            "as": "user"
-        }
-    },
-    { "$unwind": "$user" },
-    {
-        "$project": {
-            "_id": 0,
-            "username": "$user.username",
-            "action": 1,
-            "value": 1
-        }
-    }
-]
-activity_data = list(actions_col.aggregate(activity_pipeline))
+activity_data = list(actions_col.aggregate([
+    {"$addFields": {"user_obj_id": {"$toObjectId": "$user_id"}}},
+    {"$lookup": {
+        "from": "users",
+        "localField": "user_obj_id",
+        "foreignField": "_id",
+        "as": "user"
+    }},
+    {"$unwind": "$user"},
+    {"$project": {"_id": 0, "username": "$user.username", "action": 1, "value": 1}}
+]))
 
 # =====================================================
 # KEY METRICS
 # =====================================================
-col_m1, col_m2, col_m3 = st.columns(3)
-with col_m1:
-    st.metric(label="👥 Total Registered Users", value=len(users))
-with col_m2:
-    st.metric(label="⭐ Total Watchlist Items", value=len(watchlist_data))
-with col_m3:
-    st.metric(label="📈 Total Activities Logged", value=len(activity_data))
+m1, m2, m3 = st.columns(3)
+m1.metric("👥 Total Users", len(users))
+m2.metric("⭐ Watchlist Entries", len(watchlist_data))
+m3.metric("📈 Activity Logs", len(activity_data))
 
-st.write("") # Spacer
-st.write("") # Spacer
+st.write("")
 
 # =====================================================
-# TABS FOR DATA
+# MAIN TABS
 # =====================================================
-tab1, tab2, tab3 = st.tabs(["👥 Registered Users", "⭐ Watchlists", "📈 User Activity"])
+tab_users, tab_watchlist, tab_activity = st.tabs([
+    "👥 Users",
+    "⭐ Watchlists",
+    "📈 Activity Logs"
+])
 
-with tab1:
-    st.subheader("Registered Users Directory")
-    
-    def format_password(pwd):
-        if isinstance(pwd, (list, tuple)):
-            try:
-                return "".join(chr(int(i)) for i in pwd)
-            except:
-                return str(pwd)
-        if isinstance(pwd, bytes):
-            return pwd.decode('utf-8', errors='ignore')
-        return str(pwd)
+# =====================================================
+# USERS TAB
+# =====================================================
+with tab_users:
+    st.subheader("Registered Users")
 
-    if users:
-        # Search Filter
-        search_user = st.text_input("🔍 Search Users (by Username or Email)", key="search_user").lower()
-        
+    if not users:
+        st.info("No users registered yet.")
+    else:
+        search = st.text_input("🔍 Search by Username or Email").lower()
+
         df_users = pd.DataFrame([
             {
-                "User ID": str(u["_id"]), 
+                "User ID": str(u["_id"]),
                 "Username": u["username"],
                 "Email": u.get("email", "N/A"),
                 "Mobile": u.get("mobile", "N/A"),
-                "Password": format_password(u.get("password", "****"))
+                "Password": safe_password_display(u.get("password"))
             }
             for u in users
         ])
-        
-        # Apply filter
-        if search_user:
+
+        if search:
             df_users = df_users[
-                df_users["Username"].str.lower().str.contains(search_user) | 
-                df_users["Email"].str.lower().str.contains(search_user)
+                df_users["Username"].str.lower().str.contains(search) |
+                df_users["Email"].str.lower().str.contains(search)
             ]
-            
+
         st.dataframe(
             df_users,
             use_container_width=True,
             hide_index=True,
             column_config={
                 "Password": st.column_config.TextColumn(
-                    "Password",
-                    help="Passwords starting with $2b$ are securely encrypted (hashed) and cannot be decrypted.",
-                    width="medium"
-                ),
-                "Email": st.column_config.TextColumn("Email", width="medium"),
+                    help="Passwords are stored securely (hashed)."
+                )
             }
         )
-    else:
-        st.info("No registered users found in the database.")
 
-with tab2:
-    st.subheader("User Watchlist Preferences")
-    if watchlist_data:
-        # Search Filter
-        col_w1, col_w2 = st.columns(2)
-        with col_w1:
-            search_ticker = st.text_input("🔍 Filter by Ticker", key="search_ticker").upper()
-        with col_w2:
-            search_watch_user = st.text_input("👤 Filter by Username", key="search_w_user").lower()
-            
+# =====================================================
+# WATCHLIST TAB
+# =====================================================
+with tab_watchlist:
+    st.subheader("User Watchlists")
+
+    if not watchlist_data:
+        st.info("No watchlist entries found.")
+    else:
+        col1, col2 = st.columns(2)
+        ticker = col1.text_input("🔍 Filter by Ticker").upper()
+        user = col2.text_input("👤 Filter by Username").lower()
+
         df_watch = pd.DataFrame(watchlist_data)
-        
-        # Apply filters
-        if search_ticker:
-            df_watch = df_watch[df_watch["ticker"].str.contains(search_ticker)]
-        if search_watch_user:
-            df_watch = df_watch[df_watch["username"].str.lower().str.contains(search_watch_user)]
-            
+
+        if ticker:
+            df_watch = df_watch[df_watch["ticker"].str.contains(ticker)]
+        if user:
+            df_watch = df_watch[df_watch["username"].str.lower().str.contains(user)]
+
         st.dataframe(df_watch, use_container_width=True, hide_index=True)
-    else:
-        st.info("No watchlist data has been saved by any users yet.")
 
-with tab3:
-    st.subheader("Recent User Interactions")
-    if activity_data:
+# =====================================================
+# ACTIVITY TAB
+# =====================================================
+with tab_activity:
+    st.subheader("User Activity Logs")
+
+    if not activity_data:
+        st.info("No activity logs recorded.")
+    else:
+        search_user = st.text_input("👤 Search by Username").lower()
         df_activity = pd.DataFrame(activity_data)
-        
-        # Search Tool
-        search_act_user = st.text_input("👤 Search by Username", key="search_act_user").lower()
-            
-        # Apply filters
-        if search_act_user:
-            df_activity = df_activity[df_activity["username"].str.lower().str.contains(search_act_user)]
-            
-        # Styling Function for Activity Table
-        def highlight_actions(val):
-            color = ''
-            if val == 'Login': color = 'color: #00e676; font-weight: bold;'
-            elif val == 'Logout': color = 'color: #ff5252; font-weight: bold;'
-            elif 'View' in str(val): color = 'color: #40c4ff;'
-            elif 'Predict' in str(val): color = 'color: #e040fb; font-weight: bold;'
-            elif 'Watchlist' in str(val): color = 'color: #ffd740;'
-            return color
 
-        # Apply styling and show
-        styled_df = df_activity.style.applymap(highlight_actions, subset=['action'])
-        st.dataframe(styled_df, use_container_width=True, hide_index=True)
-    else:
-        st.info("No user activity logs have been recorded yet.")
+        if search_user:
+            df_activity = df_activity[
+                df_activity["username"].str.lower().str.contains(search_user)
+            ]
+
+        def style_action(val):
+            colors = {
+                "Login": "#00e676",
+                "Logout": "#ff5252"
+            }
+            for key, color in colors.items():
+                if key in str(val):
+                    return f"color:{color}; font-weight:700;"
+            return ""
+
+        st.dataframe(
+            df_activity.style.applymap(style_action, subset=["action"]),
+            use_container_width=True,
+            hide_index=True
+        )
