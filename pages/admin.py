@@ -221,17 +221,10 @@ with tab3:
     if activity_data:
         df_activity = pd.DataFrame(activity_data)
         
-        # Search and Filter Tools
-        col_a1, col_a2 = st.columns(2)
-        with col_a1:
-            unique_actions = ["All Actions"] + df_activity["action"].unique().tolist()
-            filter_action = st.selectbox("📂 Filter by Action Type", unique_actions)
-        with col_a2:
-            search_act_user = st.text_input("👤 Search by Username", key="search_act_user").lower()
+        # Search Tool
+        search_act_user = st.text_input("👤 Search by Username", key="search_act_user").lower()
             
         # Apply filters
-        if filter_action != "All Actions":
-            df_activity = df_activity[df_activity["action"] == filter_action]
         if search_act_user:
             df_activity = df_activity[df_activity["username"].str.lower().str.contains(search_act_user)]
             
