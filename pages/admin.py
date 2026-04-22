@@ -235,19 +235,6 @@ with tab3:
         if search_act_user:
             df_activity = df_activity[df_activity["username"].str.lower().str.contains(search_act_user)]
             
-        # Styling Function for Activity Table
-        def highlight_actions(val):
-            if val == "BUY":
-                return "color: green;"
-            elif val == "SELL":
-                return "color: red;"
-            else:
-                return "color: black;"
-
-        # Apply styling and show
-        styled_df = df_activity.style.apply(
-            lambda col: col.map(highlight_actions) if col.name == 'action' else col
-        )
-        st.dataframe(styled_df, use_container_width=True, hide_index=True)
+        st.dataframe(df_activity, use_container_width=True, hide_index=True)
     else:
         st.info("No user activity logs have been recorded yet.")
