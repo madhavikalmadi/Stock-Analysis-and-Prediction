@@ -1,0 +1,253 @@
+import streamlit as st
+import numpy as np
+import pandas as pd
+import os, sys
+
+# --------------------------------------------------
+# PATH SETUP
+# --------------------------------------------------
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import data_fetch
+import metric_calculator
+import auth_utils
+
+
+# =====================================================
+# PAGE CONFIG
+# =====================================================
+st.set_page_config(
+    page_title="Index Analyzer",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+# =====================================================
+# 🔁 RESTORE SESSION FROM URL (VERY IMPORTANT)
+# =====================================================
+params = st.query_params
+
+if "user_id" in params and "username" in params:
+    st.session_state.user_id = params["user_id"]
+    st.session_state.username = params["username"]
+    st.session_state.authenticated = True
+
+# =====================================================
+# 🔄 PERSIST SESSION (VERY IMPORTANT)
+# =====================================================
+if "user_id" in st.session_state and "username" in st.session_state:
+    st.query_params["user_id"] = st.session_state.user_id
+    st.query_params["username"] = st.session_state.username
+
+# ❌ NO LOGIN REDIRECT HERE
+# Dashboard already guarantees authentication
+
+# =====================================================
+# STYLES
+# =====================================================
+st.markdown("""
+<style>
+.stock-card {
+    background: white;
+    padding: 18px;
+    border-radius: 14px;
+    border-top: 5px solid #22c55e;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+.big { font-size: 2rem; font-weight: 800; color:#16a34a; }
+.small { color:#64748b; font-size:0.8rem; }
+.metric { font-weight:700; }
+
+div.stButton > button {
+    padding: 0.4rem 1rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 50px !important;
+    background: rgba(24, 40, 72, 0.85) !important;
+    color: white !important;
+    white-space: nowrap !important;
+}
+div.stButton > button:hover {
+    background: #2563eb !important;
+    transform: translateY(-2px);
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# =====================================================
+# TITLE
+# =====================================================
+st.title("🏆 Market Leaderboard")
+st.write("### 10-Year Risk-Adjusted Index Performance (Academic Analysis)")
+
+
+# =====================================================
+# DROPDOWN
+# =====================================================
+choice = st.selectbox(
+    "Select Index",
+    ["Select..."] + list(data_fetch.ETF_INDEX_SYMBOLS.keys())
+)
+
+selected_indices = list(data_fetch.ETF_INDEX_SYMBOLS.keys())
+
+
+# =====================================================
+# HELPERS
+# =====================================================
+def normalize(series: pd.Series) -> pd.Series:
+    series = series.clip(
+        lower=series.quantile(0.05),
+        upper=series.quantile(0.95)
+    )
+    return (series - series.min()) / (series.max() - series.min())
+
+
+# =====================================================
+# ANALYZE
+# =====================================================
+if st.button("🚀 Analyze Market Indices"):
+
+    with st.spinner("Calculating 10-year risk-adjusted performance..."):
+
+        tickers = [
+            data_fetch.ETF_INDEX_SYMBOLS[name]
+            for name in selected_indices
+        ]
+
+        price_data = data_fetch.fetch_stock_data(tickers, period="10y")
+
+        if price_data.empty:
+            st.error("Unable to fetch data.")
+            st.stop()
+
+        metrics = metric_calculator.compute_metrics(
+            price_data,
+            market_ticker="^NSEI",
+            risk_free_rate=0.06
+        )
+
+        ranked = metrics.copy()
+
+        ranked["CAGR_S"]   = normalize(ranked["CAGR"])
+        ranked["Sharpe_S"] = normalize(ranked["Sharpe"])
+        ranked["Vol_S"]    = 1 - normalize(ranked["Volatility"])
+        ranked["DD_S"]     = 1 - normalize(abs(ranked["MaxDrawdown"]))
+
+        ranked["Score"] = (
+            0.35 * ranked["CAGR_S"] +
+            0.25 * ranked["Sharpe_S"] +
+            0.20 * ranked["Vol_S"] +
+            0.20 * ranked["DD_S"]
+        ) * 100
+
+        ranked = ranked.sort_values("Score", ascending=False).reset_index(drop=True)
+
+        name_map = {v: k for k, v in data_fetch.ETF_INDEX_SYMBOLS.items()}
+        ranked["Name"] = ranked["Ticker"].map(name_map)
+
+    # =====================================================
+    # RESULT CARDS
+    # =====================================================
+    cols = st.columns(len(ranked))
+
+    for i, row in ranked.iterrows():
+        with cols[i]:
+            label = "🥇 Winner" if i == 0 else f"#{i+1}"
+
+            st.markdown(f"""
+<div class="stock-card">
+<div class="metric" style="font-size:1.2rem; font-weight:800; color:#1e293b; margin-bottom:2px;">{row['Name']}</div>
+<div class="small" style="font-size:0.85rem; color:#64748b; margin-bottom:10px; min-height:30px; display:flex; align-items:center; justify-content:center; line-height:1.2;">{label}</div>
+<div class="small" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin-bottom:2px;">Risk-Adjusted Score</div>
+<div class="big" style="margin-bottom:15px; color:#059669;">{row['Score']:.1f}<span style="font-size:1rem; color:#94a3b8;">/100</span></div>
+<div class="metrics-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; padding-top:15px; border-top:1px solid #eee;">
+<div><span class="small" style="font-weight:700;">CAGR</span><div style="font-weight:600;">{row['CAGR']*100:.1f}%</div></div>
+<div><span class="small" style="font-weight:700;">Sharpe</span><div style="font-weight:600;">{row['Sharpe']:.2f}</div></div>
+<div><span class="small" style="font-weight:700;">Vol</span><div style="font-weight:600;">{row['Volatility']*100:.1f}%</div></div>
+<div><span class="small" style="font-weight:700;">Maximum DD</span><div style="font-weight:600; color:#ef4444;">{row['MaxDrawdown']*100:.1f}%</div></div>
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+    top_row = ranked.iloc[0]
+    top_index = top_row["Name"]
+
+    # =====================================================
+    # 🏆 MARKET LEADER INSIGHT (ALWAYS SHOWN)
+    # =====================================================
+    st.markdown("---")
+    st.markdown(f"""
+<div style="background:#f8fafc; border: 1px solid #e2e8f0; padding:25px; border-radius:15px; text-align:center;">
+    <h3 style="color:#1e293b; margin-bottom:15px;">🚀 Why {top_index} is the Market Leader</h3>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; text-align:left;">
+        <div style="background:white; padding:15px; border-radius:10px; border-top:4px solid #059669;">
+            <b style="color:#059669;">📈 Peak Growth Speed</b><br>
+            <span style="font-size:0.85rem; color:#64748b;">It powers your wealth faster than any other index in this list.</span>
+        </div>
+        <div style="background:white; padding:15px; border-radius:10px; border-top:4px solid #2563eb;">
+            <b style="color:#2563eb;">💎 Superior Efficiency</b><br>
+            <span style="font-size:0.85rem; color:#64748b;">It generates the most profit for every unit of risk taken.</span>
+        </div>
+        <div style="background:white; padding:15px; border-radius:10px; border-top:4px solid #8b5cf6;">
+            <b style="color:#8b5cf6;">🛡️ Market Resilience</b><br>
+            <span style="font-size:0.85rem; color:#64748b;">It recovers more reliably from crashes than its competitors.</span>
+        </div>
+    </div>
+    <div style="margin-top:20px; font-size:1rem; font-weight:600; color:#1e293b;">
+        📌 {top_index} stands out because it offers the perfect balance of "Aggressive Growth" and "Safety."
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+    # =====================================================
+    # 📌 USER SELECTION COMPARISON (SUPPLEMENTARY)
+    # =====================================================
+    if choice != "Select...":
+        selected_row = ranked[ranked["Name"] == choice].iloc[0]
+
+        if choice != top_index:
+            st.markdown(f"""
+<div style="background:#f0f9ff; border-left: 5px solid #0ea5e9; padding:20px; border-radius:12px; text-align:center; margin-top:20px;">
+    <div style="font-size:1.1rem; font-weight:800; color:#0369a1; margin-bottom:10px;">⚖️ Your Selection vs The Leader</div>
+    <div style="font-size:0.95rem; color:#0c4a6e; line-height:1.6;">
+        You selected <b>{choice}</b>, but <b>{top_index}</b> has shown stronger growth speed and better reliability over the last decade.
+    </div>
+</div>
+""", unsafe_allow_html=True)
+        else:
+            st.success(f"🌟 Great Choice! **{choice}** is currently the top-performing index on our leaderboard.")
+
+    # =====================================================
+    # 🧾 EXPLANATION OF TERMS (DROPDOWN)
+    # =====================================================
+    st.write("")
+    st.markdown("### 📚 Explanation of Key Terms")
+    with st.expander("Click to learn more about the metrics used above", expanded=False):
+        st.markdown("""
+        * **Risk-Adjusted Score:** Our "Best of the Best" score. It picks indices that make money consistently without crashing often.
+        * **CAGR (Yearly Growth):** The average speed at which your wealth grows each year.
+        * **Sharpe (Investment Efficiency):** Shows if you are getting "paid" well for the risk you take. Higher is better.
+        * **Vol (Price Fluctuations):** Indices with lower volatility are smoother and easier to hold during bad market times.
+        * **Maximum DD (Worst Crash):** Measures the deepest fall the index ever saw. Smaller falls mean your money is safer.
+        """)
+
+
+# =====================================================
+# 🔻 BOTTOM NAVIGATION (VISIBLE FROM START)
+# =====================================================
+st.write("")
+st.markdown("---")
+st.write("")
+
+c_back, _, c_dash = st.columns([1, 6, 1])
+
+with c_back:
+    if st.button("⬅ Back to Menu", key="btn_index_back"):
+        st.switch_page("pages/reinvestor.py")
+
+with c_dash:
+    if st.button("⬅ Dashboard", key="btn_index_dashboard"):
+        st.switch_page("pages/dashboard.py")
