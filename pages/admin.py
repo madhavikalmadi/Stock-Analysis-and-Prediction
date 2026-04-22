@@ -237,14 +237,12 @@ with tab3:
             
         # Styling Function for Activity Table
         def highlight_actions(val):
-            if val == "BUY": return "color: #00e676; font-weight: bold;"
-            if val == "SELL": return "color: #ff5252; font-weight: bold;"
-            if val == 'Login': return 'color: #00e676; font-weight: bold;'
-            elif val == 'Logout': return 'color: #ff5252; font-weight: bold;'
-            elif 'View' in str(val): return 'color: #40c4ff;'
-            elif 'Predict' in str(val): return 'color: #e040fb; font-weight: bold;'
-            elif 'Watchlist' in str(val): return 'color: #ffd740;'
-            return ""
+            if val == "BUY":
+                return "color: green;"
+            elif val == "SELL":
+                return "color: red;"
+            else:
+                return "color: black;"
 
         # Apply styling and show
         styled_df = df_activity.style.apply(
