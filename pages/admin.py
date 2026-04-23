@@ -270,7 +270,7 @@ st.markdown(f"""
 # =====================================================
 # MAIN TABS
 # =====================================================
-tab1, tab2, tab3, tab4 = st.tabs(["👥  User Management", "➕  Add User", "🔑  Reset Password", "📋  System Info"])
+tab1, tab3, tab4 = st.tabs(["👥  User Management", "🔑  Reset Password", "📋  System Info"])
 
 # ─────────────────────────────
 # TAB 1: USER MANAGEMENT
@@ -357,36 +357,7 @@ with tab1:
     else:
         st.info("No users found in the database.")
 
-# ─────────────────────────────
-# TAB 2: ADD USER
-# ─────────────────────────────
-with tab2:
-    st.markdown('<div class="section-hdr">Create New User Account</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="panel-card">', unsafe_allow_html=True)
-    col_a, col_b = st.columns(2)
-    with col_a:
-        new_username = st.text_input("Username", placeholder="e.g. investor_raj", key="au_user")
-        new_email    = st.text_input("Email Address", placeholder="raj@example.com", key="au_email")
-    with col_b:
-        new_mobile   = st.text_input("Mobile Number", placeholder="9876543210", key="au_mobile")
-        new_password = st.text_input("Password", type="password", placeholder="Min. 8 characters", key="au_pw")
-
-    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-    if st.button("Create Account", key="add_user_btn", use_container_width=False):
-        if not all([new_username, new_email, new_mobile, new_password]):
-            st.error("All fields are required.")
-        elif len(new_password) < 8:
-            st.error("Password must be at least 8 characters.")
-        else:
-            import auth_utils
-            result = auth_utils.signup_user(new_username, new_password, new_email, new_mobile)
-            if result:
-                st.success(f"Account created for '{new_username}' successfully.")
-                st.cache_data.clear()
-            else:
-                st.error("Username already exists. Choose a different one.")
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # ─────────────────────────────
 # TAB 3: RESET PASSWORD
@@ -529,16 +500,6 @@ with st.sidebar:
     </div>
     <hr style="border-color:rgba(255,255,255,0.06);margin:0.8rem 0;">
     """, unsafe_allow_html=True)
-
-    if st.button("🔄 Refresh Data", use_container_width=True):
-        st.cache_data.clear()
-        st.rerun()
-
-    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-
-    if st.button("⬅ Back to App", use_container_width=True, key="admin_back"):
-        st.session_state.is_admin = False
-        st.switch_page("login.py")
 
     st.markdown("""
     <div style="position:absolute;bottom:1.5rem;left:1.2rem;right:1.2rem;font-family:'DM Sans',sans-serif;font-size:0.7rem;color:#1a2838;text-align:center;letter-spacing:0.5px;">
