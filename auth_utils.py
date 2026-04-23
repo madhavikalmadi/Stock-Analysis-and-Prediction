@@ -4,12 +4,16 @@ from mongo_db import users_col
 # ---------------------------------
 # LOGIN USER
 # ---------------------------------
-def login_user(username, password):
+def login_user(identifier, password):
     if users_col is None:
         return False
 
+    # Check by username OR email (case-insensitive)
     user = users_col.find_one({
-        "username": {"$regex": f"^{username}$", "$options": "i"}
+        "$or": [
+            {"username": {"$regex": f"^{identifier}$", "$options": "i"}},
+            {"email": {"$regex": f"^{identifier}$", "$options": "i"}}
+        ]
     })
 
     if not user:

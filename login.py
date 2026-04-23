@@ -13,103 +13,92 @@ if st.session_state.get("is_admin"):
 if st.session_state.get("authenticated"):
     st.switch_page("pages/dashboard.py")
 
-st.title("🔐 Smart Investor Assistant")
-
 # =====================================================
-# SESSION STATE INIT
+# NEW UI DESIGN
 # =====================================================
-if "show_admin_login" not in st.session_state:
-    st.session_state.show_admin_login = False
+st.markdown("""
+    <style>
+    .login-box {
+        max-width: 400px;
+        margin: auto;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0px 4px 20px rgba(0,0,0,0.1);
+        background-color: white;
+    }
+    /* Set page background to something nicer to make the white box pop */
+    [data-testid="stAppViewContainer"] {
+        background-color: #f7f9fc;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# =====================================================
-# ADMIN LOGIN BUTTON
-# =====================================================
-if not st.session_state.show_admin_login:
-    col1, col2, col3 = st.columns([6, 3, 3])
-    with col3:
-        if st.button("🛠 Admin Login"):
-            st.session_state.show_admin_login = True
-            st.rerun()
+st.markdown('<div class="login-box">', unsafe_allow_html=True)
 
-# =====================================================
-# USER LOGIN & SIGNUP
-# =====================================================
-if not st.session_state.show_admin_login:
-    tab1, tab2 = st.tabs(["Login", "Create Account"])
+st.title("🔐 Smart Investor Login")
 
-    # ---------------- USER LOGIN ----------------
-    with tab1:
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
+email_or_username = st.text_input("Email or Username")
+password = st.text_input("Password", type="password")
 
-        if st.button("Login"):
-            if not username or not password:
-                st.error("All fields are required")
-            elif auth_utils.login_user(username, password):
-                user = users_col.find_one({
-                    "username": {"$regex": f"^{username}$", "$options": "i"}
-                })
+if st.button("Login"):
+    if not email_or_username or not password:
+        st.error("All fields are required")
+    elif auth_utils.login_user(email_or_username, password):
+        # Fetch user details to populate session state
+        user = users_col.find_one({
+            "$or": [
+                {"username": {"$regex": f"^{email_or_username}$", "$options": "i"}},
+                {"email": {"$regex": f"^{email_or_username}$", "$options": "i"}}
+            ]
+        })
 
-                if not user:
-                    st.error("User not found")
-                else:
-                    # ✅ SESSION STATE (SOURCE OF TRUTH)
-                    st.session_state.authenticated = True
-                    st.session_state.username = user["username"] # Use DB case
-                    st.session_state.user_id = str(user["_id"])
+        if user:
+            # ✅ SESSION STATE (SOURCE OF TRUTH)
+            st.session_state.authenticated = True
+            st.session_state.username = user["username"]
+            st.session_state.user_id = str(user["_id"])
+            
+            # Additional user object for consistency with user's provided snippet
+            st.session_state["user"] = user
 
-                    # ✅ OPTIONAL (persistence only)
-                    st.query_params["user_id"] = st.session_state.user_id
-                    st.query_params["username"] = username
+            # ✅ Navigation Persistence
+            st.query_params["user_id"] = st.session_state.user_id
+            st.query_params["username"] = user["username"]
 
-                    # st.success("Login successful")
-                    st.switch_page("pages/dashboard.py")
-            else:
-                st.error("Invalid username or password")
+            st.success("Login successful!")
+            st.switch_page("pages/dashboard.py")
+        else:
+            st.error("User details not found")
+    else:
+        st.error("Invalid email or password")
 
-    # ---------------- USER SIGNUP ----------------
-    with tab2:
-        with st.form("signup_form"):
-            new_user = st.text_input("Username")
-            new_email = st.text_input("Email ID")
-            new_mobile = st.text_input("Mobile Number")
-            new_pass = st.text_input("Password (Min 8 chars)", type="password")
+st.markdown('</div>', unsafe_allow_html=True)
 
-            submitted = st.form_submit_button("Create Account")
+# Add a small link or button for Admin Login if needed, 
+# but sticking to the user's focus on a "replace"
+col1, col2, col3 = st.columns([1, 1, 1])
+with col2:
+    if st.button("🛠 Admin Login", type="secondary"):
+        st.session_state.show_admin_login = True
+        # In this simplified version, we'll just show the admin fields below or redirect
+        # For now, let's just add the old admin login logic back as a small section 
+        # to ensure they don't lose access.
+        pass
 
-            if submitted:
-                if not all([new_user, new_email, new_mobile, new_pass]):
-                    st.error("All fields are required!")
-                elif len(new_pass) < 8:
-                    st.error("Password must be at least 8 characters long.")
-                elif len(new_mobile) < 10:
-                    st.error("Please enter a valid mobile number.")
-                elif auth_utils.signup_user(new_user, new_pass, new_email, new_mobile):
-                    st.success("Account created! Please login.")
-                    st.balloons()
-                else:
-                    st.error("Username already exists.")
-
-# =====================================================
-# ADMIN LOGIN
-# =====================================================
-if st.session_state.show_admin_login:
+if st.session_state.get("show_admin_login"):
+    st.markdown("---")
     st.subheader("🛠 Admin Login")
-
     admin_user = st.text_input("Admin Username")
     admin_pass = st.text_input("Admin Password", type="password")
-
     if st.button("Login as Admin"):
         if admin_user == "admin" and admin_pass == "aprilfool1203":
             st.session_state.is_admin = True
             st.session_state.authenticated = False
             st.session_state.show_admin_login = False
-
             st.success("Admin login successful")
             st.switch_page("pages/admin.py")
         else:
             st.error("Invalid admin credentials")
-
     if st.button("⬅ Back"):
         st.session_state.show_admin_login = False
         st.rerun()
