@@ -75,7 +75,7 @@ ui_markup = f"""
 [data-testid="stHeader"], [data-testid="stToolbar"], footer, [data-testid="stSidebarNav"], #MainMenu {{ display: none !important; }}
 .block-container {{ padding: 0 !important; max-width: 100vw !important; margin: 0 !important; }}
 .si-bd {{ position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #f1f5f9; display: flex; align-items: center; justify-content: center; z-index: 999; }}
-.si-sh {{ display: grid; grid-template-columns: 1fr 1.1fr; width: 880px; height: 500px; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }}
+.si-sh {{ display: grid; grid-template-columns: 1fr 1.1fr; width: 880px; min-height: 550px; height: auto; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }}
 .si-l {{ background: #0f172a; padding: 2.2rem; display: flex; flex-direction: column; justify-content: space-between; }}
 .si-bdg {{ width: 34px; height: 34px; background: #6366f1; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; }}
 .si-tag {{ color: #fff; font-size:0.9rem; font-weight:800; margin-top:8px; display:block; }}
