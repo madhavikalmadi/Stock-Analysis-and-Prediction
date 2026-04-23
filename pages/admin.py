@@ -111,7 +111,7 @@ st.markdown("""
 [data-testid="stSidebar"] * { font-family: 'DM Sans', sans-serif !important; }
 
 /* ── Main area ── */
-.block-container { padding: 2.5rem 3rem !important; max-width: 1400px !important; }
+.block-container { padding: 2.5rem 3rem !important; max-width: 100% !important; }
 
 /* ── Top bar ── */
 .admin-topbar {
