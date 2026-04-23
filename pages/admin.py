@@ -486,16 +486,5 @@ with st.sidebar:
         <div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:#1e293b;margin-bottom:4px;">⚙ Admin</div>
         <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#2a3848;letter-spacing:1.5px;text-transform:uppercase;">Control Panel</div>
     </div>
-    <hr style="border-color:rgba(255,255,255,0.06);margin:0.8rem 0;">
     """, unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div style="font-family:'DM Sans',sans-serif;font-size:0.8rem;color:#4a6680;margin-bottom:0.4rem;">
-        <strong style="color:#8aabcc;">Users</strong><br>
-        <span style="font-size:1.3rem;color:#1e293b;font-family:'DM Serif Display',serif;">{total_users}</span> registered
-    </div>
-    <div style="font-family:'DM Sans',sans-serif;font-size:0.8rem;color:#4a6680;margin-bottom:1rem;">
-        <strong style="color:#8aabcc;">Watchlist</strong><br>
-        <span style="font-size:1.3rem;color:#34c759;font-family:'DM Serif Display',serif;">{watchlist_entries}</span> entries
-    </div>
-    """, unsafe_allow_html=True)
