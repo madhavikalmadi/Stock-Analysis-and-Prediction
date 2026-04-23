@@ -433,12 +433,12 @@ with tab4:
         <div class="panel-card">
             <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#1e293b;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Application</div>
             <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.83rem;border-collapse:collapse;">
-                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">Framework</td><td style="color:#1e293b;">Streamlit (Python)</td></tr>
-                <tr><td style="color:#1e293b;padding:5px 0;">Database</td><td style="color:#1e293b;">MongoDB Atlas</td></tr>
-                <tr><td style="color:#1e293b;padding:5px 0;">Market Data</td><td style="color:#1e293b;">Yahoo Finance (yfinance)</td></tr>
-                <tr><td style="color:#1e293b;padding:5px 0;">Benchmark</td><td style="color:#1e293b;">NIFTYBEES.NS</td></tr>
-                <tr><td style="color:#1e293b;padding:5px 0;">Exchange</td><td style="color:#1e293b;">NSE / BSE (India)</td></tr>
-                <tr><td style="color:#1e293b;padding:5px 0;">Timezone</td><td style="color:#1e293b;">IST (UTC+5:30)</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Framework - Streamlit (Python)</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Database - MongoDB Atlas</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Market Data - Yahoo Finance (yfinance)</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Benchmark - NIFTYBEES.NS</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Exchange - NSE / BSE (India)</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Timezone - IST (UTC+5:30)</td></tr>
             </table>
         </div>
         """, unsafe_allow_html=True)
