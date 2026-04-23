@@ -154,28 +154,6 @@ st.markdown("""
     }
     .si-admin-btn:hover { border-color: #6366f1; color: #6366f1; background: #f5f3ff; }
 
-    /* feature pills */
-    .si-feats {
-        display: grid; grid-template-columns: 1fr 1fr;
-        gap: 8px; margin-top: 1.5rem;
-    }
-    .si-feat {
-        background: #f8fafc; border: 1px solid #f1f5f9;
-        border-radius: 9px; padding: 0.62rem 0.8rem;
-        display: flex; align-items: flex-start; gap: 8px;
-    }
-    .si-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
-    .si-ft  { color: #475569; font-size: 0.72rem; line-height: 1.4; }
-    .si-ft b { color: #0f172a; font-size: 0.74rem; display: block; margin-bottom: 1px; font-weight: 700; }
-
-    /* secure badge */
-    .si-secure {
-        display: flex; align-items: center; gap: 7px;
-        margin-top: 1.35rem; padding: 0.5rem 0.85rem;
-        background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 9px;
-    }
-    .si-secure span { color: #15803d; font-size: 0.71rem; font-weight: 500; }
-
     /* ── Streamlit widget overrides (inputs inside form) ── */
     div[data-testid="stTextInput"] { display: none !important; }
     div[data-testid="stButton"]    { display: none !important; }
@@ -270,16 +248,6 @@ Built for smarter, data-driven investing.
 <div class="si-div-line"></div>
 </div>
 <button class="si-admin-btn" onclick="toggleAdmin()">⚙ Admin Login</button>
-<div class="si-feats">
-<div class="si-feat"><div class="si-dot" style="background:#6366f1"></div><div class="si-ft"><b>Live Analytics</b>Real-time NSE/BSE data</div></div>
-<div class="si-feat"><div class="si-dot" style="background:#10b981"></div><div class="si-ft"><b>Risk Scoring</b>10-yr adjusted metrics</div></div>
-<div class="si-feat"><div class="si-dot" style="background:#f59e0b"></div><div class="si-ft"><b>Watchlist</b>Saved across devices</div></div>
-<div class="si-feat"><div class="si-dot" style="background:#ec4899"></div><div class="si-ft"><b>Sector Advisor</b>Category comparisons</div></div>
-</div>
-<div class="si-secure">
-<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-<span>Secured with MongoDB authentication</span>
-</div>
 </div>
 </div>
 <div id="adminPanel" style="display:none;max-width:960px;margin:1.2rem auto 0;background:#fffbeb;border:1px solid #fde68a;border-radius:16px;padding:1.5rem 1.8rem;">
