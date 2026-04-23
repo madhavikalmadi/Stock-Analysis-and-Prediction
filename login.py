@@ -12,18 +12,11 @@ if st.session_state.get("authenticated"):
 # ── Inject full-page CSS reset ──────────────────────────────────────
 st.markdown("""
 <style>
-    [data-testid="stAppViewContainer"] {
-        background: #f0f4f8 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        overflow: hidden !important;
-        height: 100vh !important;
-    }
+    [data-testid="stAppViewContainer"] { background: #f0f4f8 !important; }
     [data-testid="stHeader"], [data-testid="stToolbar"], footer,
     [data-testid="stSidebarNav"], #MainMenu { display: none !important; }
     .block-container {
-        padding: 0 !important;
+        padding: 2.5rem 1.5rem 2rem !important;
         max-width: 960px !important;
     }
 
@@ -31,7 +24,7 @@ st.markdown("""
     .si-shell {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        height: 660px;
+        min-height: 620px;
         border-radius: 22px;
         overflow: hidden;
         box-shadow: 0 24px 64px rgba(15,23,42,0.18);
@@ -161,6 +154,28 @@ st.markdown("""
     }
     .si-admin-btn:hover { border-color: #6366f1; color: #6366f1; background: #f5f3ff; }
 
+    /* feature pills */
+    .si-feats {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 8px; margin-top: 1.5rem;
+    }
+    .si-feat {
+        background: #f8fafc; border: 1px solid #f1f5f9;
+        border-radius: 9px; padding: 0.62rem 0.8rem;
+        display: flex; align-items: flex-start; gap: 8px;
+    }
+    .si-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+    .si-ft  { color: #475569; font-size: 0.72rem; line-height: 1.4; }
+    .si-ft b { color: #0f172a; font-size: 0.74rem; display: block; margin-bottom: 1px; font-weight: 700; }
+
+    /* secure badge */
+    .si-secure {
+        display: flex; align-items: center; gap: 7px;
+        margin-top: 1.35rem; padding: 0.5rem 0.85rem;
+        background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 9px;
+    }
+    .si-secure span { color: #15803d; font-size: 0.71rem; font-weight: 500; }
+
     /* ── Streamlit widget overrides (inputs inside form) ── */
     div[data-testid="stTextInput"] { display: none !important; }
     div[data-testid="stButton"]    { display: none !important; }
@@ -191,120 +206,156 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ── Determine what to show based on session state ──────────────────
+show_admin  = st.session_state.get("show_admin_login", False)
+login_error = st.session_state.get("login_error", "")
+login_ok    = st.session_state.get("login_ok", "")
+
 # ── Render the entire UI as one HTML block ─────────────────────────
-html_ui = """
+st.markdown(f"""
 <div class="si-shell">
-<div class="si-left">
-<div>
-<div class="si-brand">
-<div class="si-badge">📈</div>
-<span class="si-name">Smart Investor</span>
+
+  <!-- LEFT -->
+  <div class="si-left">
+    <div>
+      <div class="si-brand">
+        <div class="si-badge">📈</div>
+        <span class="si-name">Smart Investor</span>
+      </div>
+      <div class="si-headline">
+        <h2>Trade smarter,<br>invest with <em>confidence</em></h2>
+        <p>Real-time NSE &amp; BSE analytics, risk-adjusted scoring, and your personalised watchlist — all in one place.</p>
+      </div>
+      <div class="si-tickers">
+        <div class="si-tk">
+          <div class="si-tk-lbl">Nifty 50</div>
+          <span class="si-tk-val">24,834</span>
+          <span class="si-up">▲ 1.2%</span>
+        </div>
+        <div class="si-tk">
+          <div class="si-tk-lbl">Sensex</div>
+          <span class="si-tk-val">81,562</span>
+          <span class="si-up">▲ 0.9%</span>
+        </div>
+        <div class="si-tk">
+          <div class="si-tk-lbl">Bank Nifty</div>
+          <span class="si-tk-val">52,140</span>
+          <span class="si-dn">▼ 0.3%</span>
+        </div>
+        <div class="si-tk">
+          <div class="si-tk-lbl">Nifty IT</div>
+          <span class="si-tk-val">38,710</span>
+          <span class="si-up">▲ 2.1%</span>
+        </div>
+      </div>
+    </div>
+    <div class="si-left-foot">
+      Powered by Yahoo Finance · MongoDB · Streamlit<br>
+      Built for smarter, data-driven investing.
+    </div>
+  </div>
+
+  <!-- RIGHT (pure HTML form — posts to Streamlit via JS) -->
+  <div class="si-right">
+    <div class="si-form-head">
+      <h3>Welcome back</h3>
+      <p>Sign in to access your portfolio &amp; insights</p>
+    </div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="si-field">
+        <label>Email or Username</label>
+        <input type="text" id="loginUser" placeholder="you@example.com or username" autocomplete="username" required />
+      </div>
+      <div class="si-field">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" required />
+      </div>
+      <div id="loginMsg" style="font-size:0.82rem;margin:0.5rem 0;min-height:1.2rem;color:#ef4444"></div>
+      <button class="si-btn" type="submit">Sign In →</button>
+    </form>
+
+    <div class="si-divider">
+      <div class="si-div-line"></div>
+      <span class="si-div-txt">ADMIN ACCESS</span>
+      <div class="si-div-line"></div>
+    </div>
+    <button class="si-admin-btn" onclick="toggleAdmin()">⚙ Admin Login</button>
+
+    <div class="si-feats">
+      <div class="si-feat"><div class="si-dot" style="background:#6366f1"></div><div class="si-ft"><b>Live Analytics</b>Real-time NSE/BSE data</div></div>
+      <div class="si-feat"><div class="si-dot" style="background:#10b981"></div><div class="si-ft"><b>Risk Scoring</b>10-yr adjusted metrics</div></div>
+      <div class="si-feat"><div class="si-dot" style="background:#f59e0b"></div><div class="si-ft"><b>Watchlist</b>Saved across devices</div></div>
+      <div class="si-feat"><div class="si-dot" style="background:#ec4899"></div><div class="si-ft"><b>Sector Advisor</b>Category comparisons</div></div>
+    </div>
+
+    <div class="si-secure">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span>Secured with MongoDB authentication</span>
+    </div>
+  </div>
 </div>
-<div class="si-headline">
-<h2>Trade smarter,<br>invest with <em>confidence</em></h2>
-<p>Real-time NSE &amp; BSE analytics, risk-adjusted scoring, and your personalised watchlist — all in one place.</p>
-</div>
-<div class="si-tickers">
-<div class="si-tk">
-<div class="si-tk-lbl">Nifty 50</div>
-<span class="si-tk-val">24,834</span>
-<span class="si-up">▲ 1.2%</span>
-</div>
-<div class="si-tk">
-<div class="si-tk-lbl">Sensex</div>
-<span class="si-tk-val">81,562</span>
-<span class="si-up">▲ 0.9%</span>
-</div>
-<div class="si-tk">
-<div class="si-tk-lbl">Bank Nifty</div>
-<span class="si-tk-val">52,140</span>
-<span class="si-dn">▼ 0.3%</span>
-</div>
-<div class="si-tk">
-<div class="si-tk-lbl">Nifty IT</div>
-<span class="si-tk-val">38,710</span>
-<span class="si-up">▲ 2.1%</span>
-</div>
-</div>
-</div>
-<div class="si-left-foot">
-Powered by Yahoo Finance · MongoDB · Streamlit<br>
-Built for smarter, data-driven investing.
-</div>
-</div>
-<div class="si-right">
-<div class="si-form-head">
-<h3>Welcome back</h3>
-<p>Sign in to access your portfolio &amp; insights</p>
-</div>
-<form id="loginForm" onsubmit="handleLogin(event)">
-<div class="si-field">
-<label>Email or Username</label>
-<input type="text" id="loginUser" placeholder="you@example.com or username" autocomplete="username" required />
-</div>
-<div class="si-field">
-<label>Password</label>
-<input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" required />
-</div>
-<div id="loginMsg" style="font-size:0.82rem;margin:0.5rem 0;min-height:1.2rem;color:#ef4444"></div>
-<button class="si-btn" type="submit">Sign In →</button>
-</form>
-<div class="si-divider">
-<div class="si-div-line"></div>
-<span class="si-div-txt">ADMIN ACCESS</span>
-<div class="si-div-line"></div>
-</div>
-<button class="si-admin-btn" onclick="toggleAdmin()">⚙ Admin Login</button>
-</div>
-</div>
+
+<!-- ADMIN PANEL -->
 <div id="adminPanel" style="display:none;max-width:960px;margin:1.2rem auto 0;background:#fffbeb;border:1px solid #fde68a;border-radius:16px;padding:1.5rem 1.8rem;">
-<h4 style="color:#92400e;font-size:0.95rem;font-weight:700;margin:0 0 1rem;">🛡 Admin Authentication</h4>
-<form id="adminForm" onsubmit="handleAdmin(event)">
-<div class="si-field">
-<label>Admin Username</label>
-<input type="text" id="adminUser" placeholder="admin" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.62rem 0.92rem;width:100%;font-size:0.9rem;outline:none;box-sizing:border-box;" />
+  <h4 style="color:#92400e;font-size:0.95rem;font-weight:700;margin:0 0 1rem;">🛡 Admin Authentication</h4>
+  <form id="adminForm" onsubmit="handleAdmin(event)">
+    <div class="si-field">
+      <label>Admin Username</label>
+      <input type="text" id="adminUser" placeholder="admin" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.62rem 0.92rem;width:100%;font-size:0.9rem;outline:none;box-sizing:border-box;" />
+    </div>
+    <div class="si-field" style="margin-top:0.8rem;">
+      <label>Admin Password</label>
+      <input type="password" id="adminPass" placeholder="••••••••" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.62rem 0.92rem;width:100%;font-size:0.9rem;outline:none;box-sizing:border-box;" />
+    </div>
+    <div id="adminMsg" style="font-size:0.82rem;margin:0.5rem 0;min-height:1.2rem;color:#ef4444"></div>
+    <div style="display:flex;gap:10px;margin-top:0.6rem;">
+      <button type="submit" style="flex:1;background:#d97706;color:#fff;border:none;border-radius:9px;font-size:0.85rem;font-weight:700;padding:0.62rem;cursor:pointer;font-family:inherit;">Login as Admin</button>
+      <button type="button" onclick="toggleAdmin()" style="flex:1;background:#fff;color:#64748b;border:1.5px solid #e2e8f0;border-radius:9px;font-size:0.85rem;font-weight:600;padding:0.62rem;cursor:pointer;font-family:inherit;">⬅ Cancel</button>
+    </div>
+  </form>
 </div>
-<div class="si-field" style="margin-top:0.8rem;">
-<label>Admin Password</label>
-<input type="password" id="adminPass" placeholder="••••••••" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.62rem 0.92rem;width:100%;font-size:0.9rem;outline:none;box-sizing:border-box;" />
-</div>
-<div id="adminMsg" style="font-size:0.82rem;margin:0.5rem 0;min-height:1.2rem;color:#ef4444"></div>
-<div style="display:flex;gap:10px;margin-top:0.6rem;">
-<button type="submit" style="flex:1;background:#d97706;color:#fff;border:none;border-radius:9px;font-size:0.85rem;font-weight:700;padding:0.62rem;cursor:pointer;font-family:inherit;">Login as Admin</button>
-<button type="button" onclick="toggleAdmin()" style="flex:1;background:#fff;color:#64748b;border:1.5px solid #e2e8f0;border-radius:9px;font-size:0.85rem;font-weight:600;padding:0.62rem;cursor:pointer;font-family:inherit;">⬅ Cancel</button>
-</div>
-</form>
-</div>
+
 <script>
-function toggleAdmin() {
-var p = document.getElementById('adminPanel');
-p.style.display = p.style.display === 'none' ? 'block' : 'none';
-}
-function handleLogin(e) {
-e.preventDefault();
-var u = document.getElementById('loginUser').value.trim();
-var p = document.getElementById('loginPass').value;
-var msg = document.getElementById('loginMsg');
-if (!u || !p) { msg.textContent = '⚠ Please fill in all fields.'; return; }
-msg.style.color = '#6366f1';
-msg.textContent = 'Signing in…';
-var url = new URL(window.location.href);
-url.searchParams.set('__login_user', encodeURIComponent(u));
-url.searchParams.set('__login_pass', encodeURIComponent(p));
-window.location.href = url.toString();
-}
-function handleAdmin(e) {
-e.preventDefault();
-var u = document.getElementById('adminUser').value.trim();
-var p = document.getElementById('adminPass').value;
-var url = new URL(window.location.href);
-url.searchParams.set('__admin_user', encodeURIComponent(u));
-url.searchParams.set('__admin_pass', encodeURIComponent(p));
-window.location.href = url.toString();
-}
+function toggleAdmin() {{
+  var p = document.getElementById('adminPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}}
+
+function handleLogin(e) {{
+  e.preventDefault();
+  var u = document.getElementById('loginUser').value.trim();
+  var p = document.getElementById('loginPass').value;
+  var msg = document.getElementById('loginMsg');
+  if (!u || !p) {{ msg.textContent = '⚠ Please fill in all fields.'; return; }}
+  msg.style.color = '#6366f1';
+  msg.textContent = 'Signing in…';
+  // Pass credentials to Streamlit via hidden inputs + form submit trick
+  var inp = document.createElement('input');
+  inp.type = 'hidden'; inp.id = '__si_user'; inp.value = u;
+  document.body.appendChild(inp);
+  var inp2 = document.createElement('input');
+  inp2.type = 'hidden'; inp2.id = '__si_pass'; inp2.value = p;
+  document.body.appendChild(inp2);
+  // Trigger streamlit rerun by setting query params
+  var url = new URL(window.location.href);
+  url.searchParams.set('__login_user', encodeURIComponent(u));
+  url.searchParams.set('__login_pass', encodeURIComponent(p));
+  window.location.href = url.toString();
+}}
+
+function handleAdmin(e) {{
+  e.preventDefault();
+  var u = document.getElementById('adminUser').value.trim();
+  var p = document.getElementById('adminPass').value;
+  var msg = document.getElementById('adminMsg');
+  var url = new URL(window.location.href);
+  url.searchParams.set('__admin_user', encodeURIComponent(u));
+  url.searchParams.set('__admin_pass', encodeURIComponent(p));
+  window.location.href = url.toString();
+}}
 </script>
-"""
-st.markdown(html_ui, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # ── Handle query-param based login submissions ─────────────────────
 qp = st.query_params
