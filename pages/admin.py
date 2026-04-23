@@ -332,7 +332,7 @@ with tab1:
                 st.warning(f"⚠ Delete **{uname}**? This cannot be undone.")
                 c1, c2 = st.columns(2)
                 with c1:
-                    if st.button("✓ Confirm Delete", key=f"confirm_yes_{uid}"):
+                    if st.button("Confirm Delete", key=f"confirm_yes_{uid}"):
                         users_col.delete_one({"_id": user["_id"]})
                         st.success(f"User '{uname}' deleted.")
                         st.session_state.pop(f"confirm_del_{uid}", None)
@@ -382,7 +382,7 @@ with tab2:
             import auth_utils
             result = auth_utils.signup_user(new_username, new_password, new_email, new_mobile)
             if result:
-                st.success(f"✓ Account created for '{new_username}' successfully.")
+                st.success(f"Account created for '{new_username}' successfully.")
                 st.cache_data.clear()
             else:
                 st.error("Username already exists. Choose a different one.")
@@ -416,7 +416,7 @@ with tab3:
                 {"$set": {"password": new_pw}}
             )
             if result.matched_count:
-                st.success(f"✓ Password reset for '{target_user}'.")
+                st.success(f"Password reset for '{target_user}'.")
             else:
                 st.error(f"User '{target_user}' not found.")
     st.markdown('</div>', unsafe_allow_html=True)
@@ -447,12 +447,12 @@ with tab4:
         <div class="panel-card">
             <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Analytics Engine</div>
             <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.83rem;border-collapse:collapse;">
-                <tr><td style="color:#64748b;padding:5px 0;">✓ CAGR - Compounded Annual Growth</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;">✓ Sharpe Ratio - Risk-adjusted return</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;">✓ Sortino Ratio - Downside deviation</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;">✓ Max Drawdown - Peak-to-trough</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;">✓ Recovery Days - Drawdown recovery</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;">✓ Score Window - 10-year rolling</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">CAGR - Compounded Annual Growth</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Sharpe Ratio - Risk-adjusted return</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Sortino Ratio - Downside deviation</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Max Drawdown - Peak-to-trough</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Recovery Days - Drawdown recovery</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Score Window - 10-year rolling</td></tr>
             </table>
         </div>
         """, unsafe_allow_html=True)
