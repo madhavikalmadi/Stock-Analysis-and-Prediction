@@ -477,14 +477,5 @@ with tab4:
     </div>
     """, unsafe_allow_html=True)
 
-# =====================================================
-# SIDEBAR
-# =====================================================
-with st.sidebar:
-    st.markdown("""
-    <div style="padding:1.2rem 0 0.5rem;">
-        <div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:#1e293b;margin-bottom:4px;">⚙ Admin</div>
-        <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#2a3848;letter-spacing:1.5px;text-transform:uppercase;">Control Panel</div>
-    </div>
-    """, unsafe_allow_html=True)
+
 
