@@ -172,13 +172,28 @@ st.markdown("""
 .filter-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 1rem; }
 
 /* ── User row card ── */
-.user-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 12px; padding: 1.2rem 1.6rem; margin-bottom: 12px; transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02); }
-.user-row:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06); border-color: #cbd5e1; background: #ffffff; }
-.user-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); border: 2px solid #ffffff; display: flex; align-items: center; justify-content: center; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 800; color: #4338ca; flex-shrink: 0; margin-right: 16px; box-shadow: 0 2px 6px rgba(67, 56, 202, 0.15); }
+.user-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 18px; padding: 1.4rem 1.8rem; margin-bottom: 15px;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02), inset 0 1px 1px rgba(255,255,255,1);
+}
+.user-row:hover { transform: translateX(6px); box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08); border-color: #cbd5e1; background: #ffffff; }
+.user-avatar { width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); border: 1.5px solid #ffffff; display: flex; align-items: center; justify-content: center; font-family: 'DM Sans', sans-serif; font-size: 1.2rem; font-weight: 800; color: #4338ca; flex-shrink: 0; margin-right: 20px; box-shadow: 0 4px 10px rgba(67, 56, 202, 0.1); }
 .user-info { flex: 1; }
-.user-name { font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 800; color: #0f172a; }
-.user-meta { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: #64748b; margin-top: 4px; }
-.user-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #94a3b8; }
+.user-name { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.25rem; font-weight: 400; color: #0f172a; margin-bottom: 4px; }
+.user-meta { display: flex; gap: 15px; align-items: center; margin-bottom: 6px; }
+.meta-label { display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: #64748b; font-weight: 500; }
+.meta-label span { opacity: 0.7; font-size: 0.9rem; }
+.user-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #94a3b8; letter-spacing: -0.2px; }
+
+/* ── Credential tag ── */
+.credential-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600;
+    color: #475569; background: #f1f5f9; padding: 6px 14px; border-radius: 8px;
+    border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px;
+}
+.credential-tag span { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* ── Log/Activity (if any) ── */
 .log-row { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
@@ -277,12 +292,14 @@ tab1, tab3, tab4 = st.tabs(["👥  User Management", "🔑  Reset Password", "�
 with tab1:
     st.markdown('<div class="section-hdr">All Registered Users</div>', unsafe_allow_html=True)
 
+    st.markdown('<div class="filter-row">', unsafe_allow_html=True)
     col_search, col_sort = st.columns([3, 1])
     with col_search:
-        search_q = st.text_input("Search users", placeholder="Search by username or email…", key="search_users",
+        search_q = st.text_input("QUERY", placeholder="Search by name, email, or credential…", key="search_users",
                                   label_visibility="collapsed")
     with col_sort:
-        sort_by = st.selectbox("Sort", ["Username A–Z", "Username Z–A", "Email"], label_visibility="collapsed")
+        sort_by = st.selectbox("ORDER", ["Username A–Z", "Username Z–A", "Email"], label_visibility="collapsed")
+    st.markdown('</div>', unsafe_allow_html=True)
 
     if all_users:
         filtered = all_users
@@ -308,23 +325,27 @@ with tab1:
             upass = user.get("password", "—")
             avatar_letter = uname[0].upper() if uname else "?"
 
-            col_info, col_actions = st.columns([4, 1])
+            col_info, col_actions = st.columns([4.2, 1])
             with col_info:
                 st.markdown(f"""
                 <div class="user-row">
                     <div class="user-avatar">{avatar_letter}</div>
                     <div class="user-info">
                         <div class="user-name">{uname}</div>
-                        <div class="user-meta">✉ {uemail} &nbsp;·&nbsp; 📱 {umobile}</div>
-                        <div class="user-mono">ID: {uid[:24]}…</div>
+                        <div class="user-meta">
+                            <div class="meta-label"><span>✉</span> {uemail}</div>
+                            <div class="meta-label"><span>📱</span> {umobile}</div>
+                        </div>
+                        <div class="user-mono">IDENTITY_SEQUENCE: {uid[:24]}</div>
                     </div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#2a4868;background:rgba(240,192,64,0.06);padding:4px 10px;border-radius:6px;border:1px solid rgba(240,192,64,0.1);">
-                        pw: {upass[:16]}{'…' if len(upass) > 16 else ''}
+                    <div class="credential-tag">
+                        <span>TOKEN</span> {upass[:16]}
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
             with col_actions:
-                if st.button("🗑 Delete", key=f"del_{uid}", type="secondary"):
+                st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+                if st.button("🗑 DELETE USER", key=f"del_{uid}", use_container_width=True):
                     st.session_state[f"confirm_del_{uid}"] = True
 
             if st.session_state.get(f"confirm_del_{uid}"):
@@ -343,7 +364,7 @@ with tab1:
                         st.rerun()
 
         # Downloadable CSV
-        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
         if filtered:
             df = pd.DataFrame([{
                 "Username": u.get("username",""),
@@ -352,7 +373,9 @@ with tab1:
                 "ID": str(u.get("_id",""))
             } for u in filtered])
             csv = df.to_csv(index=False)
-            st.download_button("⬇ Export CSV", csv, "users.csv", "text/csv", use_container_width=False)
+            _, exp_col = st.columns([4, 1])
+            with exp_col:
+                st.download_button("⬇ EXPORT DATABASE", csv, "users_export.csv", "text/csv", use_container_width=True)
     else:
         st.info("No users found in the database.")
 
