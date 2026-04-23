@@ -47,11 +47,11 @@ left_op = "0.2" if auth_mode == "signup" else "1"
 if auth_mode == "login":
     right_inner = (
         '<div class="si-head"><h3>Welcome Back</h3><p>Sign in to your account</p></div>'
-        '<form action="/" method="GET">'
+        '<form action="/" method="GET" target="_self">'
         '<div class="si-fld"><label>Username</label><input type="text" name="__login_user" placeholder="Username" required /></div>'
         '<div class="si-fld"><label>Password</label><input type="password" name="__login_pass" placeholder="••••••••" required /></div>'
         '<button class="si-btn" type="submit">Sign In →</button>'
-        '<div class="si-sw">No account? <a href="?mode=signup" class="si-lnk">Create one</a></div>'
+        '<div class="si-sw">No account? <a href="?mode=signup" target="_self" class="si-lnk">Create one</a></div>'
         '</form>'
         '<div class="si-sep"><div class="si-sep-l"></div><span class="si-sep-t">ADMIN</span><div class="si-sep-l"></div></div>'
         '<a href="/admin" target="_self" class="si-adm">⚙ Admin Dashboard</a>'
@@ -59,13 +59,13 @@ if auth_mode == "login":
 else:
     right_inner = (
         '<div class="si-head"><h3>Join Us</h3><p>Create your new account</p></div>'
-        '<form action="/" method="GET">'
+        '<form action="/" method="GET" target="_self">'
         '<div class="si-fld"><label>Username</label><input type="text" name="__reg_user" placeholder="Username" required /></div>'
         '<div class="si-fld"><label>Email</label><input type="email" name="__reg_email" placeholder="Email" required /></div>'
         '<div class="si-fld"><label>Mobile</label><input type="tel" name="__reg_mob" placeholder="+91..." required /></div>'
         '<div class="si-fld"><label>Password</label><input type="password" name="__reg_pass" placeholder="••••••••" required /></div>'
         '<button class="si-btn si-btn-s" type="submit">Sign Up →</button>'
-        '<div class="si-sw">Have an account? <a href="?mode=login" class="si-lnk">Sign in</a></div>'
+        '<div class="si-sw">Have an account? <a href="?mode=login" target="_self" class="si-lnk">Sign in</a></div>'
         '</form>'
     )
 
