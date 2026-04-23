@@ -431,31 +431,42 @@ with tab4:
     with col_s1:
         st.markdown("""
         <div class="panel-card">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.76rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:800;margin-bottom:18px;border-bottom:2px solid rgba(15,23,42,0.05);padding-bottom:10px;">Application Details</div>
-            <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.95rem;border-collapse:collapse;">
-                <tr style="border-bottom:1px solid rgba(15,23,42,0.04);"><td style="color:#64748b;padding:12px 0;width:45%;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">Framework</td><td style="color:#1e293b;font-weight:800;text-align:right;font-size:0.9rem;">Streamlit (Python)</td></tr>
-                <tr style="border-bottom:1px solid rgba(15,23,42,0.04);"><td style="color:#64748b;padding:12px 0;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">Database</td><td style="color:#1e293b;font-weight:800;text-align:right;font-size:0.9rem;">MongoDB Atlas</td></tr>
-                <tr style="border-bottom:1px solid rgba(15,23,42,0.04);"><td style="color:#64748b;padding:12px 0;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">Market Data</td><td style="color:#1e293b;font-weight:800;text-align:right;font-size:0.9rem;">Yahoo Finance (yfinance)</td></tr>
-                <tr style="border-bottom:1px solid rgba(15,23,42,0.04);"><td style="color:#64748b;padding:12px 0;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">Benchmark</td><td style="color:#1e293b;font-weight:800;text-align:right;font-size:0.9rem;">NIFTYBEES.NS</td></tr>
-                <tr style="border-bottom:1px solid rgba(15,23,42,0.04);"><td style="color:#64748b;padding:12px 0;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">Exchange</td><td style="color:#1e293b;font-weight:800;text-align:right;font-size:0.9rem;">NSE / BSE (India)</td></tr>
-                <tr><td style="color:#64748b;padding:12px 0 4px 0;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">Timezone</td><td style="color:#1e293b;font-weight:800;text-align:right;font-size:0.9rem;">IST (UTC+5:30)</td></tr>
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Application</div>
+            <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.83rem;border-collapse:collapse;">
+                <tr><td style="color:#64748b;padding:5px 0;width:40%;">Framework</td><td style="color:#0f172a;">Streamlit (Python)</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Database</td><td style="color:#0f172a;">MongoDB Atlas</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Market Data</td><td style="color:#0f172a;">Yahoo Finance (yfinance)</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Benchmark</td><td style="color:#0f172a;">NIFTYBEES.NS</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Exchange</td><td style="color:#0f172a;">NSE / BSE (India)</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Timezone</td><td style="color:#0f172a;">IST (UTC+5:30)</td></tr>
             </table>
         </div>
         """, unsafe_allow_html=True)
     with col_s2:
         st.markdown("""
         <div class="panel-card">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.76rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:800;margin-bottom:18px;border-bottom:2px solid rgba(15,23,42,0.05);padding-bottom:10px;">Analytics Engine Details</div>
-            <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.95rem;border-collapse:collapse;">
-                <tr style="border-bottom:1px solid rgba(15,23,42,0.04);"><td style="color:#64748b;padding:12px 0;width:40%;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">CAGR</td><td style="color:#34c759;font-weight:800;text-align:right;font-size:0.9rem;">✓ Compounded Annual Growth</td></tr>
-                <tr style="border-bottom:1px solid rgba(15,23,42,0.04);"><td style="color:#64748b;padding:12px 0;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">Sharpe Ratio</td><td style="color:#34c759;font-weight:800;text-align:right;font-size:0.9rem;">✓ Risk-adjusted Return</td></tr>
-                <tr style="border-bottom:1px solid rgba(15,23,42,0.04);"><td style="color:#64748b;padding:12px 0;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">Sortino Ratio</td><td style="color:#34c759;font-weight:800;text-align:right;font-size:0.9rem;">✓ Downside Deviation</td></tr>
-                <tr style="border-bottom:1px solid rgba(15,23,42,0.04);"><td style="color:#64748b;padding:12px 0;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">Max Drawdown</td><td style="color:#34c759;font-weight:800;text-align:right;font-size:0.9rem;">✓ Peak-to-Trough Drop</td></tr>
-                <tr style="border-bottom:1px solid rgba(15,23,42,0.04);"><td style="color:#64748b;padding:12px 0;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">Recovery</td><td style="color:#34c759;font-weight:800;text-align:right;font-size:0.9rem;">✓ Drawdown Recovery Days</td></tr>
-                <tr><td style="color:#64748b;padding:12px 0 4px 0;font-weight:600;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;">Score Wnd</td><td style="color:#1e293b;font-weight:800;text-align:right;font-size:0.9rem;">10-Year Rolling Series</td></tr>
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Analytics Engine</div>
+            <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.83rem;border-collapse:collapse;">
+                <tr><td style="color:#64748b;padding:5px 0;width:40%;">CAGR</td><td style="color:#0f172a;">✓ Compounded Annual Growth</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Sharpe Ratio</td><td style="color:#0f172a;">✓ Risk-adjusted return</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Sortino Ratio</td><td style="color:#0f172a;">✓ Downside deviation</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Max Drawdown</td><td style="color:#0f172a;">✓ Peak-to-trough</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Recovery Days</td><td style="color:#0f172a;">✓ Drawdown recovery</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Score Window</td><td style="color:#0f172a;">10-year rolling</td></tr>
             </table>
         </div>
         """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="panel-card" style="margin-top:0;">
+        <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:10px;">Collections</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">users</div>
+            <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">watchlist</div>
+            <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">user_actions</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # =====================================================
 # SIDEBAR
