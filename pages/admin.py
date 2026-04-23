@@ -98,344 +98,97 @@ st.markdown("""
 
 * { box-sizing: border-box; }
 
-[data-testid="stAppViewContainer"] {
-    background: #07080f;
-}
+[data-testid="stAppViewContainer"] { background: #f1f5f9; }
 [data-testid="stHeader"] { background: transparent !important; }
 
 /* ── Sidebar ── */
 [data-testid="stSidebar"] {
-    background: #0c0e1a !important;
-    border-right: 1px solid rgba(255,255,255,0.05) !important;
+    background: #0f172a !important;
+    border-right: 1px solid rgba(0,0,0,0.1) !important;
 }
-[data-testid="stSidebar"] * {
-    font-family: 'DM Sans', sans-serif !important;
-}
+[data-testid="stSidebar"] * { font-family: 'DM Sans', sans-serif !important; }
 
 /* ── Main area ── */
 .block-container { padding: 2rem 2.5rem !important; max-width: 1400px !important; }
 
 /* ── Top bar ── */
 .admin-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 0 1.8rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    margin-bottom: 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 0 1.8rem 0; border-bottom: 2px solid #e2e8f0; margin-bottom: 2rem;
 }
-.admin-brand {
-    font-family: 'DM Serif Display', Georgia, serif;
-    font-size: 1.6rem;
-    color: #f0c040;
-}
-.admin-brand span {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.72rem;
-    color: #3a5568;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    display: block;
-    margin-top: -2px;
-}
-.admin-badge {
-    background: rgba(240,192,64,0.1);
-    border: 1px solid rgba(240,192,64,0.25);
-    border-radius: 20px;
-    padding: 4px 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.75rem;
-    color: #f0c040;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-weight: 600;
-}
+.admin-brand { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.6rem; color: #0f172a; }
+.admin-brand span { font-family: 'DM Sans', sans-serif; font-size: 0.72rem; color: #64748b; letter-spacing: 2px; text-transform: uppercase; display: block; margin-top: -2px; }
+.admin-badge { background: #e0e7ff; border: 1px solid #c7d2fe; border-radius: 20px; padding: 4px 14px; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: #4338ca; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
 
 /* ── Stat cards ── */
-.stat-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 2rem;
-}
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 2rem; }
 .stat-card {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 14px;
-    padding: 1.2rem 1.4rem;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.2s;
+    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.2rem 1.4rem;
+    position: relative; overflow: hidden; transition: box-shadow 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
-.stat-card:hover { border-color: rgba(240,192,64,0.2); }
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--accent, #f0c040);
-    opacity: 0.6;
-}
-.stat-icon {
-    font-size: 1.4rem;
-    margin-bottom: 0.6rem;
-}
-.stat-value {
-    font-family: 'DM Serif Display', Georgia, serif;
-    font-size: 2rem;
-    color: #e0eaf8;
-    line-height: 1;
-    margin-bottom: 4px;
-}
-.stat-label {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.75rem;
-    color: #3a5568;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-weight: 500;
-}
-.stat-sub {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.75rem;
-    margin-top: 6px;
-    font-weight: 500;
-}
-.stat-up { color: #34c759; }
-.stat-dn { color: #ff6b6b; }
+.stat-card:hover { box-shadow: 0 8px 12px -3px rgba(0,0,0,0.05); }
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent, #f0c040); }
+.stat-icon { font-size: 1.4rem; margin-bottom: 0.6rem; }
+.stat-value { font-family: 'DM Serif Display', Georgia, serif; font-size: 2rem; color: #0f172a; line-height: 1; margin-bottom: 4px; }
+.stat-label { font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+.stat-sub { font-family: 'DM Sans', sans-serif; font-size: 0.75rem; margin-top: 6px; font-weight: 500; }
+.stat-up { color: #10b981; } .stat-dn { color: #ef4444; }
 
 /* ── Section headers ── */
-.section-hdr {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: #f0c040;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(240,192,64,0.1);
-    margin-bottom: 1.2rem;
-}
+.section-hdr { font-family: 'DM Sans', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #0f172a; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.2rem; }
 
 /* ── Table override ── */
-.stDataFrame, [data-testid="stDataFrame"] {
-    background: rgba(255,255,255,0.02) !important;
-    border-radius: 12px !important;
-    border: 1px solid rgba(255,255,255,0.07) !important;
-    overflow: hidden !important;
-}
-[data-testid="stDataFrame"] * {
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.85rem !important;
-    color: #c0d4e8 !important;
-}
-[data-testid="stDataFrame"] th {
-    background: rgba(240,192,64,0.06) !important;
-    color: #f0c040 !important;
-    font-size: 0.72rem !important;
-    letter-spacing: 1px !important;
-    text-transform: uppercase !important;
-}
+.stDataFrame, [data-testid="stDataFrame"] { background: #ffffff !important; border-radius: 12px !important; border: 1px solid #e2e8f0 !important; overflow: hidden !important; box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important; }
+[data-testid="stDataFrame"] * { font-family: 'DM Sans', sans-serif !important; font-size: 0.85rem !important; color: #334155 !important; }
+[data-testid="stDataFrame"] th { background: #f8fafc !important; color: #475569 !important; font-size: 0.72rem !important; letter-spacing: 1px !important; text-transform: uppercase !important; border-bottom: 1px solid #e2e8f0 !important; }
 
 /* ── Panel card ── */
-.panel-card {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 14px;
-    padding: 1.4rem 1.6rem;
-    margin-bottom: 1.2rem;
-}
+.panel-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.4rem 1.6rem; margin-bottom: 1.2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
 
 /* ── Buttons ── */
-.stButton > button:first-child {
-    background: linear-gradient(135deg, #f0c040, #e8a820) !important;
-    color: #0a0e1a !important;
-    border: none !important;
-    border-radius: 8px !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.87rem !important;
-    font-weight: 600 !important;
-    padding: 0.5rem 1.2rem !important;
-    transition: all 0.2s !important;
-    box-shadow: 0 3px 12px rgba(240,192,64,0.2) !important;
-}
-.stButton > button:first-child:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 5px 16px rgba(240,192,64,0.3) !important;
-}
-.stButton > button[kind="secondary"] {
-    background: rgba(255,59,48,0.08) !important;
-    color: #ff6b6b !important;
-    border: 1px solid rgba(255,59,48,0.2) !important;
-    border-radius: 8px !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.85rem !important;
-}
-.stButton > button[kind="secondary"]:hover {
-    background: rgba(255,59,48,0.16) !important;
-}
+.stButton > button:first-child { background: #0f172a !important; color: #ffffff !important; border: none !important; border-radius: 8px !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.87rem !important; font-weight: 600 !important; padding: 0.5rem 1.2rem !important; box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important; transition: all 0.2s !important; }
+.stButton > button:first-child:hover { background: #1e293b !important; transform: translateY(-1px) !important; box-shadow: 0 4px 8px rgba(0,0,0,0.12) !important; }
+.stButton > button[kind="secondary"] { background: #fee2e2 !important; color: #ef4444 !important; border: 1px solid #fca5a5 !important; border-radius: 8px !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.85rem !important; }
+.stButton > button[kind="secondary"]:hover { background: #fecaca !important; }
 
 /* ── Inputs ── */
-.stTextInput > div > div > input,
-.stSelectbox > div > div {
-    background: rgba(255,255,255,0.05) !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
-    border-radius: 8px !important;
-    color: #d0e4f8 !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.88rem !important;
-}
-.stTextInput > div > div > input:focus {
-    border-color: #f0c040 !important;
-    box-shadow: 0 0 0 3px rgba(240,192,64,0.1) !important;
-}
-.stTextInput > label, .stSelectbox > label {
-    color: #6080a0 !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.78rem !important;
-    font-weight: 500 !important;
-    letter-spacing: 0.5px !important;
-    text-transform: uppercase !important;
-}
+.stTextInput > div > div > input, .stSelectbox > div > div { background: #ffffff !important; border: 1px solid #cbd5e1 !important; border-radius: 8px !important; color: #0f172a !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.88rem !important; }
+.stTextInput > div > div > input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important; }
+.stTextInput > label, .stSelectbox > label { color: #64748b !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.78rem !important; font-weight: 600 !important; letter-spacing: 0.5px !important; text-transform: uppercase !important; }
 
 /* ── Alerts ── */
-.stSuccess > div {
-    background: rgba(52,199,89,0.1) !important;
-    border: 1px solid rgba(52,199,89,0.2) !important;
-    border-radius: 8px !important;
-    color: #34c759 !important;
-    font-family: 'DM Sans', sans-serif !important;
-}
-.stError > div {
-    background: rgba(255,59,48,0.1) !important;
-    border: 1px solid rgba(255,59,48,0.2) !important;
-    border-radius: 8px !important;
-    color: #ff6b6b !important;
-    font-family: 'DM Sans', sans-serif !important;
-}
-.stWarning > div {
-    background: rgba(255,159,10,0.1) !important;
-    border: 1px solid rgba(255,159,10,0.2) !important;
-    border-radius: 8px !important;
-    color: #ff9f0a !important;
-    font-family: 'DM Sans', sans-serif !important;
-}
-.stInfo > div {
-    background: rgba(10,132,255,0.1) !important;
-    border: 1px solid rgba(10,132,255,0.2) !important;
-    border-radius: 8px !important;
-    color: #64b5f6 !important;
-    font-family: 'DM Sans', sans-serif !important;
-}
+.stSuccess > div { background: #dcfce7 !important; border: 1px solid #86efac !important; border-radius: 8px !important; color: #166534 !important; font-family: 'DM Sans', sans-serif !important; }
+.stError > div { background: #fee2e2 !important; border: 1px solid #fca5a5 !important; border-radius: 8px !important; color: #991b1b !important; font-family: 'DM Sans', sans-serif !important; }
+.stWarning > div { background: #fef9c3 !important; border: 1px solid #fde047 !important; border-radius: 8px !important; color: #854d0e !important; font-family: 'DM Sans', sans-serif !important; }
+.stInfo > div { background: #e0e7ff !important; border: 1px solid #c7d2fe !important; border-radius: 8px !important; color: #3730a3 !important; font-family: 'DM Sans', sans-serif !important; }
 
 /* ── Tabs ── */
-.stTabs [data-baseweb="tab-list"] {
-    background: rgba(255,255,255,0.03) !important;
-    border-radius: 10px !important;
-    padding: 4px !important;
-    border: 1px solid rgba(255,255,255,0.06) !important;
-    gap: 4px !important;
-}
-.stTabs [data-baseweb="tab"] {
-    background: transparent !important;
-    color: #4a6680 !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.85rem !important;
-    font-weight: 500 !important;
-    border-radius: 7px !important;
-    border: none !important;
-    padding: 0.4rem 1rem !important;
-}
-.stTabs [aria-selected="true"] {
-    background: rgba(240,192,64,0.15) !important;
-    color: #f0c040 !important;
-}
+.stTabs [data-baseweb="tab-list"] { background: #e2e8f0 !important; border-radius: 10px !important; padding: 4px !important; border: 1px solid #cbd5e1 !important; gap: 4px !important; }
+.stTabs [data-baseweb="tab"] { background: transparent !important; color: #64748b !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.85rem !important; font-weight: 600 !important; border-radius: 7px !important; padding: 0.4rem 1rem !important; border: none !important; }
+.stTabs [aria-selected="true"] { background: #ffffff !important; color: #0f172a !important; box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important; }
 
 /* ── Search / filter ── */
-.filter-row {
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-    margin-bottom: 1rem;
-}
+.filter-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 1rem; }
 
 /* ── User row card ── */
-.user-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 10px;
-    padding: 0.8rem 1.2rem;
-    margin-bottom: 8px;
-    transition: border-color 0.2s;
-}
-.user-row:hover { border-color: rgba(240,192,64,0.15); }
-.user-avatar {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #1a2a4a, #2a3a5a);
-    border: 1.5px solid rgba(240,192,64,0.2);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #f0c040;
-    flex-shrink: 0;
-    margin-right: 12px;
-}
+.user-row { display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.8rem 1.2rem; margin-bottom: 8px; transition: border-color 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+.user-row:hover { border-color: #cbd5e1; }
+.user-avatar { width: 36px; height: 36px; border-radius: 50%; background: #e0e7ff; border: 1.5px solid #c7d2fe; display: flex; align-items: center; justify-content: center; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700; color: #4338ca; flex-shrink: 0; margin-right: 12px; }
 .user-info { flex: 1; }
-.user-name {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #d0e4f8;
-}
-.user-meta {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.74rem;
-    color: #3a5568;
-    margin-top: 2px;
-}
-.user-mono {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    color: #2a4060;
-}
+.user-name { font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700; color: #0f172a; }
+.user-meta { font-family: 'DM Sans', sans-serif; font-size: 0.74rem; color: #64748b; margin-top: 2px; }
+.user-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #94a3b8; }
 
 /* ── Activity log ── */
-.log-row {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.log-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #f0c040;
-    margin-top: 5px;
-    flex-shrink: 0;
-}
-.log-text {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.82rem;
-    color: #5a7090;
-    line-height: 1.4;
-}
-.log-time {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: #2a3848;
-    margin-top: 2px;
-}
+.log-row { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
+.log-dot { width: 8px; height: 8px; border-radius: 50%; background: #f0c040; margin-top: 5px; flex-shrink: 0; }
+.log-text { font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: #475569; line-height: 1.4; }
+.log-time { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #94a3b8; margin-top: 2px; }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(240,192,64,0.15); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -539,7 +292,7 @@ with tab1:
         elif sort_by == "Email":
             filtered = sorted(filtered, key=lambda u: u.get("email","").lower())
 
-        st.markdown(f"<div style='font-family:DM Sans,sans-serif;font-size:0.78rem;color:#3a5568;margin-bottom:12px;'>Showing {len(filtered)} of {len(all_users)} users</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='font-family:DM Sans,sans-serif;font-size:0.78rem;color:#64748b;margin-bottom:12px;'>Showing {len(filtered)} of {len(all_users)} users</div>", unsafe_allow_html=True)
 
         # Render user rows
         for user in filtered:
@@ -672,35 +425,35 @@ with tab4:
     with col_s1:
         st.markdown("""
         <div class="panel-card">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#f0c040;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Application</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Application</div>
             <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.83rem;border-collapse:collapse;">
-                <tr><td style="color:#3a5568;padding:5px 0;width:40%;">Framework</td><td style="color:#b0c8e0;">Streamlit (Python)</td></tr>
-                <tr><td style="color:#3a5568;padding:5px 0;">Database</td><td style="color:#b0c8e0;">MongoDB Atlas</td></tr>
-                <tr><td style="color:#3a5568;padding:5px 0;">Market Data</td><td style="color:#b0c8e0;">Yahoo Finance (yfinance)</td></tr>
-                <tr><td style="color:#3a5568;padding:5px 0;">Benchmark</td><td style="color:#b0c8e0;">NIFTYBEES.NS</td></tr>
-                <tr><td style="color:#3a5568;padding:5px 0;">Exchange</td><td style="color:#b0c8e0;">NSE / BSE (India)</td></tr>
-                <tr><td style="color:#3a5568;padding:5px 0;">Timezone</td><td style="color:#b0c8e0;">IST (UTC+5:30)</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;width:40%;">Framework</td><td style="color:#0f172a;">Streamlit (Python)</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Database</td><td style="color:#0f172a;">MongoDB Atlas</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Market Data</td><td style="color:#0f172a;">Yahoo Finance (yfinance)</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Benchmark</td><td style="color:#0f172a;">NIFTYBEES.NS</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Exchange</td><td style="color:#0f172a;">NSE / BSE (India)</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Timezone</td><td style="color:#0f172a;">IST (UTC+5:30)</td></tr>
             </table>
         </div>
         """, unsafe_allow_html=True)
     with col_s2:
         st.markdown("""
         <div class="panel-card">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#f0c040;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Analytics Engine</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Analytics Engine</div>
             <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.83rem;border-collapse:collapse;">
-                <tr><td style="color:#3a5568;padding:5px 0;width:40%;">CAGR</td><td style="color:#b0c8e0;">✓ Compounded Annual Growth</td></tr>
-                <tr><td style="color:#3a5568;padding:5px 0;">Sharpe Ratio</td><td style="color:#b0c8e0;">✓ Risk-adjusted return</td></tr>
-                <tr><td style="color:#3a5568;padding:5px 0;">Sortino Ratio</td><td style="color:#b0c8e0;">✓ Downside deviation</td></tr>
-                <tr><td style="color:#3a5568;padding:5px 0;">Max Drawdown</td><td style="color:#b0c8e0;">✓ Peak-to-trough</td></tr>
-                <tr><td style="color:#3a5568;padding:5px 0;">Recovery Days</td><td style="color:#b0c8e0;">✓ Drawdown recovery</td></tr>
-                <tr><td style="color:#3a5568;padding:5px 0;">Score Window</td><td style="color:#b0c8e0;">10-year rolling</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;width:40%;">CAGR</td><td style="color:#0f172a;">✓ Compounded Annual Growth</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Sharpe Ratio</td><td style="color:#0f172a;">✓ Risk-adjusted return</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Sortino Ratio</td><td style="color:#0f172a;">✓ Downside deviation</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Max Drawdown</td><td style="color:#0f172a;">✓ Peak-to-trough</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Recovery Days</td><td style="color:#0f172a;">✓ Drawdown recovery</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">Score Window</td><td style="color:#0f172a;">10-year rolling</td></tr>
             </table>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("""
     <div class="panel-card" style="margin-top:0;">
-        <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#f0c040;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:10px;">Collections</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:10px;">Collections</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">users</div>
             <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">watchlist</div>
@@ -715,7 +468,7 @@ with tab4:
 with st.sidebar:
     st.markdown("""
     <div style="padding:1.2rem 0 0.5rem;">
-        <div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:#f0c040;margin-bottom:4px;">⚙ Admin</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:#0f172a;margin-bottom:4px;">⚙ Admin</div>
         <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#2a3848;letter-spacing:1.5px;text-transform:uppercase;">Control Panel</div>
     </div>
     <hr style="border-color:rgba(255,255,255,0.06);margin:0.8rem 0;">
@@ -724,7 +477,7 @@ with st.sidebar:
     st.markdown(f"""
     <div style="font-family:'DM Sans',sans-serif;font-size:0.8rem;color:#4a6680;margin-bottom:0.4rem;">
         <strong style="color:#8aabcc;">Users</strong><br>
-        <span style="font-size:1.3rem;color:#f0c040;font-family:'DM Serif Display',serif;">{total_users}</span> registered
+        <span style="font-size:1.3rem;color:#0f172a;font-family:'DM Serif Display',serif;">{total_users}</span> registered
     </div>
     <div style="font-family:'DM Sans',sans-serif;font-size:0.8rem;color:#4a6680;margin-bottom:1rem;">
         <strong style="color:#8aabcc;">Watchlist</strong><br>
