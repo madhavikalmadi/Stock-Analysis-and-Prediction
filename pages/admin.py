@@ -298,7 +298,7 @@ with tab1:
         elif sort_by == "Email":
             filtered = sorted(filtered, key=lambda u: u.get("email","").lower())
 
-        st.markdown(f"<div style='font-family:DM Sans,sans-serif;font-size:0.78rem;color:#64748b;margin-bottom:12px;'>Showing {len(filtered)} of {len(all_users)} users</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='font-family:DM Sans,sans-serif;font-size:0.78rem;color:#1e293b;margin-bottom:12px;'>Showing {len(filtered)} of {len(all_users)} users</div>", unsafe_allow_html=True)
 
         # Render user rows
         for user in filtered:
@@ -431,35 +431,35 @@ with tab4:
     with col_s1:
         st.markdown("""
         <div class="panel-card">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Application</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#1e293b;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Application</div>
             <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.83rem;border-collapse:collapse;">
-                <tr><td style="color:#64748b;padding:5px 0;width:40%;">Framework</td><td style="color:#0f172a;">Streamlit (Python)</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;">Database</td><td style="color:#0f172a;">MongoDB Atlas</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;">Market Data</td><td style="color:#0f172a;">Yahoo Finance (yfinance)</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;">Benchmark</td><td style="color:#0f172a;">NIFTYBEES.NS</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;">Exchange</td><td style="color:#0f172a;">NSE / BSE (India)</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;">Timezone</td><td style="color:#0f172a;">IST (UTC+5:30)</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">Framework</td><td style="color:#1e293b;">Streamlit (Python)</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Database</td><td style="color:#1e293b;">MongoDB Atlas</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Market Data</td><td style="color:#1e293b;">Yahoo Finance (yfinance)</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Benchmark</td><td style="color:#1e293b;">NIFTYBEES.NS</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Exchange</td><td style="color:#1e293b;">NSE / BSE (India)</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Timezone</td><td style="color:#1e293b;">IST (UTC+5:30)</td></tr>
             </table>
         </div>
         """, unsafe_allow_html=True)
     with col_s2:
         st.markdown("""
         <div class="panel-card">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Analytics Engine</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#1e293b;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Analytics Engine</div>
             <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.83rem;border-collapse:collapse;">
-                <tr><td style="color:#64748b;padding:5px 0;width:40%;">CAGR</td><td style="color:#0f172a;">Compounded Annual Growth</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;width:40%;">Sharpe Ratio</td><td style="color:#0f172a;">Risk-adjusted return</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;width:40%;">Sortino Ratio</td><td style="color:#0f172a;">Downside deviation</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;width:40%;">Max Drawdown</td><td style="color:#0f172a;">Peak-to-trough</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;width:40%;">Recovery Days</td><td style="color:#0f172a;">Drawdown recovery</td></tr>
-                <tr><td style="color:#64748b;padding:5px 0;width:40%;">Score Window</td><td style="color:#0f172a;">10-year rolling</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">CAGR</td><td style="color:#1e293b;">Compounded Annual Growth</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">Sharpe Ratio</td><td style="color:#1e293b;">Risk-adjusted return</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">Sortino Ratio</td><td style="color:#1e293b;">Downside deviation</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">Max Drawdown</td><td style="color:#1e293b;">Peak-to-trough</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">Recovery Days</td><td style="color:#1e293b;">Drawdown recovery</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">Score Window</td><td style="color:#1e293b;">10-year rolling</td></tr>
             </table>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("""
     <div class="panel-card" style="margin-top:0;">
-        <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:10px;">Collections</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#1e293b;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:10px;">Collections</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">users</div>
             <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">watchlist</div>
@@ -474,7 +474,7 @@ with tab4:
 with st.sidebar:
     st.markdown("""
     <div style="padding:1.2rem 0 0.5rem;">
-        <div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:#0f172a;margin-bottom:4px;">⚙ Admin</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:#1e293b;margin-bottom:4px;">⚙ Admin</div>
         <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#2a3848;letter-spacing:1.5px;text-transform:uppercase;">Control Panel</div>
     </div>
     <hr style="border-color:rgba(255,255,255,0.06);margin:0.8rem 0;">
@@ -483,7 +483,7 @@ with st.sidebar:
     st.markdown(f"""
     <div style="font-family:'DM Sans',sans-serif;font-size:0.8rem;color:#4a6680;margin-bottom:0.4rem;">
         <strong style="color:#8aabcc;">Users</strong><br>
-        <span style="font-size:1.3rem;color:#0f172a;font-family:'DM Serif Display',serif;">{total_users}</span> registered
+        <span style="font-size:1.3rem;color:#1e293b;font-family:'DM Serif Display',serif;">{total_users}</span> registered
     </div>
     <div style="font-family:'DM Sans',sans-serif;font-size:0.8rem;color:#4a6680;margin-bottom:1rem;">
         <strong style="color:#8aabcc;">Watchlist</strong><br>
