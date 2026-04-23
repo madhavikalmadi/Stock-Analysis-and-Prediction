@@ -9,29 +9,84 @@ st.set_page_config(page_title="Smart Investor | Admin", layout="wide", page_icon
 # AUTH GUARD
 # =====================================================
 if not st.session_state.get("is_admin"):
-    st.markdown("""
+    qp = st.query_params
+    if "__a_u" in qp:
+        from urllib.parse import unquote
+        u = unquote(qp["__a_u"])
+        p = unquote(qp["__a_p"])
+        if u == "admin" and p == "aprilfool1203":
+            st.session_state.is_admin = True
+            st.query_params.clear()
+            st.rerun()
+        else:
+            import time
+            st.error("Invalid credentials.")
+            time.sleep(1.5)
+            st.query_params.clear()
+            st.rerun()
+
+    right_inner = (
+        '<div class="si-head"><h3>Admin Console</h3><p>Restricted access area</p></div>'
+        '<form action="" method="GET" target="_self">'
+        '<div class="si-fld"><label>Admin Username</label><input type="text" name="__a_u" placeholder="Admin username" required /></div>'
+        '<div class="si-fld"><label>Admin Password</label><input type="password" name="__a_p" placeholder="••••••••" required /></div>'
+        '<button class="si-btn" type="submit">Authenticate →</button>'
+        '<div class="si-sep"><div class="si-sep-l"></div><span class="si-sep-t">RETURN</span><div class="si-sep-l"></div></div>'
+        '<a href="/" target="_self" class="si-adm">⬅ Back to Application</a>'
+        '</form>'
+    )
+    ui_markup = """
     <style>
-    [data-testid="stAppViewContainer"] { background: #07080f; }
-    .adm-auth { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 2rem; }
-    .adm-auth h3 { color: #f0c040; text-align: center; font-family: 'DM Serif Display', serif; }
+    [data-testid="stAppViewContainer"] { background: #f1f5f9 !important; overflow: hidden !important; height: 100vh !important; }
+    [data-testid="stHeader"], [data-testid="stToolbar"], footer, [data-testid="stSidebarNav"], #MainMenu { display: none !important; }
+    .block-container { padding: 0 !important; max-width: 100vw !important; margin: 0 !important; }
+    .si-bd { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #f1f5f9; display: flex; align-items: center; justify-content: center; z-index: 999; }
+    .si-sh { display: grid; grid-template-columns: 1fr 1.1fr; width: 880px; min-height: 550px; height: auto; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+    .si-l { background: #0f172a; padding: 2.2rem; display: flex; flex-direction: column; justify-content: space-between; }
+    .si-bdg { width: 34px; height: 34px; background: #f0c040; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .si-tag { color: #fff; font-size:0.9rem; font-weight:800; margin-top:8px; display:block; }
+    .si-h2 h2 { color: #fff; font-size: 1.5rem; font-weight: 900; line-height: 1.25; margin: 12px 0; }
+    .si-h2 h2 em { color: #f0c040; font-style: normal; }
+    .si-p { color: #94a3b8; font-size: 0.8rem; line-height: 1.6; border-left: 2px solid #f0c040; padding-left: 10px; }
+    .si-st { margin-top: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; opacity: 1; }
+    .si-ti { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.7rem; }
+    .si-ti div:first-child { color: #64748b; font-size: 0.55rem; font-weight: 800; }
+    .si-ti div:last-child { color: #fff; font-size: 0.9rem; font-weight: 700; }
+    .si-r { background: #fff; padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; }
+    .si-head h3 { color: #0f172a; font-size: 1.4rem; font-weight: 900; margin: 0; }
+    .si-head p { color: #94a3b8; font-size: 0.82rem; margin: 4px 0 18px 0; }
+    .si-fld { margin-bottom: 0.9rem; }
+    .si-fld label { display: block; font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 0.35rem; }
+    .si-fld input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px; background: #f8fafc; font-size: 0.9rem; padding: 0.65rem 0.8rem; outline: none; box-sizing: border-box; }
+    .si-btn { width: 100%; background: #0f172a; color: #fff; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; padding: 0.8rem; cursor: pointer; margin-top: 0.4rem; display: block; text-align: center; text-decoration: none; }
+    .si-btn:hover { background: #1e293b; }
+    .si-sw { text-align: center; margin-top: 1.2rem; font-size: 0.85rem; color: #64748b; }
+    .si-lnk { color: #f0c040; font-weight: 700; text-decoration: none; }
+    .si-sep { display: flex; align-items: center; gap: 10px; margin: 1.5rem 0; }
+    .si-sep-l { flex: 1; height: 1px; background: #e2e8f0; }
+    .si-sep-t { color: #94a3b8; font-size: 0.55rem; font-weight: 800; }
+    .si-adm { width: 100%; background: #fff; color: #64748b; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 0.6rem; font-size: 0.8rem; font-weight: 700; text-decoration: none; display: block; text-align: center; }
     </style>
-    """, unsafe_allow_html=True)
-    c1, c2, c3 = st.columns([1, 1.5, 1])
-    with c2:
-        st.markdown("<div style='height:3rem'></div>", unsafe_allow_html=True)
-        st.markdown('<div class="adm-auth"><h3>⚙ Admin Console</h3>', unsafe_allow_html=True)
-        with st.form("admin_login_box"):
-            u = st.text_input("Username")
-            p = st.text_input("Password", type="password")
-            if st.form_submit_button("Login to Admin", use_container_width=True):
-                if u == "admin" and p == "aprilfool1203":
-                    st.session_state.is_admin = True
-                    st.rerun()
-                else:
-                    st.error("Invalid admin credentials.")
-        if st.button("⬅ Back to User Login", use_container_width=True):
-            st.switch_page("login.py")
-        st.markdown('</div>', unsafe_allow_html=True)
+    <div class="si-bd">
+        <div class="si-sh">
+            <div class="si-l">
+                <div>
+                    <div class="si-bdg">⚙</div>
+                    <span class="si-tag">System Admin</span>
+                    <div class="si-h2"><h2>System<br><em>Control Panel</em></h2></div>
+                    <div class="si-p">Manage users, adjust platform settings, and monitor activities.</div>
+                    <div class="si-st">
+                        <div class="si-ti"><div>STATUS</div><div style="color:#34c759">ONLINE</div></div>
+                        <div class="si-ti"><div>DB LINK</div><div style="color:#34c759">SECURE</div></div>
+                    </div>
+                </div>
+                <div style="color:#334155; font-size:0.6rem;">Smart Investor Administrative Hub.</div>
+            </div>
+            <div class="si-r">""" + right_inner + """</div>
+        </div>
+    </div>
+    """
+    st.markdown(ui_markup, unsafe_allow_html=True)
     st.stop()
 
 # =====================================================
