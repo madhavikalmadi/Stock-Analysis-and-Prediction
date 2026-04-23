@@ -187,6 +187,19 @@ st.markdown("""
 .meta-label span { opacity: 0.7; font-size: 0.9rem; }
 .user-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #94a3b8; letter-spacing: -0.2px; }
 
+/* ── Danger Button (Soft) ── */
+.del-btn-wrapper .stButton > button {
+    background: rgba(239, 68, 68, 0.03) !important;
+    color: #ef4444 !important;
+    border: 1px solid rgba(239, 68, 68, 0.15) !important;
+    box-shadow: none !important;
+}
+.del-btn-wrapper .stButton > button:hover {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
+    transform: translateY(-1px) !important;
+}
+
 /* ── Credential tag ── */
 .credential-tag {
     font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600;
@@ -344,9 +357,11 @@ with tab1:
                 </div>
                 """, unsafe_allow_html=True)
             with col_actions:
+                st.markdown('<div class="del-btn-wrapper">', unsafe_allow_html=True)
                 st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-                if st.button("🗑 DELETE USER", key=f"del_{uid}", use_container_width=True):
+                if st.button("🗑 DELETE", key=f"del_{uid}", use_container_width=True):
                     st.session_state[f"confirm_del_{uid}"] = True
+                st.markdown('</div>', unsafe_allow_html=True)
 
             if st.session_state.get(f"confirm_del_{uid}"):
                 st.warning(f"⚠ Delete **{uname}**? This cannot be undone.")
