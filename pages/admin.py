@@ -412,70 +412,68 @@ with tab3:
 # TAB 4: SYSTEM INFO
 # ─────────────────────────────
 with tab4:
-    st.markdown('<div class="section-hdr">System Overview</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:1.5rem; border-bottom: 2px solid rgba(15, 23, 42, 0.05); padding-bottom:12px;">
+        <div style="font-family:'DM Serif Display',serif; font-size:1.8rem; color:#0f172a;">Control Deck</div>
+        <div style="font-family:'DM Sans',sans-serif; font-size:0.75rem; color:#64748b; font-weight:700; letter-spacing:1px; text-transform:uppercase;">v2.4.0-build.784</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     col_s1, col_s2 = st.columns(2)
     with col_s1:
         st.markdown("""
-        <div class="panel-card">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.75rem;color:#1e293b;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:20px;border-bottom:2px solid rgba(30,41,59,0.1);padding-bottom:8px;">Application Architecture</div>
-            <div style="display:flex;flex-direction:column;gap:14px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Framework</span>
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Streamlit (Python)</span>
+        <div class="panel-card" style="border-top: 4px solid #0f172a;">
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:18px;">Application Architecture</div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.03);">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;"><span style="margin-right:10px;">💻</span>ENGINE</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:#4338ca;font-weight:600;">Streamlit Core</span>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Database</span>
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">MongoDB Atlas</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.03);">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;"><span style="margin-right:10px;">🗄️</span>STORAGE</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:#4338ca;font-weight:600;">MongoDB Atlas</span>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Market Data</span>
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Yahoo Finance (yfinance)</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.03);">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;"><span style="margin-right:10px;">📡</span>API LINK</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:#4338ca;font-weight:600;">Yahoo Finance</span>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Benchmark</span>
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">NIFTYBEES.NS</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.03);">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;"><span style="margin-right:10px;">📊</span>B-MARK</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:#4338ca;font-weight:600;">NIFTYBEES.NS</span>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Exchange</span>
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">NSE / BSE (India)</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:4px;">
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Timezone</span>
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">IST (UTC+5:30)</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.03);">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;"><span style="margin-right:10px;">🌍</span>LOCALE</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:#4338ca;font-weight:600;">IST (UTC+5:30)</span>
                 </div>
             </div>
         </div>
-""", unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+
     with col_s2:
         st.markdown("""
-        <div class="panel-card">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.75rem;color:#1e293b;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:20px;border-bottom:2px solid rgba(30,41,59,0.1);padding-bottom:8px;">Analytics Engine</div>
-            <div style="display:flex;flex-direction:column;gap:14px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Growth Metric</span>
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Compounded Annual Growth (CAGR)</span>
+        <div class="panel-card" style="border-top: 4px solid #f0c040;">
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:18px;">Analytics Engine</div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.03);">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;"><span style="margin-right:10px;">📈</span>CAGR</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.88rem;color:#1e293b;font-weight:500;">Compounded Growth</span>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Risk Benchmark</span>
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Risk-adjusted return (Sharpe)</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.03);">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;"><span style="margin-right:10px;">🎯</span>SHARPE</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.88rem;color:#1e293b;font-weight:500;">Risk-Adjusted Rtn</span>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Downside Risk</span>
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Downside deviation (Sortino)</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.03);">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;"><span style="margin-right:10px;">⚖️</span>SORTINO</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.88rem;color:#1e293b;font-weight:500;">Downside Dev.</span>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Peak Impact</span>
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Peak-to-trough (Max Drawdown)</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.03);">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;"><span style="margin-right:10px;">📉</span>MAX DD</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.88rem;color:#1e293b;font-weight:500;">Peak Impact (%)</span>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Recovery Pace</span>
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Drawdown recovery (Days)</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:4px;">
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Score Window</span>
-                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">10-Year Rolling Series</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.03);">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;"><span style="margin-right:10px;">🕒</span>WINDOW</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.88rem;color:#1e293b;font-weight:500;">10YR Rolling Series</span>
                 </div>
             </div>
         </div>
-""", unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
