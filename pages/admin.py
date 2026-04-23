@@ -363,62 +363,60 @@ with tab1:
 # TAB 3: RESET PASSWORD
 # ─────────────────────────────
 with tab3:
+    st.markdown('<div class="panel-card">', unsafe_allow_html=True)
     st.markdown("""
-    <div style="background: linear-gradient(to right, #4f46e5, #7c3aed); border-radius: 16px 16px 0 0; padding: 1.5rem 2rem; margin-bottom: 0;">
-        <div style="display:flex; align-items:center; gap:12px;">
-            <div style="font-size:1.5rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">🔐</div>
-            <div style="font-family:'DM Sans', sans-serif; font-size:1.1rem; font-weight:700; color:white;">Administrative Security Control</div>
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+            <div style="font-size:1.5rem;">🛡️</div>
+            <div style="font-family:'DM Sans', sans-serif; font-size:1.1rem; font-weight:700; color:#0f172a;">Account Security</div>
         </div>
-    </div>
-    <div class="panel-card" style="border-top:none; border-radius: 0 0 16px 16px; padding-top:2.5rem;">
     """, unsafe_allow_html=True)
 
     col_r1, col_r2 = st.columns([1, 1.2])
     with col_r1:
-        target_user = st.text_input("Target Username", placeholder="Search account...", key="rp_user")
-        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+        target_user = st.text_input("Username", placeholder="Enter username", key="rp_user")
     with col_r2:
         cp1, cp2 = st.columns(2)
         with cp1:
             new_pw = st.text_input("New Password", type="password", placeholder="••••••••", key="rp_newpw")
         with cp2:
-            confirm_pw = st.text_input("Verify Password", type="password", placeholder="••••••••", key="rp_confirmpw")
+            confirm_pw = st.text_input("Confirm Password", type="password", placeholder="••••••••", key="rp_confirmpw")
 
-    st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
     
-    # Custom Styled Button (Gold Accent)
+    # Custom Styled Button (Sleek Indigo)
     st.markdown("""
     <style>
     div[data-testid="stVerticalBlock"] > div:has(button[key="reset_pw_btn"]) button {
-        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-        border: 1px solid #b45309 !important;
-        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2) !important;
+        background: #1e293b !important;
+        color: white !important;
+        border: none !important;
+        padding: 0.5rem 2rem !important;
     }
     div[data-testid="stVerticalBlock"] > div:has(button[key="reset_pw_btn"]) button:hover {
-        background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
-        box-shadow: 0 6px 16px rgba(217, 119, 6, 0.3) !important;
+        background: #334155 !important;
+        color: white !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    _, btn_center, _ = st.columns([1.1, 0.6, 1.1])
+    _, btn_center, _ = st.columns([1, 0.6, 1])
     with btn_center:
         if st.button("Reset Password", key="reset_pw_btn", use_container_width=True):
             if not target_user or not new_pw or not confirm_pw:
-                st.error("Protocol Error: All fields required.")
+                st.error("Please fill all fields.")
             elif len(new_pw) < 8:
-                st.error("Validation Error: Minimum 8 characters.")
+                st.error("Password must be at least 8 characters.")
             elif new_pw != confirm_pw:
-                st.error("Mismatch: Passwords do not align.")
+                st.error("Passwords do not match.")
             else:
                 result = users_col.update_one(
                     {"username": {"$regex": f"^{target_user}$", "$options": "i"}},
                     {"$set": {"password": new_pw}}
                 )
                 if result.matched_count:
-                    st.success(f"Confirmed: Credentials updated for '{target_user}'.")
+                    st.success(f"Success: Password updated for '{target_user}'.")
                 else:
-                    st.error(f"Error: Profile '{target_user}' not synchronized.")
+                    st.error(f"Error: User '{target_user}' not found.")
     st.markdown('</div>', unsafe_allow_html=True)
 
 
