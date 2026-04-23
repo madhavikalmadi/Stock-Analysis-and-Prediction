@@ -428,7 +428,7 @@ with tab4:
     st.markdown('<div class="section-hdr">System Overview</div>', unsafe_allow_html=True)
 
     col_s1, col_s2 = st.columns(2)
-        with col_s1:
+    with col_s1:
         st.markdown("""
         <div class="panel-card">
             <div style="font-family:'DM Sans',sans-serif;font-size:0.75rem;color:#1e293b;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:20px;border-bottom:2px solid rgba(30,41,59,0.1);padding-bottom:8px;">Application Architecture</div>
