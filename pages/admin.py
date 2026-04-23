@@ -447,12 +447,12 @@ with tab4:
         <div class="panel-card">
             <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#0f172a;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Analytics Engine</div>
             <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.83rem;border-collapse:collapse;">
-                <tr><td style="color:#64748b;padding:12px 0;">✓ CAGR - Compounded Annual Growth</td></tr>
-                <tr><td style="color:#64748b;padding:12px 0;">✓ Sharpe Ratio - Risk-adjusted return</td></tr>
-                <tr><td style="color:#64748b;padding:12px 0;">✓ Sortino Ratio - Downside deviation</td></tr>
-                <tr><td style="color:#64748b;padding:12px 0;">✓ Max Drawdown - Peak-to-trough</td></tr>
-                <tr><td style="color:#64748b;padding:12px 0;">✓ Recovery Days - Drawdown recovery</td></tr>
-                <tr><td style="color:#64748b;padding:12px 0;">✓ Score Window - 10-year rolling</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">✓ CAGR - Compounded Annual Growth</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">✓ Sharpe Ratio - Risk-adjusted return</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">✓ Sortino Ratio - Downside deviation</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">✓ Max Drawdown - Peak-to-trough</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">✓ Recovery Days - Drawdown recovery</td></tr>
+                <tr><td style="color:#64748b;padding:5px 0;">✓ Score Window - 10-year rolling</td></tr>
             </table>
         </div>
         """, unsafe_allow_html=True)
