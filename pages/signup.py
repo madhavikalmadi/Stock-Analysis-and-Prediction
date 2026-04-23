@@ -198,7 +198,7 @@ Join 5,000+ investors making data-driven<br>decisions every day.
 <button class="si-btn" type="submit">Create Account →</button>
 </form>
 <div class="si-back">
-Already have an account? <a href="#" class="si-back-link" onclick="handleBack()">Sign in</a>
+Already have an account? <a href="/" target="_self" class="si-back-link">Sign in</a>
 </div>
 </div>
 </div>
