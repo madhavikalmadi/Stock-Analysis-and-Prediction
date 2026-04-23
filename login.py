@@ -2,211 +2,372 @@ import streamlit as st
 import auth_utils
 from mongo_db import users_col
 
-st.set_page_config(page_title="Smart Investor | Login", layout="wide", page_icon="📈")
+st.set_page_config(page_title="Smart Investor | Login", layout="centered", page_icon="📈")
 
 if st.session_state.get("is_admin"):
     st.switch_page("pages/admin.py")
 if st.session_state.get("authenticated"):
     st.switch_page("pages/dashboard.py")
 
+# ── Inject full-page CSS reset ──────────────────────────────────────
 st.markdown("""
 <style>
-    [data-testid="stAppViewContainer"] { background: #f0f4f8; }
-    [data-testid="stHeader"], [data-testid="stToolbar"], footer { display: none !important; }
-    .block-container { padding: 2rem 2rem 1rem !important; max-width: 1000px !important; }
-
-    /* ── Split card wrapper ── */
-    .login-shell {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        min-height: 600px;
-        border-radius: 22px;
-        overflow: hidden;
-        box-shadow: 0 24px 64px rgba(15,23,42,0.16);
-        max-width: 900px;
-        margin: 0 auto;
+    [data-testid="stAppViewContainer"] { background: #f0f4f8 !important; }
+    [data-testid="stHeader"], [data-testid="stToolbar"], footer,
+    [data-testid="stSidebarNav"], #MainMenu { display: none !important; }
+    .block-container {
+        padding: 2.5rem 1.5rem 2rem !important;
+        max-width: 960px !important;
     }
 
-    /* ── LEFT panel ── */
-    .panel-left {
+    /* ── Shell ── */
+    .si-shell {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 620px;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 24px 64px rgba(15,23,42,0.18);
+    }
+
+    /* ═══════════ LEFT PANEL ═══════════ */
+    .si-left {
         background: #0f172a;
         padding: 2.8rem 2.4rem;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
     }
-    .brand-row { display: flex; align-items: center; gap: 10px; }
-    .brand-badge {
-        width: 38px; height: 38px; background: #6366f1;
-        border-radius: 10px; display: flex; align-items: center;
-        justify-content: center; font-size: 18px;
-        flex-shrink: 0;
+    .si-brand { display: flex; align-items: center; gap: 11px; }
+    .si-badge {
+        width: 40px; height: 40px; background: #6366f1;
+        border-radius: 11px; display: flex; align-items: center;
+        justify-content: center; font-size: 20px; flex-shrink: 0;
     }
-    .brand-name { color: #f8fafc; font-size: 1.05rem; font-weight: 800; letter-spacing: -0.3px; }
+    .si-name { color: #f8fafc; font-size: 1.05rem; font-weight: 800; letter-spacing: -0.3px; }
 
-    .tagline { margin-top: 2.2rem; }
-    .tagline h2 {
-        color: #f8fafc; font-size: 1.6rem; font-weight: 800;
-        line-height: 1.3; letter-spacing: -0.5px;
+    .si-headline { margin-top: 2.4rem; }
+    .si-headline h2 {
+        color: #f8fafc; font-size: 1.6rem; font-weight: 900;
+        line-height: 1.28; letter-spacing: -0.6px; margin: 0;
     }
-    .tagline h2 em { color: #818cf8; font-style: normal; }
-    .tagline p { color: #64748b; font-size: 0.82rem; margin-top: 0.7rem; line-height: 1.65; }
+    .si-headline h2 em { color: #818cf8; font-style: normal; }
+    .si-headline p {
+        color: #64748b; font-size: 0.82rem;
+        margin-top: 0.75rem; line-height: 1.65;
+    }
 
-    .ticker-grid {
+    .si-tickers {
         display: grid; grid-template-columns: 1fr 1fr;
-        gap: 10px; margin-top: 2rem;
+        gap: 10px; margin-top: 2.2rem;
     }
-    .tk {
+    .si-tk {
         background: #1e293b; border-radius: 12px;
         padding: 0.9rem 1rem; border: 1px solid #334155;
     }
-    .tk-label { color: #475569; font-size: 0.63rem; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; }
-    .tk-val   { color: #f1f5f9; font-size: 1.15rem; font-weight: 800; margin: 4px 0 6px; }
-    .tk-up    { color: #10b981; background: rgba(16,185,129,0.12); font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; display: inline-block; }
-    .tk-dn    { color: #f87171; background: rgba(248,113,113,0.12); font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; display: inline-block; }
+    .si-tk-lbl {
+        color: #475569; font-size: 0.62rem; font-weight: 700;
+        letter-spacing: 0.7px; text-transform: uppercase;
+    }
+    .si-tk-val {
+        color: #f1f5f9; font-size: 1.15rem; font-weight: 800;
+        margin: 4px 0 6px; display: block;
+    }
+    .si-up {
+        color: #10b981; background: rgba(16,185,129,0.12);
+        font-size: 0.69rem; font-weight: 700;
+        padding: 2px 8px; border-radius: 20px; display: inline-block;
+    }
+    .si-dn {
+        color: #f87171; background: rgba(248,113,113,0.12);
+        font-size: 0.69rem; font-weight: 700;
+        padding: 2px 8px; border-radius: 20px; display: inline-block;
+    }
 
-    .left-footer { color: #334155; font-size: 0.7rem; line-height: 1.7; margin-top: 2rem; }
+    .si-left-foot {
+        color: #334155; font-size: 0.69rem; line-height: 1.7; margin-top: 2rem;
+    }
 
-    /* ── RIGHT panel ── */
-    .panel-right {
+    /* ═══════════ RIGHT PANEL ═══════════ */
+    .si-right {
         background: #ffffff;
         padding: 2.8rem 2.6rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
     }
-    .form-head { margin-bottom: 1.8rem; }
-    .form-head h3 { color: #0f172a; font-size: 1.4rem; font-weight: 800; letter-spacing: -0.4px; }
-    .form-head p  { color: #94a3b8; font-size: 0.8rem; margin-top: 0.3rem; }
+    .si-form-head { margin-bottom: 1.8rem; }
+    .si-form-head h3 {
+        color: #0f172a; font-size: 1.4rem; font-weight: 900;
+        letter-spacing: -0.5px; margin: 0;
+    }
+    .si-form-head p { color: #94a3b8; font-size: 0.8rem; margin-top: 0.3rem; }
 
-    /* ── Input labels ── */
-    div[data-testid="stTextInput"] label {
-        color: #64748b !important; font-size: 0.72rem !important;
-        font-weight: 700 !important; letter-spacing: 0.6px !important;
-        text-transform: uppercase !important;
+    /* inputs */
+    .si-field { margin-bottom: 1.1rem; }
+    .si-field label {
+        display: block; font-size: 0.71rem; font-weight: 700;
+        color: #64748b; letter-spacing: 0.6px; text-transform: uppercase;
+        margin-bottom: 0.38rem;
     }
-    div[data-testid="stTextInput"] input {
-        border: 1.5px solid #e2e8f0 !important;
-        border-radius: 10px !important; background: #f8fafc !important;
-        color: #0f172a !important; font-size: 0.92rem !important;
-        padding: 0.6rem 0.9rem !important;
+    .si-field input {
+        width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px;
+        background: #f8fafc; color: #0f172a; font-size: 0.9rem;
+        padding: 0.62rem 0.92rem; outline: none; font-family: inherit;
+        transition: border-color 0.18s, box-shadow 0.18s;
+        box-sizing: border-box;
     }
-    div[data-testid="stTextInput"] input:focus {
-        border-color: #6366f1 !important;
-        box-shadow: 0 0 0 3px rgba(99,102,241,0.12) !important;
-        background: #fff !important;
+    .si-field input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.13);
+        background: #fff;
     }
-    div[data-testid="stTextInput"] input::placeholder { color: #cbd5e1 !important; }
+    .si-field input::placeholder { color: #cbd5e1; }
 
-    /* ── Primary button ── */
-    div[data-testid="stButton"] > button:not([kind="secondary"]) {
-        background: #6366f1 !important;
-        color: #fff !important; border: none !important;
-        border-radius: 10px !important; font-weight: 700 !important;
-        font-size: 0.92rem !important; width: 100% !important;
-        padding: 0.68rem !important; letter-spacing: 0.2px !important;
-        box-shadow: 0 4px 14px rgba(99,102,241,0.35) !important;
-        transition: background 0.15s, transform 0.1s !important;
+    /* sign-in button */
+    .si-btn {
+        width: 100%; background: #6366f1; color: #fff;
+        border: none; border-radius: 10px; font-size: 0.92rem;
+        font-weight: 700; padding: 0.72rem; cursor: pointer;
+        margin-top: 0.5rem; letter-spacing: 0.2px;
+        font-family: inherit;
+        box-shadow: 0 4px 14px rgba(99,102,241,0.32);
+        transition: background 0.15s, transform 0.12s;
     }
-    div[data-testid="stButton"] > button:not([kind="secondary"]):hover {
-        background: #4f46e5 !important;
-        transform: translateY(-1px) !important;
-    }
+    .si-btn:hover { background: #4f46e5; transform: translateY(-1px); }
+    .si-btn:active { transform: scale(0.99); }
 
-    /* ── Secondary (admin) button ── */
-    div[data-testid="stButton"] > button[kind="secondary"] {
-        background: #fff !important; color: #64748b !important;
-        border: 1.5px solid #e2e8f0 !important;
-        border-radius: 10px !important; font-size: 0.82rem !important;
-        font-weight: 600 !important; width: 100% !important;
-        transition: border-color 0.15s, color 0.15s !important;
+    /* divider */
+    .si-divider {
+        display: flex; align-items: center; gap: 10px; margin: 1.25rem 0;
     }
-    div[data-testid="stButton"] > button[kind="secondary"]:hover {
-        border-color: #6366f1 !important; color: #6366f1 !important;
-        background: #f5f3ff !important;
+    .si-div-line { flex: 1; height: 1px; background: #e2e8f0; }
+    .si-div-txt  { color: #cbd5e1; font-size: 0.69rem; letter-spacing: 0.5px; white-space: nowrap; }
+
+    /* admin button */
+    .si-admin-btn {
+        width: 100%; background: #fff; color: #64748b;
+        border: 1.5px solid #e2e8f0; border-radius: 10px;
+        font-size: 0.82rem; font-weight: 600; padding: 0.6rem;
+        cursor: pointer; font-family: inherit;
+        transition: border-color 0.15s, color 0.15s, background 0.15s;
     }
+    .si-admin-btn:hover { border-color: #6366f1; color: #6366f1; background: #f5f3ff; }
 
-    /* ── Divider ── */
-    .or-divider { display: flex; align-items: center; gap: 10px; margin: 1.2rem 0; }
-    .or-line    { flex: 1; height: 1px; background: #e2e8f0; }
-    .or-text    { color: #cbd5e1; font-size: 0.7rem; letter-spacing: 0.5px; white-space: nowrap; }
-
-    /* ── Feature pills ── */
-    .feats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 1.5rem; }
-    .feat  {
+    /* feature pills */
+    .si-feats {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 8px; margin-top: 1.5rem;
+    }
+    .si-feat {
         background: #f8fafc; border: 1px solid #f1f5f9;
-        border-radius: 9px; padding: 0.6rem 0.8rem;
+        border-radius: 9px; padding: 0.62rem 0.8rem;
         display: flex; align-items: flex-start; gap: 8px;
     }
-    .feat-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
-    .feat-txt { color: #475569; font-size: 0.72rem; line-height: 1.4; }
-    .feat-txt b { color: #0f172a; font-size: 0.74rem; display: block; margin-bottom: 1px; }
+    .si-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+    .si-ft  { color: #475569; font-size: 0.72rem; line-height: 1.4; }
+    .si-ft b { color: #0f172a; font-size: 0.74rem; display: block; margin-bottom: 1px; font-weight: 700; }
 
-    /* ── Secure badge ── */
-    .secure {
-        display: flex; align-items: center; gap: 8px;
-        margin-top: 1.4rem; padding: 0.5rem 0.85rem;
+    /* secure badge */
+    .si-secure {
+        display: flex; align-items: center; gap: 7px;
+        margin-top: 1.35rem; padding: 0.5rem 0.85rem;
         background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 9px;
     }
-    .secure span { color: #15803d; font-size: 0.72rem; font-weight: 500; }
+    .si-secure span { color: #15803d; font-size: 0.71rem; font-weight: 500; }
 
-    /* ── Admin card ── */
-    .admin-section {
+    /* ── Streamlit widget overrides (inputs inside form) ── */
+    div[data-testid="stTextInput"] { display: none !important; }
+    div[data-testid="stButton"]    { display: none !important; }
+    div[data-testid="stAlert"]     { border-radius: 10px !important; }
+
+    /* ── Admin section ── */
+    .si-admin-card {
+        max-width: 960px; margin: 1.2rem auto 0;
         background: #fffbeb; border: 1px solid #fde68a;
-        border-radius: 14px; padding: 1.4rem 1.6rem; margin-top: 1rem;
-        max-width: 900px; margin-left: auto; margin-right: auto;
+        border-radius: 16px; padding: 1.5rem 1.8rem;
     }
-    .admin-title { color: #92400e; font-size: 0.95rem; font-weight: 700; margin-bottom: 0.8rem; }
-
-    /* ── Alerts ── */
-    div[data-testid="stAlert"] { border-radius: 10px !important; font-size: 0.84rem !important; }
+    .si-admin-card h4 { color: #92400e; font-size: 0.95rem; font-weight: 700; margin: 0 0 1rem; }
+    .si-admin-card .si-field input { background: #fff; }
+    .si-admin-row { display: flex; gap: 10px; margin-top: 0.8rem; }
+    .si-admin-row button { flex: 1; }
+    .si-admin-submit {
+        background: #d97706; color: #fff; border: none;
+        border-radius: 9px; font-size: 0.85rem; font-weight: 700;
+        padding: 0.6rem; cursor: pointer; font-family: inherit;
+    }
+    .si-admin-submit:hover { background: #b45309; }
+    .si-admin-cancel {
+        background: #fff; color: #64748b;
+        border: 1.5px solid #e2e8f0; border-radius: 9px;
+        font-size: 0.85rem; font-weight: 600; padding: 0.6rem;
+        cursor: pointer; font-family: inherit;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Two-column shell ────────────────────────────────
-st.markdown('<div class="login-shell">', unsafe_allow_html=True)
+# ── Determine what to show based on session state ──────────────────
+show_admin  = st.session_state.get("show_admin_login", False)
+login_error = st.session_state.get("login_error", "")
+login_ok    = st.session_state.get("login_ok", "")
 
-# LEFT
-st.markdown("""
-<div class="panel-left">
-  <div>
-    <div class="brand-row">
-      <div class="brand-badge">📈</div>
-      <span class="brand-name">Smart Investor</span>
+# ── Render the entire UI as one HTML block ─────────────────────────
+st.markdown(f"""
+<div class="si-shell">
+
+  <!-- LEFT -->
+  <div class="si-left">
+    <div>
+      <div class="si-brand">
+        <div class="si-badge">📈</div>
+        <span class="si-name">Smart Investor</span>
+      </div>
+      <div class="si-headline">
+        <h2>Trade smarter,<br>invest with <em>confidence</em></h2>
+        <p>Real-time NSE &amp; BSE analytics, risk-adjusted scoring, and your personalised watchlist — all in one place.</p>
+      </div>
+      <div class="si-tickers">
+        <div class="si-tk">
+          <div class="si-tk-lbl">Nifty 50</div>
+          <span class="si-tk-val">24,834</span>
+          <span class="si-up">▲ 1.2%</span>
+        </div>
+        <div class="si-tk">
+          <div class="si-tk-lbl">Sensex</div>
+          <span class="si-tk-val">81,562</span>
+          <span class="si-up">▲ 0.9%</span>
+        </div>
+        <div class="si-tk">
+          <div class="si-tk-lbl">Bank Nifty</div>
+          <span class="si-tk-val">52,140</span>
+          <span class="si-dn">▼ 0.3%</span>
+        </div>
+        <div class="si-tk">
+          <div class="si-tk-lbl">Nifty IT</div>
+          <span class="si-tk-val">38,710</span>
+          <span class="si-up">▲ 2.1%</span>
+        </div>
+      </div>
     </div>
-    <div class="tagline">
-      <h2>Trade smarter,<br>invest with <em>confidence</em></h2>
-      <p>Real-time NSE &amp; BSE analytics, risk-adjusted scoring, and your personalised watchlist — all in one place.</p>
-    </div>
-    <div class="ticker-grid">
-      <div class="tk"><div class="tk-label">Nifty 50</div><div class="tk-val">24,834</div><span class="tk-up">▲ 1.2%</span></div>
-      <div class="tk"><div class="tk-label">Sensex</div><div class="tk-val">81,562</div><span class="tk-up">▲ 0.9%</span></div>
-      <div class="tk"><div class="tk-label">Bank Nifty</div><div class="tk-val">52,140</div><span class="tk-dn">▼ 0.3%</span></div>
-      <div class="tk"><div class="tk-label">Nifty IT</div><div class="tk-val">38,710</div><span class="tk-up">▲ 2.1%</span></div>
+    <div class="si-left-foot">
+      Powered by Yahoo Finance · MongoDB · Streamlit<br>
+      Built for smarter, data-driven investing.
     </div>
   </div>
-  <div class="left-footer">Powered by Yahoo Finance · MongoDB · Streamlit<br>Built for smarter, data-driven investing.</div>
+
+  <!-- RIGHT (pure HTML form — posts to Streamlit via JS) -->
+  <div class="si-right">
+    <div class="si-form-head">
+      <h3>Welcome back</h3>
+      <p>Sign in to access your portfolio &amp; insights</p>
+    </div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="si-field">
+        <label>Email or Username</label>
+        <input type="text" id="loginUser" placeholder="you@example.com or username" autocomplete="username" required />
+      </div>
+      <div class="si-field">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" required />
+      </div>
+      <div id="loginMsg" style="font-size:0.82rem;margin:0.5rem 0;min-height:1.2rem;color:#ef4444"></div>
+      <button class="si-btn" type="submit">Sign In →</button>
+    </form>
+
+    <div class="si-divider">
+      <div class="si-div-line"></div>
+      <span class="si-div-txt">ADMIN ACCESS</span>
+      <div class="si-div-line"></div>
+    </div>
+    <button class="si-admin-btn" onclick="toggleAdmin()">⚙ Admin Login</button>
+
+    <div class="si-feats">
+      <div class="si-feat"><div class="si-dot" style="background:#6366f1"></div><div class="si-ft"><b>Live Analytics</b>Real-time NSE/BSE data</div></div>
+      <div class="si-feat"><div class="si-dot" style="background:#10b981"></div><div class="si-ft"><b>Risk Scoring</b>10-yr adjusted metrics</div></div>
+      <div class="si-feat"><div class="si-dot" style="background:#f59e0b"></div><div class="si-ft"><b>Watchlist</b>Saved across devices</div></div>
+      <div class="si-feat"><div class="si-dot" style="background:#ec4899"></div><div class="si-ft"><b>Sector Advisor</b>Category comparisons</div></div>
+    </div>
+
+    <div class="si-secure">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span>Secured with MongoDB authentication</span>
+    </div>
+  </div>
 </div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel" style="display:none;max-width:960px;margin:1.2rem auto 0;background:#fffbeb;border:1px solid #fde68a;border-radius:16px;padding:1.5rem 1.8rem;">
+  <h4 style="color:#92400e;font-size:0.95rem;font-weight:700;margin:0 0 1rem;">🛡 Admin Authentication</h4>
+  <form id="adminForm" onsubmit="handleAdmin(event)">
+    <div class="si-field">
+      <label>Admin Username</label>
+      <input type="text" id="adminUser" placeholder="admin" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.62rem 0.92rem;width:100%;font-size:0.9rem;outline:none;box-sizing:border-box;" />
+    </div>
+    <div class="si-field" style="margin-top:0.8rem;">
+      <label>Admin Password</label>
+      <input type="password" id="adminPass" placeholder="••••••••" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.62rem 0.92rem;width:100%;font-size:0.9rem;outline:none;box-sizing:border-box;" />
+    </div>
+    <div id="adminMsg" style="font-size:0.82rem;margin:0.5rem 0;min-height:1.2rem;color:#ef4444"></div>
+    <div style="display:flex;gap:10px;margin-top:0.6rem;">
+      <button type="submit" style="flex:1;background:#d97706;color:#fff;border:none;border-radius:9px;font-size:0.85rem;font-weight:700;padding:0.62rem;cursor:pointer;font-family:inherit;">Login as Admin</button>
+      <button type="button" onclick="toggleAdmin()" style="flex:1;background:#fff;color:#64748b;border:1.5px solid #e2e8f0;border-radius:9px;font-size:0.85rem;font-weight:600;padding:0.62rem;cursor:pointer;font-family:inherit;">⬅ Cancel</button>
+    </div>
+  </form>
+</div>
+
+<script>
+function toggleAdmin() {{
+  var p = document.getElementById('adminPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}}
+
+function handleLogin(e) {{
+  e.preventDefault();
+  var u = document.getElementById('loginUser').value.trim();
+  var p = document.getElementById('loginPass').value;
+  var msg = document.getElementById('loginMsg');
+  if (!u || !p) {{ msg.textContent = '⚠ Please fill in all fields.'; return; }}
+  msg.style.color = '#6366f1';
+  msg.textContent = 'Signing in…';
+  // Pass credentials to Streamlit via hidden inputs + form submit trick
+  var inp = document.createElement('input');
+  inp.type = 'hidden'; inp.id = '__si_user'; inp.value = u;
+  document.body.appendChild(inp);
+  var inp2 = document.createElement('input');
+  inp2.type = 'hidden'; inp2.id = '__si_pass'; inp2.value = p;
+  document.body.appendChild(inp2);
+  // Trigger streamlit rerun by setting query params
+  var url = new URL(window.location.href);
+  url.searchParams.set('__login_user', encodeURIComponent(u));
+  url.searchParams.set('__login_pass', encodeURIComponent(p));
+  window.location.href = url.toString();
+}}
+
+function handleAdmin(e) {{
+  e.preventDefault();
+  var u = document.getElementById('adminUser').value.trim();
+  var p = document.getElementById('adminPass').value;
+  var msg = document.getElementById('adminMsg');
+  var url = new URL(window.location.href);
+  url.searchParams.set('__admin_user', encodeURIComponent(u));
+  url.searchParams.set('__admin_pass', encodeURIComponent(p));
+  window.location.href = url.toString();
+}}
+</script>
 """, unsafe_allow_html=True)
 
-# RIGHT — rendered via Streamlit inside a styled div
-st.markdown("""
-<div class="panel-right">
-  <div class="form-head">
-    <h3>Welcome back</h3>
-    <p>Sign in to access your portfolio &amp; insights</p>
-  </div>
-""", unsafe_allow_html=True)
+# ── Handle query-param based login submissions ─────────────────────
+qp = st.query_params
 
-email_or_username = st.text_input("Email or Username", placeholder="you@example.com or username")
-password = st.text_input("Password", type="password", placeholder="••••••••")
+if "__login_user" in qp and "__login_pass" in qp:
+    from urllib.parse import unquote
+    email_or_username = unquote(qp["__login_user"])
+    password          = unquote(qp["__login_pass"])
+    # Clear params immediately
+    st.query_params.clear()
 
-st.markdown("<div style='height:0.4rem'></div>", unsafe_allow_html=True)
-
-if st.button("Sign In →", use_container_width=True):
-    if not email_or_username or not password:
-        st.error("⚠️ Please fill in all fields.")
-    elif auth_utils.login_user(email_or_username, password):
+    if auth_utils.login_user(email_or_username, password):
         user = users_col.find_one({
             "$or": [
                 {"username": {"$regex": f"^{email_or_username}$", "$options": "i"}},
@@ -227,54 +388,17 @@ if st.button("Sign In →", use_container_width=True):
     else:
         st.error("❌ Invalid credentials. Please try again.")
 
-st.markdown("""
-  <div class="or-divider">
-    <div class="or-line"></div><span class="or-text">ADMIN ACCESS</span><div class="or-line"></div>
-  </div>
-""", unsafe_allow_html=True)
+if "__admin_user" in qp and "__admin_pass" in qp:
+    from urllib.parse import unquote
+    admin_user = unquote(qp["__admin_user"])
+    admin_pass = unquote(qp["__admin_pass"])
+    st.query_params.clear()
 
-col1, col2, col3 = st.columns([1, 3, 1])
-with col2:
-    if st.button("⚙ Admin Login", type="secondary", use_container_width=True):
-        st.session_state.show_admin_login = not st.session_state.get("show_admin_login", False)
-
-st.markdown("""
-  <div class="feats">
-    <div class="feat"><div class="feat-dot" style="background:#6366f1"></div><div class="feat-txt"><b>Live Analytics</b>Real-time NSE/BSE data</div></div>
-    <div class="feat"><div class="feat-dot" style="background:#10b981"></div><div class="feat-txt"><b>Risk Scoring</b>10-yr adjusted metrics</div></div>
-    <div class="feat"><div class="feat-dot" style="background:#f59e0b"></div><div class="feat-txt"><b>Watchlist</b>Saved across devices</div></div>
-    <div class="feat"><div class="feat-dot" style="background:#ec4899"></div><div class="feat-txt"><b>Sector Advisor</b>Category comparisons</div></div>
-  </div>
-  <div class="secure">
-    <span>🔒 Secured with MongoDB authentication</span>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)  # close .login-shell
-
-# ── Admin Section ───────────────────────────────────
-if st.session_state.get("show_admin_login"):
-    st.markdown('<div class="admin-section">', unsafe_allow_html=True)
-    st.markdown('<p class="admin-title">🛡 Admin Authentication</p>', unsafe_allow_html=True)
-
-    admin_user = st.text_input("Admin Username", placeholder="admin", key="admin_user_input")
-    admin_pass = st.text_input("Admin Password", type="password", placeholder="••••••••", key="admin_pass_input")
-
-    col_a, col_b = st.columns(2)
-    with col_a:
-        if st.button("Login as Admin", use_container_width=True):
-            if admin_user == "admin" and admin_pass == "aprilfool1203":
-                st.session_state.is_admin         = True
-                st.session_state.authenticated    = False
-                st.session_state.show_admin_login = False
-                st.success("✅ Admin login successful")
-                st.switch_page("pages/admin.py")
-            else:
-                st.error("Invalid admin credentials.")
-    with col_b:
-        if st.button("⬅ Cancel", type="secondary", use_container_width=True):
-            st.session_state.show_admin_login = False
-            st.rerun()
-
-    st.markdown('</div>', unsafe_allow_html=True)
+    if admin_user == "admin" and admin_pass == "aprilfool1203":
+        st.session_state.is_admin         = True
+        st.session_state.authenticated    = False
+        st.session_state.show_admin_login = False
+        st.success("✅ Admin login successful")
+        st.switch_page("pages/admin.py")
+    else:
+        st.error("❌ Invalid admin credentials.")
