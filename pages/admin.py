@@ -365,7 +365,7 @@ with tab1:
 with tab3:
     st.markdown('<div class="section-hdr">Reset User Password</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="panel-card">', unsafe_allow_html=True)
+
     col_r1, col_r2 = st.columns(2)
     with col_r1:
         target_user = st.text_input("Username to Reset", placeholder="Enter exact username", key="rp_user")
@@ -390,7 +390,7 @@ with tab3:
                 st.success(f"Password reset for '{target_user}'.")
             else:
                 st.error(f"User '{target_user}' not found.")
-    st.markdown('</div>', unsafe_allow_html=True)
+
 
 # ─────────────────────────────
 # TAB 4: SYSTEM INFO
