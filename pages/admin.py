@@ -363,52 +363,46 @@ with tab1:
 # TAB 3: RESET PASSWORD
 # ─────────────────────────────
 with tab3:
+    st.markdown('<div class="panel-card">', unsafe_allow_html=True)
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 20px; padding: 2rem; margin-bottom: 2.5rem; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
-        <div style="display:flex; align-items:center; gap:20px;">
-            <div style="width:64px; height:64px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:2.2rem;">🛡️</div>
-            <div>
-                <div style="font-family:'DM Serif Display',serif; font-size:1.8rem; color:#ffffff; line-height:1.1;">Account Security Module</div>
-                <div style="font-family:'DM Sans',sans-serif; font-size:0.9rem; color:#94a3b8; font-weight:500; margin-top:4px;">Secure administrative vault for credential management and cryptographic overrides.</div>
-            </div>
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+            <div style="font-size:1.5rem;">🛡️</div>
+            <div style="font-family:'DM Sans', sans-serif; font-size:1.1rem; font-weight:700; color:#0f172a;">Account Security</div>
         </div>
-    </div>
     """, unsafe_allow_html=True)
 
-    col_r1, col_r2 = st.columns([1.1, 2])
+    col_r1, col_r2 = st.columns([1, 1.2])
     with col_r1:
-        st.markdown('<div class="section-hdr" style="font-size:0.68rem; color:#64748b; margin-bottom:1.5rem; opacity:0.8;">Target Synchronization</div>', unsafe_allow_html=True)
-        target_user = st.text_input("IDENTIFY USERNAME", placeholder="Enter exact username...", key="rp_user")
-        st.markdown("<p style='font-family:DM Sans; font-size:0.75rem; color:#94a3b8; margin-top:10px;'>Verify identity before proceeding with the override sequence.</p>", unsafe_allow_html=True)
-
+        target_user = st.text_input("Username", placeholder="Enter username", key="rp_user")
     with col_r2:
-        st.markdown('<div class="section-hdr" style="font-size:0.68rem; color:#64748b; margin-bottom:1.5rem; opacity:0.8;">Credential Protocol</div>', unsafe_allow_html=True)
-        col_p1, col_p2 = st.columns(2)
-        with col_p1:
-            new_pw = st.text_input("NEW SECURITY TOKEN", type="password", placeholder="Min 8 chars", key="rp_newpw")
-        with col_p2:
-            confirm_pw = st.text_input("VERIFY TOKEN", type="password", placeholder="Repeat token", key="rp_confirmpw")
-        
-        st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-        
-        if st.button("🚀 EXECUTE SECURITY OVERRIDE", key="reset_pw_btn", use_container_width=True):
+        cp1, cp2 = st.columns(2)
+        with cp1:
+            new_pw = st.text_input("New Password", type="password", placeholder="••••••••", key="rp_newpw")
+        with cp2:
+            confirm_pw = st.text_input("Confirm Password", type="password", placeholder="••••••••", key="rp_confirmpw")
+
+    st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
+    
+    # Center the action button
+    _, btn_center, _ = st.columns([1, 0.6, 1])
+    with btn_center:
+        if st.button("Reset Password", key="reset_pw_btn", use_container_width=True):
             if not target_user or not new_pw or not confirm_pw:
-                st.error("Protocol Error: Missing required identifiers.")
+                st.error("Please fill all fields.")
             elif len(new_pw) < 8:
-                st.error("Validation Error: Token length below threshold.")
+                st.error("Password must be at least 8 characters.")
             elif new_pw != confirm_pw:
-                st.error("Mismatch: Verification token does not synchronize.")
+                st.error("Passwords do not match.")
             else:
                 result = users_col.update_one(
                     {"username": {"$regex": f"^{target_user}$", "$options": "i"}},
                     {"$set": {"password": new_pw}}
                 )
                 if result.matched_count:
-                    st.success(f"Sequence Complete: Credentials synchronized for '{target_user}'.")
+                    st.success(f"Success: Password updated for '{target_user}'.")
                 else:
-                    st.error(f"Resolution Failed: Identity '{target_user}' not found.")
-    
-    # End of Tab 3 security protocol area
+                    st.error(f"Error: User '{target_user}' not found.")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ─────────────────────────────
