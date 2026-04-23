@@ -362,17 +362,22 @@ with tab1:
 # TAB 3: RESET PASSWORD
 # ─────────────────────────────
 with tab3:
-    st.markdown('<div class="panel-card">', unsafe_allow_html=True)
     st.markdown("""
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-            <div style="font-size:1.5rem;">🛡️</div>
-            <div style="font-family:'DM Sans', sans-serif; font-size:1.1rem; font-weight:700; color:#0f172a;">Account Security</div>
+    <div style="background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 16px 16px 0 0; padding: 1.8rem 2.2rem; border: 1px solid rgba(255,255,255,0.05); border-bottom: none;">
+        <div style="display:flex; align-items:center; gap:15px;">
+            <div style="width:48px; height:48px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🛡️</div>
+            <div>
+                <div style="font-family:'DM Serif Display', serif; font-size:1.4rem; color:#ffffff; line-height:1.1;">Account Security</div>
+                <div style="font-family:'DM Sans', sans-serif; font-size:0.8rem; color:#94a3b8; margin-top:4px;">Secure administrative control for credential overrides.</div>
+            </div>
         </div>
+    </div>
+    <div class="panel-card" style="border-top:none; border-radius: 0 0 16px 16px; padding-top:2rem;">
     """, unsafe_allow_html=True)
 
     col_r1, col_r2 = st.columns([1, 1.2])
     with col_r1:
-        target_user = st.text_input("Username", placeholder="Enter username", key="rp_user")
+        target_user = st.text_input("Username", placeholder="e.g. admin_user", key="rp_user")
     with col_r2:
         cp1, cp2 = st.columns(2)
         with cp1:
@@ -386,19 +391,16 @@ with tab3:
     st.markdown('<div class="reset-btn-marker"></div>', unsafe_allow_html=True)
     st.markdown("""
     <style>
-    /* Target the button following the marker */
     .reset-btn-marker + div .stButton > button {
-        background: #2563eb !important;
+        background: #1e293b !important;
         color: #ffffff !important;
-        border: none !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
         padding: 0.6rem 2.5rem !important;
-        font-weight: 600 !important;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
-        transition: all 0.2s ease !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
     }
     .reset-btn-marker + div .stButton > button:hover {
-        background: #1d4ed8 !important;
-        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3) !important;
+        background: #334155 !important;
         transform: translateY(-1px) !important;
     }
     </style>
