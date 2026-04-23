@@ -154,6 +154,15 @@ st.markdown("""
     }
     .si-admin-btn:hover { border-color: #6366f1; color: #6366f1; background: #f5f3ff; }
 
+    /* signup link */
+    .si-signup-wrap {
+        text-align: center; margin-top: 1.15rem; font-size: 0.85rem; color: #64748b;
+    }
+    .si-signup-link {
+        color: #6366f1; font-weight: 700; cursor: pointer; text-decoration: none; margin-left: 4px;
+    }
+    .si-signup-link:hover { text-decoration: underline; }
+
     /* ── Streamlit widget overrides (inputs inside form) ── */
     div[data-testid="stTextInput"] { display: none !important; }
     div[data-testid="stButton"]    { display: none !important; }
@@ -241,6 +250,9 @@ Built for smarter, data-driven investing.
 </div>
 <div id="loginMsg" style="font-size:0.82rem;margin:0.5rem 0;min-height:1.2rem;color:#ef4444"></div>
 <button class="si-btn" type="submit">Sign In →</button>
+<div class="si-signup-wrap">
+  Don't have an account? <a href="#" class="si-signup-link" onclick="handleSignup()">Create one</a>
+</div>
 </form>
 <div class="si-divider">
 <div class="si-div-line"></div>
@@ -294,6 +306,11 @@ var url = new URL(window.location.href);
 url.searchParams.set('__admin_user', encodeURIComponent(u));
 url.searchParams.set('__admin_pass', encodeURIComponent(p));
 window.location.href = url.toString();
+}
+function handleSignup() {
+const url = new URL(window.location.origin + window.location.pathname);
+// Streamlit handles /signup by looking for pages/signup.py
+window.location.href = window.location.origin + '/signup';
 }
 </script>
 """
