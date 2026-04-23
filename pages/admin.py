@@ -1,240 +1,672 @@
 import streamlit as st
-import pandas as pd
-import sys
-import os
-from bson import ObjectId
-
-# --------------------------------------------------
-# PATH SETUP
-# --------------------------------------------------
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from mongo_db import users_col, watchlist_col, actions_col
+from datetime import datetime, timezone
+import pandas as pd
 
-st.set_page_config(page_title="Admin Dashboard", layout="wide")
-# =====================================================
-# BACK TO LOGIN BUTTON
-# =====================================================
-col1, col2 = st.columns([8, 2])
-
-with col2:
-    if st.button("⬅ Back to Login"):
-        st.session_state.clear()
-        st.switch_page("login.py")
-
-# Admin auth check removed by user request
-# if not st.session_state.get("is_admin"):
-#     st.error("Admin access only")
-#     st.stop()
+st.set_page_config(page_title="Smart Investor | Admin", layout="wide", page_icon="⚙️")
 
 # =====================================================
-# CUSTOM CSS FOR STUNNING UI
+# AUTH GUARD
+# =====================================================
+if not st.session_state.get("is_admin"):
+    st.switch_page("login.py")
+
+# =====================================================
+# STYLES
 # =====================================================
 st.markdown("""
 <style>
-    /* Sleek gradient background for the main title */
-    .admin-title {
-        background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-        margin-bottom: 0px;
-    }
-    
-    /* Premium Metric Cards */
-    div[data-testid="metric-container"] {
-        background-color: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    div[data-testid="metric-container"]:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        border-color: rgba(255, 255, 255, 0.3);
-    }
-    
-    /* Make metric labels bolder and lighter */
-    div[data-testid="metric-container"] > div {
-        font-weight: 600 !important;
-        color: #8892b0 !important;
-    }
-    
-    /* Make metric values pop */
-    div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
-        font-weight: 800 !important;
-        color: #e6f1ff !important;
-        font-size: 2.5rem !important;
-    }
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+* { box-sizing: border-box; }
+
+[data-testid="stAppViewContainer"] {
+    background: #07080f;
+}
+[data-testid="stHeader"] { background: transparent !important; }
+
+/* ── Sidebar ── */
+[data-testid="stSidebar"] {
+    background: #0c0e1a !important;
+    border-right: 1px solid rgba(255,255,255,0.05) !important;
+}
+[data-testid="stSidebar"] * {
+    font-family: 'DM Sans', sans-serif !important;
+}
+
+/* ── Main area ── */
+.block-container { padding: 2rem 2.5rem !important; max-width: 1400px !important; }
+
+/* ── Top bar ── */
+.admin-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0 1.8rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 2rem;
+}
+.admin-brand {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.6rem;
+    color: #f0c040;
+}
+.admin-brand span {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    color: #3a5568;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: block;
+    margin-top: -2px;
+}
+.admin-badge {
+    background: rgba(240,192,64,0.1);
+    border: 1px solid rgba(240,192,64,0.25);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: #f0c040;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* ── Stat cards ── */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 2rem;
+}
+.stat-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 1.2rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: rgba(240,192,64,0.2); }
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent, #f0c040);
+    opacity: 0.6;
+}
+.stat-icon {
+    font-size: 1.4rem;
+    margin-bottom: 0.6rem;
+}
+.stat-value {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 2rem;
+    color: #e0eaf8;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.stat-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: #3a5568;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 500;
+}
+.stat-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    margin-top: 6px;
+    font-weight: 500;
+}
+.stat-up { color: #34c759; }
+.stat-dn { color: #ff6b6b; }
+
+/* ── Section headers ── */
+.section-hdr {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #f0c040;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(240,192,64,0.1);
+    margin-bottom: 1.2rem;
+}
+
+/* ── Table override ── */
+.stDataFrame, [data-testid="stDataFrame"] {
+    background: rgba(255,255,255,0.02) !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255,255,255,0.07) !important;
+    overflow: hidden !important;
+}
+[data-testid="stDataFrame"] * {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.85rem !important;
+    color: #c0d4e8 !important;
+}
+[data-testid="stDataFrame"] th {
+    background: rgba(240,192,64,0.06) !important;
+    color: #f0c040 !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+}
+
+/* ── Panel card ── */
+.panel-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 1.2rem;
+}
+
+/* ── Buttons ── */
+.stButton > button:first-child {
+    background: linear-gradient(135deg, #f0c040, #e8a820) !important;
+    color: #0a0e1a !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.87rem !important;
+    font-weight: 600 !important;
+    padding: 0.5rem 1.2rem !important;
+    transition: all 0.2s !important;
+    box-shadow: 0 3px 12px rgba(240,192,64,0.2) !important;
+}
+.stButton > button:first-child:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 5px 16px rgba(240,192,64,0.3) !important;
+}
+.stButton > button[kind="secondary"] {
+    background: rgba(255,59,48,0.08) !important;
+    color: #ff6b6b !important;
+    border: 1px solid rgba(255,59,48,0.2) !important;
+    border-radius: 8px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.85rem !important;
+}
+.stButton > button[kind="secondary"]:hover {
+    background: rgba(255,59,48,0.16) !important;
+}
+
+/* ── Inputs ── */
+.stTextInput > div > div > input,
+.stSelectbox > div > div {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 8px !important;
+    color: #d0e4f8 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.88rem !important;
+}
+.stTextInput > div > div > input:focus {
+    border-color: #f0c040 !important;
+    box-shadow: 0 0 0 3px rgba(240,192,64,0.1) !important;
+}
+.stTextInput > label, .stSelectbox > label {
+    color: #6080a0 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+}
+
+/* ── Alerts ── */
+.stSuccess > div {
+    background: rgba(52,199,89,0.1) !important;
+    border: 1px solid rgba(52,199,89,0.2) !important;
+    border-radius: 8px !important;
+    color: #34c759 !important;
+    font-family: 'DM Sans', sans-serif !important;
+}
+.stError > div {
+    background: rgba(255,59,48,0.1) !important;
+    border: 1px solid rgba(255,59,48,0.2) !important;
+    border-radius: 8px !important;
+    color: #ff6b6b !important;
+    font-family: 'DM Sans', sans-serif !important;
+}
+.stWarning > div {
+    background: rgba(255,159,10,0.1) !important;
+    border: 1px solid rgba(255,159,10,0.2) !important;
+    border-radius: 8px !important;
+    color: #ff9f0a !important;
+    font-family: 'DM Sans', sans-serif !important;
+}
+.stInfo > div {
+    background: rgba(10,132,255,0.1) !important;
+    border: 1px solid rgba(10,132,255,0.2) !important;
+    border-radius: 8px !important;
+    color: #64b5f6 !important;
+    font-family: 'DM Sans', sans-serif !important;
+}
+
+/* ── Tabs ── */
+.stTabs [data-baseweb="tab-list"] {
+    background: rgba(255,255,255,0.03) !important;
+    border-radius: 10px !important;
+    padding: 4px !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    gap: 4px !important;
+}
+.stTabs [data-baseweb="tab"] {
+    background: transparent !important;
+    color: #4a6680 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    border-radius: 7px !important;
+    border: none !important;
+    padding: 0.4rem 1rem !important;
+}
+.stTabs [aria-selected="true"] {
+    background: rgba(240,192,64,0.15) !important;
+    color: #f0c040 !important;
+}
+
+/* ── Search / filter ── */
+.filter-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    margin-bottom: 1rem;
+}
+
+/* ── User row card ── */
+.user-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 0.8rem 1.2rem;
+    margin-bottom: 8px;
+    transition: border-color 0.2s;
+}
+.user-row:hover { border-color: rgba(240,192,64,0.15); }
+.user-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a2a4a, #2a3a5a);
+    border: 1.5px solid rgba(240,192,64,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #f0c040;
+    flex-shrink: 0;
+    margin-right: 12px;
+}
+.user-info { flex: 1; }
+.user-name {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #d0e4f8;
+}
+.user-meta {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.74rem;
+    color: #3a5568;
+    margin-top: 2px;
+}
+.user-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: #2a4060;
+}
+
+/* ── Activity log ── */
+.log-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.log-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #f0c040;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+.log-text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    color: #5a7090;
+    line-height: 1.4;
+}
+.log-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: #2a3848;
+    margin-top: 2px;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(240,192,64,0.15); border-radius: 4px; }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<h1 class="admin-title">🛠 Admin Dashboard</h1>', unsafe_allow_html=True)
-st.markdown("Monitor user engagement, manage registered accounts, and track platform activity in real-time.")
-st.divider()
+# =====================================================
+# TOP BAR
+# =====================================================
+st.markdown("""
+<div class="admin-topbar">
+    <div class="admin-brand">
+        ⚙ Admin Console
+        <span>Smart Investor · Restricted Access</span>
+    </div>
+    <div class="admin-badge">● Live</div>
+</div>
+""", unsafe_allow_html=True)
 
 # =====================================================
-# DATA FETCHING
+# FETCH DATA
 # =====================================================
-users = list(users_col.find({}, {"username": 1, "email": 1, "mobile": 1, "password": 1}))
+@st.cache_data(ttl=60)
+def get_stats():
+    try:
+        total_users = users_col.count_documents({})
+        watchlist_entries = watchlist_col.count_documents({}) if watchlist_col else 0
+        action_count = actions_col.count_documents({}) if actions_col else 0
+        return total_users, watchlist_entries, action_count
+    except:
+        return 0, 0, 0
 
-watchlist_pipeline = [
-    {
-        "$addFields": {
-            "user_obj_id": { "$toObjectId": "$user_id" }
-        }
-    },
-    {
-        "$lookup": {
-            "from": "users",
-            "localField": "user_obj_id",
-            "foreignField": "_id",
-            "as": "user"
-        }
-    },
-    { "$unwind": "$user" },
-    {
-        "$project": {
-            "_id": 0,
-            "username": "$user.username",
-            "ticker": 1
-        }
-    }
-]
-watchlist_data = list(watchlist_col.aggregate(watchlist_pipeline))
+@st.cache_data(ttl=30)
+def get_all_users():
+    try:
+        users = list(users_col.find({}, {"_id": 1, "username": 1, "email": 1, "mobile": 1, "password": 1}))
+        return users
+    except:
+        return []
 
-activity_pipeline = [
-    {
-        "$addFields": {
-            "user_obj_id": { "$toObjectId": "$user_id" }
-        }
-    },
-    {
-        "$lookup": {
-            "from": "users",
-            "localField": "user_obj_id",
-            "foreignField": "_id",
-            "as": "user"
-        }
-    },
-    { "$unwind": "$user" },
-    {
-        "$project": {
-            "_id": 0,
-            "username": "$user.username",
-            "action": 1,
-            "value": 1
-        }
-    }
-]
-activity_data = list(actions_col.aggregate(activity_pipeline))
+total_users, watchlist_entries, action_count = get_stats()
+all_users = get_all_users()
 
 # =====================================================
-# KEY METRICS
+# STAT CARDS
 # =====================================================
-col_m1, col_m2, col_m3 = st.columns(3)
-with col_m1:
-    st.metric(label="👥 Total Registered Users", value=len(users))
-with col_m2:
-    st.metric(label="⭐ Total Watchlist Items", value=len(watchlist_data))
-with col_m3:
-    st.metric(label="📈 Total Activities Logged", value=len(activity_data))
-
-st.write("") # Spacer
-st.write("") # Spacer
+st.markdown(f"""
+<div class="stat-grid">
+    <div class="stat-card" style="--accent:#f0c040;">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">{total_users}</div>
+        <div class="stat-label">Total Users</div>
+        <div class="stat-sub stat-up">Registered accounts</div>
+    </div>
+    <div class="stat-card" style="--accent:#34c759;">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value">{watchlist_entries}</div>
+        <div class="stat-label">Watchlist Entries</div>
+        <div class="stat-sub stat-up">Across all users</div>
+    </div>
+    <div class="stat-card" style="--accent:#0a84ff;">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-value">{action_count}</div>
+        <div class="stat-label">User Actions</div>
+        <div class="stat-sub" style="color:#4a7090;">Logged interactions</div>
+    </div>
+    <div class="stat-card" style="--accent:#bf5af2;">
+        <div class="stat-icon">🏦</div>
+        <div class="stat-value">NSE</div>
+        <div class="stat-label">Primary Exchange</div>
+        <div class="stat-sub" style="color:#4a5070;">NIFTYBEES benchmark</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # =====================================================
-# TABS FOR DATA
+# MAIN TABS
 # =====================================================
-tab1, tab2, tab3 = st.tabs(["👥 Registered Users", "⭐ Watchlists", "📈 User Activity"])
+tab1, tab2, tab3, tab4 = st.tabs(["👥  User Management", "➕  Add User", "🔑  Reset Password", "📋  System Info"])
 
+# ─────────────────────────────
+# TAB 1: USER MANAGEMENT
+# ─────────────────────────────
 with tab1:
-    st.subheader("Registered Users Directory")
-    
-    def format_password(pwd):
-        if isinstance(pwd, (list, tuple)):
-            try:
-                return "".join(chr(int(i)) for i in pwd)
-            except:
-                return str(pwd)
-        if isinstance(pwd, bytes):
-            return pwd.decode('utf-8', errors='ignore')
-        return str(pwd)
+    st.markdown('<div class="section-hdr">All Registered Users</div>', unsafe_allow_html=True)
 
-    if users:
-        # Search Filter
-        search_user = st.text_input("🔍 Search Users (by Username or Email)", key="search_user").lower()
-        
-        df_users = pd.DataFrame([
-            {
-                "User ID": str(u["_id"]), 
-                "Username": u["username"],
-                "Email": u.get("email", "N/A"),
-                "Mobile": u.get("mobile", "N/A"),
-                "Password": format_password(u.get("password", "****"))
-            }
-            for u in users
-        ])
-        
-        # Apply filter
-        if search_user:
-            df_users = df_users[
-                df_users["Username"].str.lower().str.contains(search_user) | 
-                df_users["Email"].str.lower().str.contains(search_user)
-            ]
-            
-        st.dataframe(
-            df_users,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "Password": st.column_config.TextColumn(
-                    "Password",
-                    help="Passwords starting with $2b$ are securely encrypted (hashed) and cannot be decrypted.",
-                    width="medium"
-                ),
-                "Email": st.column_config.TextColumn("Email", width="medium"),
-            }
-        )
+    col_search, col_sort = st.columns([3, 1])
+    with col_search:
+        search_q = st.text_input("Search users", placeholder="Search by username or email…", key="search_users",
+                                  label_visibility="collapsed")
+    with col_sort:
+        sort_by = st.selectbox("Sort", ["Username A–Z", "Username Z–A", "Email"], label_visibility="collapsed")
+
+    if all_users:
+        filtered = all_users
+        if search_q:
+            sq = search_q.lower()
+            filtered = [u for u in filtered if sq in u.get("username","").lower() or sq in u.get("email","").lower()]
+
+        if sort_by == "Username A–Z":
+            filtered = sorted(filtered, key=lambda u: u.get("username","").lower())
+        elif sort_by == "Username Z–A":
+            filtered = sorted(filtered, key=lambda u: u.get("username","").lower(), reverse=True)
+        elif sort_by == "Email":
+            filtered = sorted(filtered, key=lambda u: u.get("email","").lower())
+
+        st.markdown(f"<div style='font-family:DM Sans,sans-serif;font-size:0.78rem;color:#3a5568;margin-bottom:12px;'>Showing {len(filtered)} of {len(all_users)} users</div>", unsafe_allow_html=True)
+
+        # Render user rows
+        for user in filtered:
+            uid = str(user.get("_id", ""))
+            uname = user.get("username", "—")
+            uemail = user.get("email", "—")
+            umobile = user.get("mobile", "—")
+            upass = user.get("password", "—")
+            avatar_letter = uname[0].upper() if uname else "?"
+
+            col_info, col_actions = st.columns([4, 1])
+            with col_info:
+                st.markdown(f"""
+                <div class="user-row">
+                    <div class="user-avatar">{avatar_letter}</div>
+                    <div class="user-info">
+                        <div class="user-name">{uname}</div>
+                        <div class="user-meta">✉ {uemail} &nbsp;·&nbsp; 📱 {umobile}</div>
+                        <div class="user-mono">ID: {uid[:24]}…</div>
+                    </div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#2a4868;background:rgba(240,192,64,0.06);padding:4px 10px;border-radius:6px;border:1px solid rgba(240,192,64,0.1);">
+                        pw: {upass[:16]}{'…' if len(upass) > 16 else ''}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            with col_actions:
+                if st.button("🗑 Delete", key=f"del_{uid}", type="secondary"):
+                    st.session_state[f"confirm_del_{uid}"] = True
+
+            if st.session_state.get(f"confirm_del_{uid}"):
+                st.warning(f"⚠ Delete **{uname}**? This cannot be undone.")
+                c1, c2 = st.columns(2)
+                with c1:
+                    if st.button("✓ Confirm Delete", key=f"confirm_yes_{uid}"):
+                        users_col.delete_one({"_id": user["_id"]})
+                        st.success(f"User '{uname}' deleted.")
+                        st.session_state.pop(f"confirm_del_{uid}", None)
+                        st.cache_data.clear()
+                        st.rerun()
+                with c2:
+                    if st.button("✗ Cancel", key=f"confirm_no_{uid}"):
+                        st.session_state.pop(f"confirm_del_{uid}", None)
+                        st.rerun()
+
+        # Downloadable CSV
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+        if filtered:
+            df = pd.DataFrame([{
+                "Username": u.get("username",""),
+                "Email": u.get("email",""),
+                "Mobile": u.get("mobile",""),
+                "ID": str(u.get("_id",""))
+            } for u in filtered])
+            csv = df.to_csv(index=False)
+            st.download_button("⬇ Export CSV", csv, "users.csv", "text/csv", use_container_width=False)
     else:
-        st.info("No registered users found in the database.")
+        st.info("No users found in the database.")
 
+# ─────────────────────────────
+# TAB 2: ADD USER
+# ─────────────────────────────
 with tab2:
-    st.subheader("User Watchlist Preferences")
-    if watchlist_data:
-        # Search Filter
-        col_w1, col_w2 = st.columns(2)
-        with col_w1:
-            search_ticker = st.text_input("🔍 Filter by Ticker", key="search_ticker").upper()
-        with col_w2:
-            search_watch_user = st.text_input("👤 Filter by Username", key="search_w_user").lower()
-            
-        df_watch = pd.DataFrame(watchlist_data)
-        
-        # Apply filters
-        if search_ticker:
-            df_watch = df_watch[df_watch["ticker"].str.contains(search_ticker)]
-        if search_watch_user:
-            df_watch = df_watch[df_watch["username"].str.lower().str.contains(search_watch_user)]
-            
-        st.dataframe(df_watch, use_container_width=True, hide_index=True)
-    else:
-        st.info("No watchlist data has been saved by any users yet.")
+    st.markdown('<div class="section-hdr">Create New User Account</div>', unsafe_allow_html=True)
 
+    st.markdown('<div class="panel-card">', unsafe_allow_html=True)
+    col_a, col_b = st.columns(2)
+    with col_a:
+        new_username = st.text_input("Username", placeholder="e.g. investor_raj", key="au_user")
+        new_email    = st.text_input("Email Address", placeholder="raj@example.com", key="au_email")
+    with col_b:
+        new_mobile   = st.text_input("Mobile Number", placeholder="9876543210", key="au_mobile")
+        new_password = st.text_input("Password", type="password", placeholder="Min. 8 characters", key="au_pw")
+
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    if st.button("Create Account", key="add_user_btn", use_container_width=False):
+        if not all([new_username, new_email, new_mobile, new_password]):
+            st.error("All fields are required.")
+        elif len(new_password) < 8:
+            st.error("Password must be at least 8 characters.")
+        else:
+            import auth_utils
+            result = auth_utils.signup_user(new_username, new_password, new_email, new_mobile)
+            if result:
+                st.success(f"✓ Account created for '{new_username}' successfully.")
+                st.cache_data.clear()
+            else:
+                st.error("Username already exists. Choose a different one.")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ─────────────────────────────
+# TAB 3: RESET PASSWORD
+# ─────────────────────────────
 with tab3:
-    st.subheader("Recent User Interactions")
-    if activity_data:
-        df_activity = pd.DataFrame(activity_data)
-        
-        # Search Tool
-        search_act_user = st.text_input("👤 Search by Username", key="search_act_user").lower()
-            
-        # Apply filters
-        if search_act_user:
-            df_activity = df_activity[df_activity["username"].str.lower().str.contains(search_act_user)]
-            
-        st.dataframe(df_activity, use_container_width=True, hide_index=True)
-    else:
-        st.info("No user activity logs have been recorded yet.")
+    st.markdown('<div class="section-hdr">Reset User Password</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="panel-card">', unsafe_allow_html=True)
+    col_r1, col_r2 = st.columns(2)
+    with col_r1:
+        target_user = st.text_input("Username to Reset", placeholder="Enter exact username", key="rp_user")
+    with col_r2:
+        new_pw      = st.text_input("New Password", type="password", placeholder="Min. 8 characters", key="rp_newpw")
+        confirm_pw  = st.text_input("Confirm New Password", type="password", placeholder="Repeat password", key="rp_confirmpw")
+
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    if st.button("Reset Password", key="reset_pw_btn"):
+        if not target_user or not new_pw or not confirm_pw:
+            st.error("All fields are required.")
+        elif len(new_pw) < 8:
+            st.error("Password must be at least 8 characters.")
+        elif new_pw != confirm_pw:
+            st.error("Passwords do not match.")
+        else:
+            result = users_col.update_one(
+                {"username": {"$regex": f"^{target_user}$", "$options": "i"}},
+                {"$set": {"password": new_pw}}
+            )
+            if result.matched_count:
+                st.success(f"✓ Password reset for '{target_user}'.")
+            else:
+                st.error(f"User '{target_user}' not found.")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ─────────────────────────────
+# TAB 4: SYSTEM INFO
+# ─────────────────────────────
+with tab4:
+    st.markdown('<div class="section-hdr">System Overview</div>', unsafe_allow_html=True)
+
+    col_s1, col_s2 = st.columns(2)
+    with col_s1:
+        st.markdown("""
+        <div class="panel-card">
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#f0c040;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Application</div>
+            <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.83rem;border-collapse:collapse;">
+                <tr><td style="color:#3a5568;padding:5px 0;width:40%;">Framework</td><td style="color:#b0c8e0;">Streamlit (Python)</td></tr>
+                <tr><td style="color:#3a5568;padding:5px 0;">Database</td><td style="color:#b0c8e0;">MongoDB Atlas</td></tr>
+                <tr><td style="color:#3a5568;padding:5px 0;">Market Data</td><td style="color:#b0c8e0;">Yahoo Finance (yfinance)</td></tr>
+                <tr><td style="color:#3a5568;padding:5px 0;">Benchmark</td><td style="color:#b0c8e0;">NIFTYBEES.NS</td></tr>
+                <tr><td style="color:#3a5568;padding:5px 0;">Exchange</td><td style="color:#b0c8e0;">NSE / BSE (India)</td></tr>
+                <tr><td style="color:#3a5568;padding:5px 0;">Timezone</td><td style="color:#b0c8e0;">IST (UTC+5:30)</td></tr>
+            </table>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_s2:
+        st.markdown("""
+        <div class="panel-card">
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#f0c040;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Analytics Engine</div>
+            <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.83rem;border-collapse:collapse;">
+                <tr><td style="color:#3a5568;padding:5px 0;width:40%;">CAGR</td><td style="color:#b0c8e0;">✓ Compounded Annual Growth</td></tr>
+                <tr><td style="color:#3a5568;padding:5px 0;">Sharpe Ratio</td><td style="color:#b0c8e0;">✓ Risk-adjusted return</td></tr>
+                <tr><td style="color:#3a5568;padding:5px 0;">Sortino Ratio</td><td style="color:#b0c8e0;">✓ Downside deviation</td></tr>
+                <tr><td style="color:#3a5568;padding:5px 0;">Max Drawdown</td><td style="color:#b0c8e0;">✓ Peak-to-trough</td></tr>
+                <tr><td style="color:#3a5568;padding:5px 0;">Recovery Days</td><td style="color:#b0c8e0;">✓ Drawdown recovery</td></tr>
+                <tr><td style="color:#3a5568;padding:5px 0;">Score Window</td><td style="color:#b0c8e0;">10-year rolling</td></tr>
+            </table>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="panel-card" style="margin-top:0;">
+        <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#f0c040;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:10px;">Collections</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">users</div>
+            <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">watchlist</div>
+            <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">user_actions</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# =====================================================
+# SIDEBAR
+# =====================================================
+with st.sidebar:
+    st.markdown("""
+    <div style="padding:1.2rem 0 0.5rem;">
+        <div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:#f0c040;margin-bottom:4px;">⚙ Admin</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#2a3848;letter-spacing:1.5px;text-transform:uppercase;">Control Panel</div>
+    </div>
+    <hr style="border-color:rgba(255,255,255,0.06);margin:0.8rem 0;">
+    """, unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div style="font-family:'DM Sans',sans-serif;font-size:0.8rem;color:#4a6680;margin-bottom:0.4rem;">
+        <strong style="color:#8aabcc;">Users</strong><br>
+        <span style="font-size:1.3rem;color:#f0c040;font-family:'DM Serif Display',serif;">{total_users}</span> registered
+    </div>
+    <div style="font-family:'DM Sans',sans-serif;font-size:0.8rem;color:#4a6680;margin-bottom:1rem;">
+        <strong style="color:#8aabcc;">Watchlist</strong><br>
+        <span style="font-size:1.3rem;color:#34c759;font-family:'DM Serif Display',serif;">{watchlist_entries}</span> entries
+    </div>
+    <hr style="border-color:rgba(255,255,255,0.06);margin:0.8rem 0;">
+    """, unsafe_allow_html=True)
+
+    if st.button("🔄 Refresh Data", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
+
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+
+    if st.button("⬅ Back to App", use_container_width=True, key="admin_back"):
+        st.session_state.is_admin = False
+        st.switch_page("login.py")
+
+    st.markdown("""
+    <div style="position:absolute;bottom:1.5rem;left:1.2rem;right:1.2rem;font-family:'DM Sans',sans-serif;font-size:0.7rem;color:#1a2838;text-align:center;letter-spacing:0.5px;">
+        Smart Investor Admin<br>Restricted Access Only
+    </div>
+    """, unsafe_allow_html=True)
