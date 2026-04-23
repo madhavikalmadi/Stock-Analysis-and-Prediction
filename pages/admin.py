@@ -149,10 +149,9 @@ st.markdown("""
 .panel-card { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 16px; padding: 1.8rem 2rem; margin-bottom: 1.2rem; box-shadow: 0 8px 32px rgba(15, 23, 42, 0.03), inset 0 2px 4px rgba(255,255,255,0.7); }
 
 /* ── Buttons ── */
-.stButton > button:first-child { background: linear-gradient(135deg, #1e293b, #0f172a) !important; color: #ffffff !important; border: none !important; border-radius: 10px !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.9rem !important; font-weight: 700 !important; padding: 0.6rem 1.4rem !important; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15), inset 0 1px 1px rgba(255,255,255,0.1) !important; transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important; }
-.stButton > button:first-child:hover { transform: translateY(-2px) !important; box-shadow: 0 8px 16px rgba(15, 23, 42, 0.2) !important; }
-.stButton > button[kind="secondary"] { background: rgba(239, 68, 68, 0.08) !important; backdrop-filter: blur(5px) !important; color: #ef4444 !important; border: 1px solid rgba(239, 68, 68, 0.2) !important; border-radius: 10px !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.85rem !important; font-weight: 700 !important; box-shadow: none !important;}
-.stButton > button[kind="secondary"]:hover { background: rgba(239, 68, 68, 0.15) !important; transform: translateY(-1px) !important; }
+.stButton > button { background: linear-gradient(135deg, #1e293b, #0f172a) !important; color: #ffffff !important; border: none !important; border-radius: 10px !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.9rem !important; font-weight: 700 !important; padding: 0.6rem 1.4rem !important; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15), inset 0 1px 1px rgba(255,255,255,0.1) !important; transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important; }
+.stButton > button:hover { transform: translateY(-2px) !important; box-shadow: 0 8px 16px rgba(15, 23, 42, 0.2) !important; }
+.stButton > button[kind="secondary"]:hover { transform: translateY(-1px) !important; }
 
 /* ── Inputs ── */
 .stTextInput > div > div > input, .stSelectbox > div > div { background: rgba(255, 255, 255, 0.8) !important; border: 1px solid rgba(15, 23, 42, 0.08) !important; border-radius: 10px !important; color: #0f172a !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.95rem !important; box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.01) !important; transition: all 0.2s !important; padding: 0.65rem 0.8rem !important; }
