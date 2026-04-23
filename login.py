@@ -12,11 +12,18 @@ if st.session_state.get("authenticated"):
 # ── Inject full-page CSS reset ──────────────────────────────────────
 st.markdown("""
 <style>
-    [data-testid="stAppViewContainer"] { background: #f0f4f8 !important; }
+    [data-testid="stAppViewContainer"] {
+        background: #f0f4f8 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        height: 100vh !important;
+    }
     [data-testid="stHeader"], [data-testid="stToolbar"], footer,
     [data-testid="stSidebarNav"], #MainMenu { display: none !important; }
     .block-container {
-        padding: 2.5rem 1.5rem 2rem !important;
+        padding: 0 !important;
         max-width: 960px !important;
     }
 
@@ -24,7 +31,7 @@ st.markdown("""
     .si-shell {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        min-height: 620px;
+        height: 660px;
         border-radius: 22px;
         overflow: hidden;
         box-shadow: 0 24px 64px rgba(15,23,42,0.18);
