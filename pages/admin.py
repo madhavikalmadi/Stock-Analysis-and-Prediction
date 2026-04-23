@@ -383,18 +383,24 @@ with tab3:
 
     st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
     
-    # Custom Styled Button (Sleek Indigo)
+    # Precise CSS targeting for the Reset Password button
+    st.markdown('<div class="reset-btn-marker"></div>', unsafe_allow_html=True)
     st.markdown("""
     <style>
-    div[data-testid="stVerticalBlock"] > div:has(button[key="reset_pw_btn"]) button {
-        background: #1e293b !important;
-        color: white !important;
+    /* Target the button following the marker */
+    .reset-btn-marker + div .stButton > button {
+        background: #2563eb !important;
+        color: #ffffff !important;
         border: none !important;
-        padding: 0.5rem 2rem !important;
+        padding: 0.6rem 2.5rem !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
+        transition: all 0.2s ease !important;
     }
-    div[data-testid="stVerticalBlock"] > div:has(button[key="reset_pw_btn"]) button:hover {
-        background: #334155 !important;
-        color: white !important;
+    .reset-btn-marker + div .stButton > button:hover {
+        background: #1d4ed8 !important;
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3) !important;
+        transform: translateY(-1px) !important;
     }
     </style>
     """, unsafe_allow_html=True)
