@@ -498,11 +498,4 @@ with st.sidebar:
         <strong style="color:#8aabcc;">Watchlist</strong><br>
         <span style="font-size:1.3rem;color:#34c759;font-family:'DM Serif Display',serif;">{watchlist_entries}</span> entries
     </div>
-    <hr style="border-color:rgba(255,255,255,0.06);margin:0.8rem 0;">
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <div style="position:absolute;bottom:1.5rem;left:1.2rem;right:1.2rem;font-family:'DM Sans',sans-serif;font-size:0.7rem;color:#1a2838;text-align:center;letter-spacing:0.5px;">
-        Smart Investor Admin<br>Restricted Access Only
-    </div>
     """, unsafe_allow_html=True)
