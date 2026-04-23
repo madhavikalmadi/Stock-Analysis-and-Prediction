@@ -270,196 +270,196 @@ st.markdown(f"""
 # =====================================================
 # MAIN TABS
 # =====================================================
+tab1, tab3, tab4 = st.tabs(["👥  User Management", "🔑  Reset Password", "📋  System Info"])
 
 # ─────────────────────────────
-# SECTION 1: USER MANAGEMENT
+# TAB 1: USER MANAGEMENT
 # ─────────────────────────────
-st.markdown('<div class="section-hdr">All Registered Users</div>', unsafe_allow_html=True)
+with tab1:
+    st.markdown('<div class="section-hdr">All Registered Users</div>', unsafe_allow_html=True)
 
-col_search, col_sort = st.columns([3, 1])
-with col_search:
-    search_q = st.text_input("Search users", placeholder="Search by username or email…", key="search_users",
-                              label_visibility="collapsed")
-with col_sort:
-    sort_by = st.selectbox("Sort", ["Username A–Z", "Username Z–A", "Email"], label_visibility="collapsed")
+    col_search, col_sort = st.columns([3, 1])
+    with col_search:
+        search_q = st.text_input("Search users", placeholder="Search by username or email…", key="search_users",
+                                  label_visibility="collapsed")
+    with col_sort:
+        sort_by = st.selectbox("Sort", ["Username A–Z", "Username Z–A", "Email"], label_visibility="collapsed")
 
-if all_users:
-    filtered = all_users
-    if search_q:
-        sq = search_q.lower()
-        filtered = [u for u in filtered if sq in u.get("username","").lower() or sq in u.get("email","").lower()]
+    if all_users:
+        filtered = all_users
+        if search_q:
+            sq = search_q.lower()
+            filtered = [u for u in filtered if sq in u.get("username","").lower() or sq in u.get("email","").lower()]
 
-    if sort_by == "Username A–Z":
-        filtered = sorted(filtered, key=lambda u: u.get("username","").lower())
-    elif sort_by == "Username Z–A":
-        filtered = sorted(filtered, key=lambda u: u.get("username","").lower(), reverse=True)
-    elif sort_by == "Email":
-        filtered = sorted(filtered, key=lambda u: u.get("email","").lower())
+        if sort_by == "Username A–Z":
+            filtered = sorted(filtered, key=lambda u: u.get("username","").lower())
+        elif sort_by == "Username Z–A":
+            filtered = sorted(filtered, key=lambda u: u.get("username","").lower(), reverse=True)
+        elif sort_by == "Email":
+            filtered = sorted(filtered, key=lambda u: u.get("email","").lower())
 
-    st.markdown(f"<div style='font-family:DM Sans,sans-serif;font-size:0.78rem;color:#1e293b;margin-bottom:12px;'>Showing {len(filtered)} of {len(all_users)} users</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='font-family:DM Sans,sans-serif;font-size:0.78rem;color:#1e293b;margin-bottom:12px;'>Showing {len(filtered)} of {len(all_users)} users</div>", unsafe_allow_html=True)
 
-    # Render user rows
-    for user in filtered:
-        uid = str(user.get("_id", ""))
-        uname = user.get("username", "—")
-        uemail = user.get("email", "—")
-        umobile = user.get("mobile", "—")
-        upass = user.get("password", "—")
-        avatar_letter = uname[0].upper() if uname else "?"
+        # Render user rows
+        for user in filtered:
+            uid = str(user.get("_id", ""))
+            uname = user.get("username", "—")
+            uemail = user.get("email", "—")
+            umobile = user.get("mobile", "—")
+            upass = user.get("password", "—")
+            avatar_letter = uname[0].upper() if uname else "?"
 
-        col_info, col_actions = st.columns([4, 1])
-        with col_info:
-            st.markdown(f"""
-            <div class="user-row">
-                <div class="user-avatar">{avatar_letter}</div>
-                <div class="user-info">
-                    <div class="user-name">{uname}</div>
-                    <div class="user-meta">✉ {uemail} &nbsp;·&nbsp; 📱 {umobile}</div>
-                    <div class="user-mono">ID: {uid[:24]}…</div>
+            col_info, col_actions = st.columns([4, 1])
+            with col_info:
+                st.markdown(f"""
+                <div class="user-row">
+                    <div class="user-avatar">{avatar_letter}</div>
+                    <div class="user-info">
+                        <div class="user-name">{uname}</div>
+                        <div class="user-meta">✉ {uemail} &nbsp;·&nbsp; 📱 {umobile}</div>
+                        <div class="user-mono">ID: {uid[:24]}…</div>
+                    </div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#2a4868;background:rgba(240,192,64,0.06);padding:4px 10px;border-radius:6px;border:1px solid rgba(240,192,64,0.1);">
+                        pw: {upass[:16]}{'…' if len(upass) > 16 else ''}
+                    </div>
                 </div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#2a4868;background:rgba(240,192,64,0.06);padding:4px 10px;border-radius:6px;border:1px solid rgba(240,192,64,0.1);">
-                    pw: {upass[:16]}{'…' if len(upass) > 16 else ''}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-        with col_actions:
-            if st.button("🗑 Delete", key=f"del_{uid}", type="secondary"):
-                st.session_state[f"confirm_del_{uid}"] = True
+                """, unsafe_allow_html=True)
+            with col_actions:
+                if st.button("🗑 Delete", key=f"del_{uid}", type="secondary"):
+                    st.session_state[f"confirm_del_{uid}"] = True
 
-        if st.session_state.get(f"confirm_del_{uid}"):
-            st.warning(f"⚠ Delete **{uname}**? This cannot be undone.")
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button("Confirm Delete", key=f"confirm_yes_{uid}"):
-                    users_col.delete_one({"_id": user["_id"]})
-                    st.success(f"User '{uname}' deleted.")
-                    st.session_state.pop(f"confirm_del_{uid}", None)
-                    st.cache_data.clear()
-                    st.rerun()
-            with c2:
-                if st.button("✗ Cancel", key=f"confirm_no_{uid}"):
-                    st.session_state.pop(f"confirm_del_{uid}", None)
-                    st.rerun()
+            if st.session_state.get(f"confirm_del_{uid}"):
+                st.warning(f"⚠ Delete **{uname}**? This cannot be undone.")
+                c1, c2 = st.columns(2)
+                with c1:
+                    if st.button("Confirm Delete", key=f"confirm_yes_{uid}"):
+                        users_col.delete_one({"_id": user["_id"]})
+                        st.success(f"User '{uname}' deleted.")
+                        st.session_state.pop(f"confirm_del_{uid}", None)
+                        st.cache_data.clear()
+                        st.rerun()
+                with c2:
+                    if st.button("✗ Cancel", key=f"confirm_no_{uid}"):
+                        st.session_state.pop(f"confirm_del_{uid}", None)
+                        st.rerun()
 
-    # Downloadable CSV
-    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-    if filtered:
-        df = pd.DataFrame([{
-            "Username": u.get("username",""),
-            "Email": u.get("email",""),
-            "Mobile": u.get("mobile",""),
-            "ID": str(u.get("_id",""))
-        } for u in filtered])
-        csv = df.to_csv(index=False)
-        st.download_button("⬇ Export CSV", csv, "users.csv", "text/csv", use_container_width=False)
-else:
-    st.info("No users found in the database.")
-
-
-
-# ─────────────────────────────
-# SECTION 2: RESET PASSWORD
-# ─────────────────────────────
-
-st.markdown('<div style="height:40px"></div>', unsafe_allow_html=True)
-st.markdown('<div class="section-hdr">Reset User Password</div>', unsafe_allow_html=True)
-
-st.markdown('<div class="panel-card">', unsafe_allow_html=True)
-col_r1, col_r2 = st.columns(2)
-with col_r1:
-    target_user = st.text_input("Username to Reset", placeholder="Enter exact username", key="rp_user")
-with col_r2:
-    new_pw      = st.text_input("New Password", type="password", placeholder="Min. 8 characters", key="rp_newpw")
-    confirm_pw  = st.text_input("Confirm New Password", type="password", placeholder="Repeat password", key="rp_confirmpw")
-
-st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-if st.button("Reset Password", key="reset_pw_btn"):
-    if not target_user or not new_pw or not confirm_pw:
-        st.error("All fields are required.")
-    elif len(new_pw) < 8:
-        st.error("Password must be at least 8 characters.")
-    elif new_pw != confirm_pw:
-        st.error("Passwords do not match.")
+        # Downloadable CSV
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+        if filtered:
+            df = pd.DataFrame([{
+                "Username": u.get("username",""),
+                "Email": u.get("email",""),
+                "Mobile": u.get("mobile",""),
+                "ID": str(u.get("_id",""))
+            } for u in filtered])
+            csv = df.to_csv(index=False)
+            st.download_button("⬇ Export CSV", csv, "users.csv", "text/csv", use_container_width=False)
     else:
-        result = users_col.update_one(
-            {"username": {"$regex": f"^{target_user}$", "$options": "i"}},
-            {"$set": {"password": new_pw}}
-        )
-        if result.matched_count:
-            st.success(f"Password reset for '{target_user}'.")
+        st.info("No users found in the database.")
+
+
+
+# ─────────────────────────────
+# TAB 3: RESET PASSWORD
+# ─────────────────────────────
+with tab3:
+    st.markdown('<div class="section-hdr">Reset User Password</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="panel-card">', unsafe_allow_html=True)
+    col_r1, col_r2 = st.columns(2)
+    with col_r1:
+        target_user = st.text_input("Username to Reset", placeholder="Enter exact username", key="rp_user")
+    with col_r2:
+        new_pw      = st.text_input("New Password", type="password", placeholder="Min. 8 characters", key="rp_newpw")
+        confirm_pw  = st.text_input("Confirm New Password", type="password", placeholder="Repeat password", key="rp_confirmpw")
+
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    if st.button("Reset Password", key="reset_pw_btn"):
+        if not target_user or not new_pw or not confirm_pw:
+            st.error("All fields are required.")
+        elif len(new_pw) < 8:
+            st.error("Password must be at least 8 characters.")
+        elif new_pw != confirm_pw:
+            st.error("Passwords do not match.")
         else:
-            st.error(f"User '{target_user}' not found.")
-st.markdown('</div>', unsafe_allow_html=True)
+            result = users_col.update_one(
+                {"username": {"$regex": f"^{target_user}$", "$options": "i"}},
+                {"$set": {"password": new_pw}}
+            )
+            if result.matched_count:
+                st.success(f"Password reset for '{target_user}'.")
+            else:
+                st.error(f"User '{target_user}' not found.")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ─────────────────────────────
-# SECTION 3: SYSTEM INFO
+# TAB 4: SYSTEM INFO
 # ─────────────────────────────
+with tab4:
+    st.markdown('<div class="section-hdr">System Overview</div>', unsafe_allow_html=True)
 
-st.markdown('<div style="height:40px"></div>', unsafe_allow_html=True)
-st.markdown('<div class="section-hdr">System Overview</div>', unsafe_allow_html=True)
-
-col_s1, col_s2 = st.columns(2)
-with col_s1:
-    st.markdown("""
-    <div class="panel-card">
-        <div style="font-family:'DM Sans',sans-serif;font-size:0.75rem;color:#1e293b;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:20px;border-bottom:2px solid rgba(30,41,59,0.1);padding-bottom:8px;">Application Architecture</div>
-        <div style="display:flex;flex-direction:column;gap:14px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Framework</span>
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Streamlit (Python)</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Database</span>
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">MongoDB Atlas</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Market Data</span>
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Yahoo Finance (yfinance)</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Benchmark</span>
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">NIFTYBEES.NS</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Exchange</span>
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">NSE / BSE (India)</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:4px;">
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Timezone</span>
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">IST (UTC+5:30)</span>
+    col_s1, col_s2 = st.columns(2)
+    with col_s1:
+        st.markdown("""
+        <div class="panel-card">
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.75rem;color:#1e293b;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:20px;border-bottom:2px solid rgba(30,41,59,0.1);padding-bottom:8px;">Application Architecture</div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Framework</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Streamlit (Python)</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Database</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">MongoDB Atlas</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Market Data</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Yahoo Finance (yfinance)</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Benchmark</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">NIFTYBEES.NS</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Exchange</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">NSE / BSE (India)</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:4px;">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Timezone</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">IST (UTC+5:30)</span>
+                </div>
             </div>
         </div>
-    </div>
 """, unsafe_allow_html=True)
-with col_s2:
-    st.markdown("""
-    <div class="panel-card">
-        <div style="font-family:'DM Sans',sans-serif;font-size:0.75rem;color:#1e293b;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:20px;border-bottom:2px solid rgba(30,41,59,0.1);padding-bottom:8px;">Analytics Engine</div>
-        <div style="display:flex;flex-direction:column;gap:14px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Growth Metric</span>
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Compounded Annual Growth (CAGR)</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Risk Benchmark</span>
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Risk-adjusted return (Sharpe)</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Downside Risk</span>
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Downside deviation (Sortino)</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Peak Impact</span>
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Peak-to-trough (Max Drawdown)</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Recovery Pace</span>
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Drawdown recovery (Days)</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:4px;">
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Score Window</span>
-                <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">10-Year Rolling Series</span>
+    with col_s2:
+        st.markdown("""
+        <div class="panel-card">
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.75rem;color:#1e293b;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:20px;border-bottom:2px solid rgba(30,41,59,0.1);padding-bottom:8px;">Analytics Engine</div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Growth Metric</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Compounded Annual Growth (CAGR)</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Risk Benchmark</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Risk-adjusted return (Sharpe)</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Downside Risk</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Downside deviation (Sortino)</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Peak Impact</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Peak-to-trough (Max Drawdown)</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.04);padding-bottom:8px;">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Recovery Pace</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">Drawdown recovery (Days)</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:4px;">
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px;">Score Window</span>
+                    <span style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1e293b;font-weight:500;">10-Year Rolling Series</span>
+                </div>
             </div>
         </div>
-    </div>
 """, unsafe_allow_html=True)
