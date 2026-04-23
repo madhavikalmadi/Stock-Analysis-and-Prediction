@@ -463,19 +463,3 @@ with tab4:
             </div>
         </div>
 """, unsafe_allow_html=True)
-
-
-
-    st.markdown("""
-    <div class="panel-card" style="margin-top:0;">
-        <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#1e293b;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:10px;">Collections</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">users</div>
-            <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">watchlist</div>
-            <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.12);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#8aabcc;">user_actions</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-
