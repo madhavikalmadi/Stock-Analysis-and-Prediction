@@ -165,9 +165,9 @@ st.markdown("""
 .stWarning > div { background: rgba(254, 249, 195, 0.8) !important; backdrop-filter: blur(10px) !important; border: 1px solid rgba(253, 224, 71, 0.5) !important; border-radius: 12px !important; color: #854d0e !important; font-family: 'DM Sans', sans-serif !important; box-shadow: 0 4px 12px rgba(133, 77, 14, 0.05) !important; font-weight: 600 !important; }
 
 /* ── Tabs ── */
-.stTabs [data-baseweb="tab-list"] { background: rgba(226, 232, 240, 0.6) !important; backdrop-filter: blur(10px) !important; border-radius: 14px !important; padding: 6px !important; border: 1px solid rgba(255, 255, 255, 0.5) !important; gap: 4px !important; box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.02) !important; }
-.stTabs [data-baseweb="tab"] { background: transparent !important; color: #64748b !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.88rem !important; font-weight: 600 !important; border-radius: 10px !important; padding: 0.5rem 1.4rem !important; border: none !important; transition: all 0.2s !important; }
-.stTabs [aria-selected="true"] { background: #ffffff !important; color: #0f172a !important; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important; font-weight: 700 !important; }
+.stTabs [data-baseweb="tab-list"] { background: transparent !important; padding: 0 !important; border: none !important; gap: 24px !important; box-shadow: none !important; }
+.stTabs [data-baseweb="tab"] { background: transparent !important; color: #475569 !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.9rem !important; font-weight: 600 !important; padding: 8px 0 !important; border: none !important; transition: all 0.2s !important; border-bottom: 2px solid transparent !important; }
+.stTabs [aria-selected="true"] { color: #0f172a !important; font-weight: 800 !important; border-bottom: 2px solid #0f172a !important; }
 
 /* ── Search / filter ── */
 .filter-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 1rem; }
