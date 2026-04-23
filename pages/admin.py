@@ -447,12 +447,12 @@ with tab4:
         <div class="panel-card">
             <div style="font-family:'DM Sans',sans-serif;font-size:0.72rem;color:#1e293b;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:12px;">Analytics Engine</div>
             <table style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.83rem;border-collapse:collapse;">
-                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">CAGR</td><td style="color:#1e293b;">Compounded Annual Growth</td></tr>
-                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">Sharpe Ratio</td><td style="color:#1e293b;">Risk-adjusted return</td></tr>
-                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">Sortino Ratio</td><td style="color:#1e293b;">Downside deviation</td></tr>
-                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">Max Drawdown</td><td style="color:#1e293b;">Peak-to-trough</td></tr>
-                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">Recovery Days</td><td style="color:#1e293b;">Drawdown recovery</td></tr>
-                <tr><td style="color:#1e293b;padding:5px 0;width:40%;">Score Window</td><td style="color:#1e293b;">10-year rolling</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Compounded Annual Growth - CAGR</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Risk-adjusted return - Sharpe Ratio</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Downside deviation - Sortino Ratio</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Peak-to-trough - Max Drawdown</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">Drawdown recovery - Recovery Days</td></tr>
+                <tr><td style="color:#1e293b;padding:5px 0;">10-year rolling - Score Window</td></tr>
             </table>
         </div>
         """, unsafe_allow_html=True)
