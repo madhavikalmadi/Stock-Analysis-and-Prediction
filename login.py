@@ -251,7 +251,7 @@ Built for smarter, data-driven investing.
 <div id="loginMsg" style="font-size:0.82rem;margin:0.5rem 0;min-height:1.2rem;color:#ef4444"></div>
 <button class="si-btn" type="submit">Sign In →</button>
 <div class="si-signup-wrap">
-  Don't have an account? <a href="#" class="si-signup-link" onclick="handleSignup()">Create one</a>
+  Don't have an account? <a href="/signup" target="_self" class="si-signup-link">Create one</a>
 </div>
 </form>
 <div class="si-divider">
@@ -259,32 +259,12 @@ Built for smarter, data-driven investing.
 <span class="si-div-txt">ADMIN ACCESS</span>
 <div class="si-div-line"></div>
 </div>
-<button class="si-admin-btn" onclick="toggleAdmin()">⚙ Admin Login</button>
+<a href="/admin" target="_self" style="text-decoration:none;">
+    <button class="si-admin-btn">⚙ Admin Dashboard</button>
+</a>
 </div>
-</div>
-<div id="adminPanel" style="display:none;max-width:960px;margin:1.2rem auto 0;background:#fffbeb;border:1px solid #fde68a;border-radius:16px;padding:1.5rem 1.8rem;">
-<h4 style="color:#92400e;font-size:0.95rem;font-weight:700;margin:0 0 1rem;">🛡 Admin Authentication</h4>
-<form id="adminForm" onsubmit="handleAdmin(event)">
-<div class="si-field">
-<label>Admin Username</label>
-<input type="text" id="adminUser" placeholder="admin" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.62rem 0.92rem;width:100%;font-size:0.9rem;outline:none;box-sizing:border-box;" />
-</div>
-<div class="si-field" style="margin-top:0.8rem;">
-<label>Admin Password</label>
-<input type="password" id="adminPass" placeholder="••••••••" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.62rem 0.92rem;width:100%;font-size:0.9rem;outline:none;box-sizing:border-box;" />
-</div>
-<div id="adminMsg" style="font-size:0.82rem;margin:0.5rem 0;min-height:1.2rem;color:#ef4444"></div>
-<div style="display:flex;gap:10px;margin-top:0.6rem;">
-<button type="submit" style="flex:1;background:#d97706;color:#fff;border:none;border-radius:9px;font-size:0.85rem;font-weight:700;padding:0.62rem;cursor:pointer;font-family:inherit;">Login as Admin</button>
-<button type="button" onclick="toggleAdmin()" style="flex:1;background:#fff;color:#64748b;border:1.5px solid #e2e8f0;border-radius:9px;font-size:0.85rem;font-weight:600;padding:0.62rem;cursor:pointer;font-family:inherit;">⬅ Cancel</button>
-</div>
-</form>
 </div>
 <script>
-function toggleAdmin() {
-var p = document.getElementById('adminPanel');
-p.style.display = p.style.display === 'none' ? 'block' : 'none';
-}
 function handleLogin(e) {
 e.preventDefault();
 var u = document.getElementById('loginUser').value.trim();
@@ -296,15 +276,6 @@ msg.textContent = 'Signing in…';
 var url = new URL(window.location.href);
 url.searchParams.set('__login_user', encodeURIComponent(u));
 url.searchParams.set('__login_pass', encodeURIComponent(p));
-window.location.href = url.toString();
-}
-function handleAdmin(e) {
-e.preventDefault();
-var u = document.getElementById('adminUser').value.trim();
-var p = document.getElementById('adminPass').value;
-var url = new URL(window.location.href);
-url.searchParams.set('__admin_user', encodeURIComponent(u));
-url.searchParams.set('__admin_pass', encodeURIComponent(p));
 window.location.href = url.toString();
 }
 function handleSignup() {
@@ -346,18 +317,3 @@ if "__login_user" in qp and "__login_pass" in qp:
             st.error("User not found.")
     else:
         st.error("❌ Invalid credentials. Please try again.")
-
-if "__admin_user" in qp and "__admin_pass" in qp:
-    from urllib.parse import unquote
-    admin_user = unquote(qp["__admin_user"])
-    admin_pass = unquote(qp["__admin_pass"])
-    st.query_params.clear()
-
-    if admin_user == "admin" and admin_pass == "aprilfool1203":
-        st.session_state.is_admin         = True
-        st.session_state.authenticated    = False
-        st.session_state.show_admin_login = False
-        st.success("✅ Admin login successful")
-        st.switch_page("pages/admin.py")
-    else:
-        st.error("❌ Invalid admin credentials.")
