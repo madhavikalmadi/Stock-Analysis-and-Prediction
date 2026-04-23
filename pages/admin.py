@@ -208,23 +208,29 @@ st.markdown("""
 # =====================================================
 # FETCH DATA
 # =====================================================
-@st.cache_data(ttl=60)
 def get_stats():
     try:
-        total_users = users_col.count_documents({})
-        watchlist_entries = watchlist_col.count_documents({}) if watchlist_col else 0
-        action_count = actions_col.count_documents({}) if actions_col else 0
+        total_users = users_col.count_documents({}) if users_col is not None else 0
+        watchlist_entries = watchlist_col.count_documents({}) if watchlist_col is not None else 0
+        action_count = actions_col.count_documents({}) if actions_col is not None else 0
         return total_users, watchlist_entries, action_count
-    except:
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
         return 0, 0, 0
 
-@st.cache_data(ttl=30)
 def get_all_users():
     try:
-        users = list(users_col.find({}, {"_id": 1, "username": 1, "email": 1, "mobile": 1, "password": 1}))
-        return users
-    except:
+        if users_col is not None:
+             users = list(users_col.find({}, {"_id": 1, "username": 1, "email": 1, "mobile": 1, "password": 1}))
+             return users
         return []
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return []
+
+
 
 total_users, watchlist_entries, action_count = get_stats()
 all_users = get_all_users()
