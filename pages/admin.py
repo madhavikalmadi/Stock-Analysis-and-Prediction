@@ -9,7 +9,30 @@ st.set_page_config(page_title="Smart Investor | Admin", layout="wide", page_icon
 # AUTH GUARD
 # =====================================================
 if not st.session_state.get("is_admin"):
-    st.switch_page("login.py")
+    st.markdown("""
+    <style>
+    [data-testid="stAppViewContainer"] { background: #07080f; }
+    .adm-auth { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 2rem; }
+    .adm-auth h3 { color: #f0c040; text-align: center; font-family: 'DM Serif Display', serif; }
+    </style>
+    """, unsafe_allow_html=True)
+    c1, c2, c3 = st.columns([1, 1.5, 1])
+    with c2:
+        st.markdown("<div style='height:3rem'></div>", unsafe_allow_html=True)
+        st.markdown('<div class="adm-auth"><h3>⚙ Admin Console</h3>', unsafe_allow_html=True)
+        with st.form("admin_login_box"):
+            u = st.text_input("Username")
+            p = st.text_input("Password", type="password")
+            if st.form_submit_button("Login to Admin", use_container_width=True):
+                if u == "admin" and p == "aprilfool1203":
+                    st.session_state.is_admin = True
+                    st.rerun()
+                else:
+                    st.error("Invalid admin credentials.")
+        if st.button("⬅ Back to User Login", use_container_width=True):
+            st.switch_page("login.py")
+        st.markdown('</div>', unsafe_allow_html=True)
+    st.stop()
 
 # =====================================================
 # STYLES
