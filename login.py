@@ -86,6 +86,15 @@ ui_markup = f"""
 .si-ti {{ background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.7rem; }}
 .si-ti div:first-child {{ color: #64748b; font-size: 0.52rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }}
 .si-ti div:last-child {{ color: #fff; font-size: 0.82rem; font-weight: 700; }}
+.si-feat {{ margin-top: 1.8rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem; }}
+.si-f-i {{ display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem; color: #94a3b8; font-size: 0.75rem; font-weight: 600; }}
+.si-f-c {{ width: 14px; height: 14px; background: rgba(99,102,241,0.2); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #818cf8; font-size: 9px; font-weight: 900; }}
+.si-mom {{ margin-top: 2rem; background: rgba(16,185,129,0.05); border: 1px dashed rgba(16,185,129,0.2); border-radius: 12px; padding: 0.8rem; display: flex; align-items: center; justify-content: space-between; }}
+.si-m-l {{ display: flex; flex-direction: column; gap: 2px; }}
+.si-m-t {{ color: #10b981; font-size: 0.55rem; font-weight: 800; text-transform: uppercase; }}
+.si-m-v {{ color: #fff; font-size: 0.75rem; font-weight: 700; }}
+.si-m-g {{ width: 40px; height: 4px; background: #1e293b; border-radius: 2px; overflow: hidden; position: relative; }}
+.si-m-b {{ position: absolute; left: 0; top: 0; height: 100%; width: 75%; background: #10b981; box-shadow: 0 0 10px rgba(16,185,129,0.5); }}
 .si-r {{ background: #fff; padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; }}
 .si-head h3 {{ color: #0f172a; font-size: 1.4rem; font-weight: 900; margin: 0; }}
 .si-head p {{ color: #94a3b8; font-size: 0.82rem; margin: 4px 0 18px 0; }}
@@ -102,7 +111,7 @@ ui_markup = f"""
 .si-sep-t {{ color: #cbd5e1; font-size: 0.55rem; font-weight: 800; }}
 .si-adm {{ width: 100%; background: #fff; color: #64748b; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 0.6rem; font-size: 0.8rem; font-weight: 700; text-decoration: none; display: block; text-align: center; }}
 </style>
-<div class="si-bd"><div class="si-sh"><div class="si-l"><div><div class="si-bdg">📈</div><span class="si-tag">Smart Investor</span><div class="si-h2"><h2>{left_title}</h2></div><div class="si-p">{left_desc}</div><div class="si-st"><div class="si-ti"><div>NIFTY 50</div><div>24,834</div></div><div class="si-ti"><div>SENSEX</div><div>81,562</div></div><div class="si-ti"><div>NIFTY BANK</div><div>51,280</div></div><div class="si-ti"><div>NIFTY IT</div><div>38,415</div></div></div></div><div style="color:#334155; font-size:0.6rem;">Precision stock analysis for India.</div></div><div class="si-r">{right_inner}</div></div></div>
+<div class="si-bd"><div class="si-sh"><div class="si-l"><div><div class="si-bdg">📈</div><span class="si-tag">Smart Investor</span><div class="si-h2"><h2>{left_title}</h2></div><div class="si-p">{left_desc}</div><div class="si-st"><div class="si-ti"><div>NIFTY 50</div><div>24,834</div></div><div class="si-ti"><div>SENSEX</div><div>81,562</div></div><div class="si-ti"><div>NIFTY BANK</div><div>51,280</div></div><div class="si-ti"><div>NIFTY IT</div><div>38,415</div></div></div><div class="si-feat"><div class="si-f-i"><div class="si-f-c">✓</div>Institutional-grade AI Scoring</div><div class="si-f-i"><div class="si-f-c">✓</div>Real-time Market Momentum</div><div class="si-f-i"><div class="si-f-c">✓</div>Risk-adjusted Portfolio Insights</div></div><div class="si-mom"><div class="si-m-l"><div class="si-m-t">Momentum</div><div class="si-m-v">Bullish / High</div></div><div class="si-m-g"><div class="si-m-b"></div></div></div></div><div style="color:#334155; font-size:0.6rem;">Precision stock analysis for India.</div></div><div class="si-r">{right_inner}</div></div></div>
 """
 
 st.markdown(ui_markup, unsafe_allow_html=True)

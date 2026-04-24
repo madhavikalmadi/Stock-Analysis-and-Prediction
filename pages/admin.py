@@ -75,11 +75,14 @@ if not st.session_state.get("is_admin"):
                     <span class="si-tag">System Admin</span>
                     <div class="si-h2"><h2>System<br><em>Control Panel</em></h2></div>
                     <div class="si-p">Manage users, adjust platform settings, and monitor activities.</div>
-                    <div class="si-st">
-                        <div class="si-ti"><div>NIFTY 50</div><div>24,834</div></div>
-                        <div class="si-ti"><div>SENSEX</div><div>81,562</div></div>
-                        <div class="si-ti"><div>NIFTY BANK</div><div>51,280</div></div>
-                        <div class="si-ti"><div>NIFTY IT</div><div>38,415</div></div>
+                    <div class="si-feat">
+                        <div class="si-f-i"><div class="si-f-c">✓</div>Enhanced System Monitoring</div>
+                        <div class="si-f-i"><div class="si-f-c">✓</div>Real-time Activity Logs</div>
+                        <div class="si-f-i"><div class="si-f-c">✓</div>Global Broadcast Control</div>
+                    </div>
+                    <div class="si-mom">
+                        <div class="si-m-l"><div class="si-m-t">System Load</div><div class="si-m-v">Stable / Optimized</div></div>
+                        <div class="si-m-g"><div class="si-m-b"></div></div>
                     </div>
                 </div>
                 <div style="color:#334155; font-size:0.6rem;">Smart Investor Administrative Hub.</div>
