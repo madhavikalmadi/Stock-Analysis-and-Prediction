@@ -52,6 +52,9 @@ if not st.session_state.get("is_admin"):
     .si-ti {{ background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.7rem; }}
     .si-ti div:first-child {{ color: #64748b; font-size: 0.52rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }}
     .si-ti div:last-child {{ color: #fff; font-size: 0.82rem; font-weight: 700; }}
+    .si-feat {{ margin-top: 1.8rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem; }}
+    .si-f-i {{ display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem; color: #94a3b8; font-size: 0.75rem; font-weight: 600; }}
+    .si-f-c {{ width: 14px; height: 14px; background: rgba(240,192,64,0.2); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #f0c040; font-size: 9px; font-weight: 900; }}
     .si-r {{ background: #fff; padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; }}
     .si-head h3 {{ color: #0f172a; font-size: 1.4rem; font-weight: 900; margin: 0; }}
     .si-head p {{ color: #94a3b8; font-size: 0.82rem; margin: 4px 0 18px 0; }}
@@ -75,14 +78,16 @@ if not st.session_state.get("is_admin"):
                     <span class="si-tag">System Admin</span>
                     <div class="si-h2"><h2>System<br><em>Control Panel</em></h2></div>
                     <div class="si-p">Manage users, adjust platform settings, and monitor activities.</div>
+                    <div class="si-st">
+                        <div class="si-ti"><div>NIFTY 50</div><div>24,834</div></div>
+                        <div class="si-ti"><div>SENSEX</div><div>81,562</div></div>
+                        <div class="si-ti"><div>NIFTY BANK</div><div>51,280</div></div>
+                        <div class="si-ti"><div>NIFTY IT</div><div>38,415</div></div>
+                    </div>
                     <div class="si-feat">
                         <div class="si-f-i"><div class="si-f-c">✓</div>Enhanced System Monitoring</div>
                         <div class="si-f-i"><div class="si-f-c">✓</div>Real-time Activity Logs</div>
                         <div class="si-f-i"><div class="si-f-c">✓</div>Global Broadcast Control</div>
-                    </div>
-                    <div class="si-mom">
-                        <div class="si-m-l"><div class="si-m-t">System Load</div><div class="si-m-v">Stable / Optimized</div></div>
-                        <div class="si-m-g"><div class="si-m-b"></div></div>
                     </div>
                 </div>
                 <div style="color:#334155; font-size:0.6rem;">Smart Investor Administrative Hub.</div>
