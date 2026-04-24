@@ -10,7 +10,7 @@ st.set_page_config(page_title="Smart Investor | Admin", layout="wide", page_icon
 # =====================================================
 if not st.session_state.get("is_admin"):
     qp = st.query_params
-    if "__a_u" in qp:
+    if "__a_u" in qp and "__a_p" in qp:
         from urllib.parse import unquote
         u = unquote(qp["__a_u"])
         p = unquote(qp["__a_p"])

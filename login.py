@@ -10,7 +10,7 @@ st.set_page_config(page_title="Smart Investor", layout="wide", page_icon="🔐")
 qp = st.query_params
 auth_mode = qp.get("mode", "login")
 
-if "__login_user" in qp:
+if "__login_user" in qp and "__login_pass" in qp:
     from urllib.parse import unquote
     u, p = unquote(qp["__login_user"]), unquote(qp["__login_pass"])
     if auth_utils.login_user(u, p):
