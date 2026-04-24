@@ -41,7 +41,7 @@ if "__reg_user" in qp:
 # 3. CONSOLIDATED UI (No indentation to prevent markdown artifacts)
 left_title = "Start your journey to<br><em>financial freedom</em>" if auth_mode == "signup" else "Trade smarter,<br>invest with <em>confidence</em>"
 left_desc = "Unlock institutional-grade metrics." if auth_mode == "signup" else "Real-time NSE analytics and risk-adjusted scoring."
-left_op = "0.2" if auth_mode == "signup" else "1"
+left_op = "1"
 
 # We build the right side HTML separately to ensure zero indentation
 if auth_mode == "login":
@@ -84,8 +84,8 @@ ui_markup = f"""
 .si-p {{ color: #94a3b8; font-size: 0.8rem; line-height: 1.6; border-left: 2px solid #6366f1; padding-left: 10px; }}
 .si-st {{ margin-top: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; opacity: {left_op}; }}
 .si-ti {{ background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.7rem; }}
-.si-ti div:first-child {{ color: #64748b; font-size: 0.55rem; font-weight: 800; }}
-.si-ti div:last-child {{ color: #fff; font-size: 0.9rem; font-weight: 700; }}
+.si-ti div:first-child {{ color: #64748b; font-size: 0.52rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }}
+.si-ti div:last-child {{ color: #fff; font-size: 0.82rem; font-weight: 700; }}
 .si-r {{ background: #fff; padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; }}
 .si-head h3 {{ color: #0f172a; font-size: 1.4rem; font-weight: 900; margin: 0; }}
 .si-head p {{ color: #94a3b8; font-size: 0.82rem; margin: 4px 0 18px 0; }}
@@ -102,7 +102,7 @@ ui_markup = f"""
 .si-sep-t {{ color: #cbd5e1; font-size: 0.55rem; font-weight: 800; }}
 .si-adm {{ width: 100%; background: #fff; color: #64748b; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 0.6rem; font-size: 0.8rem; font-weight: 700; text-decoration: none; display: block; text-align: center; }}
 </style>
-<div class="si-bd"><div class="si-sh"><div class="si-l"><div><div class="si-bdg">📈</div><span class="si-tag">Smart Investor</span><div class="si-h2"><h2>{left_title}</h2></div><div class="si-p">{left_desc}</div><div class="si-st"><div class="si-ti"><div>NIFTY 50</div><div>24,834</div></div><div class="si-ti"><div>SENSEX</div><div>81,562</div></div></div></div><div style="color:#334155; font-size:0.6rem;">Precision stock analysis for India.</div></div><div class="si-r">{right_inner}</div></div></div>
+<div class="si-bd"><div class="si-sh"><div class="si-l"><div><div class="si-bdg">📈</div><span class="si-tag">Smart Investor</span><div class="si-h2"><h2>{left_title}</h2></div><div class="si-p">{left_desc}</div><div class="si-st"><div class="si-ti"><div>NIFTY 50</div><div>24,834</div></div><div class="si-ti"><div>SENSEX</div><div>81,562</div></div><div class="si-ti"><div>NIFTY BANK</div><div>51,280</div></div><div class="si-ti"><div>NIFTY IT</div><div>38,415</div></div></div></div><div style="color:#334155; font-size:0.6rem;">Precision stock analysis for India.</div></div><div class="si-r">{right_inner}</div></div></div>
 """
 
 st.markdown(ui_markup, unsafe_allow_html=True)
