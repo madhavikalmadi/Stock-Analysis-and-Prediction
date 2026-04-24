@@ -12,6 +12,7 @@ import pandas as pd
 import yfinance as yf
 import pytz
 from datetime import datetime
+from mongo_db import db
 
 
 # =====================================================
@@ -505,6 +506,28 @@ div[data-testid="stHorizontalBlock"]:has(#header-ctl-marker) button p {
     font-weight: 600 !important;
     white-space: nowrap !important;
 }
+
+/* BROADCAST BANNER */
+.broadcast-banner {
+    background: linear-gradient(90deg, #3b82f6, #4f46e5);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+    animation: slideDown 0.6s ease-out;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.broadcast-icon { font-size: 1.2rem; }
+.broadcast-text { font-weight: 600; font-size: 0.9rem; flex: 1; }
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -671,6 +694,25 @@ def show_auto_ticker():
         """, unsafe_allow_html=True)
 
 show_auto_ticker()
+
+# =============================================================
+# BROADCAST SYSTEM
+# =============================================================
+def show_broadcast():
+    try:
+        settings_col = db["admin_settings"]
+        doc = settings_col.find_one({"key": "broadcast_message"})
+        if doc and doc.get("active") and doc.get("message"):
+            st.markdown(f"""
+            <div class="broadcast-banner">
+                <div class="broadcast-icon">📢</div>
+                <div class="broadcast-text">{doc['message']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+    except:
+        pass
+
+show_broadcast()
 
 # =============================================================
 # HERO & MARKET STATUS

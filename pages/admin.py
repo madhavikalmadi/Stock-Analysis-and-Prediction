@@ -1,5 +1,5 @@
 import streamlit as st
-from mongo_db import users_col, watchlist_col, actions_col
+from mongo_db import users_col, watchlist_col, actions_col, db
 from datetime import datetime, timezone
 import pandas as pd
 
@@ -168,36 +168,44 @@ st.markdown("""
 .stTabs [data-baseweb="tab"] { background: transparent !important; color: #475569 !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.9rem !important; font-weight: 600 !important; padding: 8px 0 !important; border: none !important; transition: all 0.2s !important; border-bottom: 2px solid transparent !important; }
 .stTabs [aria-selected="true"] { color: #0f172a !important; font-weight: 800 !important; border-bottom: 2px solid #0f172a !important; }
 
-/* ── Search / filter ── */
-.filter-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 1rem; }
-
-/* ── User row card ── */
-.user-row {
-    display: flex; align-items: center; justify-content: space-between;
-    background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 18px; padding: 1.4rem 1.8rem; margin-bottom: 15px;
-    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02), inset 0 1px 1px rgba(255,255,255,1);
+/* ── User ID Card (Portrait) ── */
+.user-card {
+    background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 24px; padding: 0; margin-bottom: 25px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    overflow: hidden; display: flex; flex-direction: column; height: 100%;
 }
-.user-row:hover { transform: translateX(6px); box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08); border-color: #cbd5e1; background: #ffffff; }
-.user-avatar { width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); border: 1.5px solid #ffffff; display: flex; align-items: center; justify-content: center; font-family: 'DM Sans', sans-serif; font-size: 1.2rem; font-weight: 800; color: #4338ca; flex-shrink: 0; margin-right: 20px; box-shadow: 0 4px 10px rgba(67, 56, 202, 0.1); }
-.user-info { flex: 1; }
-.user-name { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.25rem; font-weight: 400; color: #0f172a; margin-bottom: 4px; }
-.user-meta { display: flex; gap: 15px; align-items: center; margin-bottom: 6px; }
-.meta-label { display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: #64748b; font-weight: 500; }
-.meta-label span { opacity: 0.7; font-size: 0.9rem; }
-.user-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #94a3b8; letter-spacing: -0.2px; }
+.user-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1); border-color: #cbd5e1; }
+.card-banner { height: 80px; background: linear-gradient(135deg, #0f172a, #1e293b); position: relative; }
+.card-avatar-wrap { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); }
+.card-avatar {
+    width: 80px; height: 80px; border-radius: 22px; background: #ffffff;
+    border: 4px solid #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: #0f172a;
+}
+.card-content { padding: 50px 1.5rem 1.5rem 1.5rem; text-align: center; flex: 1; }
+.card-name { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.4rem; color: #0f172a; margin-bottom: 6px; }
+.card-email { font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: #64748b; margin-bottom: 12px; }
+.card-meta-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 15px 0; padding: 12px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+.card-meta-item { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: #475569; font-weight: 500; }
+.card-meta-item span { opacity: 0.6; font-size: 0.9rem; }
+.card-actions { padding: 1rem 1.5rem 1.8rem 1.5rem; }
 
 /* ── Danger Button (Soft) ── */
 .del-btn-wrapper .stButton > button {
-    background: rgba(239, 68, 68, 0.03) !important;
+    background: rgba(239, 68, 68, 0.04) !important;
     color: #ef4444 !important;
     border: 1px solid rgba(239, 68, 68, 0.15) !important;
     box-shadow: none !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px !important;
+    font-size: 0.75rem !important;
 }
 .del-btn-wrapper .stButton > button:hover {
-    background: rgba(239, 68, 68, 0.08) !important;
+    background: rgba(239, 68, 68, 0.1) !important;
     border-color: rgba(239, 68, 68, 0.3) !important;
-    transform: translateY(-1px) !important;
+    transform: none !important;
 }
 
 /* ── Credential tag ── */
@@ -235,6 +243,66 @@ st.markdown("""
 # =====================================================
 # FETCH DATA
 # =====================================================
+def get_activity_feed(limit=50):
+    try:
+        if actions_col is not None:
+             # Sort by _id descending to get latest actions (if no timestamp field)
+             actions = list(actions_col.find().sort("_id", -1).limit(limit))
+             return actions
+        return []
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return []
+
+def get_pop_stock():
+    try:
+        if watchlist_col is not None:
+            pipeline = [
+                {"$group": {"_id": "$ticker", "count": {"$sum": 1}}},
+                {"$sort": {"count": -1}},
+                {"$limit": 1}
+            ]
+            result = list(watchlist_col.aggregate(pipeline))
+            if result:
+                return result[0]["_id"], result[0]["count"]
+        return "None", 0
+    except Exception as e:
+        return "None", 0
+
+def get_active_users_count():
+    try:
+        if actions_col is not None:
+            return len(actions_col.distinct("user_id"))
+        return 0
+    except:
+        return 0
+
+def get_broadcast_message():
+    try:
+        # Using a new collection 'admin_settings' for global config
+        settings_col = db["admin_settings"]
+        doc = settings_col.find_one({"key": "broadcast_message"})
+        if doc and doc.get("active"):
+            return doc.get("message", "")
+        return ""
+    except:
+        return ""
+
+def set_broadcast_message(msg, active=True):
+    try:
+        settings_col = db["admin_settings"]
+        settings_col.update_one(
+            {"key": "broadcast_message"},
+            {"$set": {"message": msg, "active": active}},
+            upsert=True
+        )
+        return True
+    except:
+        return False
+
+
+
 def get_stats():
     try:
         total_users = users_col.count_documents({}) if users_col is not None else 0
@@ -242,8 +310,6 @@ def get_stats():
         action_count = actions_col.count_documents({}) if actions_col is not None else 0
         return total_users, watchlist_entries, action_count
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return 0, 0, 0
 
 def get_all_users():
@@ -252,15 +318,13 @@ def get_all_users():
              users = list(users_col.find({}, {"_id": 1, "username": 1, "email": 1, "mobile": 1, "password": 1}))
              return users
         return []
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
+    except:
         return []
-
-
 
 total_users, watchlist_entries, action_count = get_stats()
 all_users = get_all_users()
+pop_stock, pop_count = get_pop_stock()
+active_users = get_active_users_count()
 
 # =====================================================
 # STAT CARDS
@@ -271,13 +335,13 @@ st.markdown(f"""
         <div class="stat-icon">👥</div>
         <div class="stat-value">{total_users}</div>
         <div class="stat-label">Total Users</div>
-        <div class="stat-sub stat-up">Registered accounts</div>
+        <div class="stat-sub stat-up">{active_users} active in session</div>
     </div>
     <div class="stat-card" style="--accent:#34c759;">
-        <div class="stat-icon">⭐</div>
-        <div class="stat-value">{watchlist_entries}</div>
-        <div class="stat-label">Watchlist Entries</div>
-        <div class="stat-sub stat-up">Across all users</div>
+        <div class="stat-icon">🔥</div>
+        <div class="stat-value">{pop_stock}</div>
+        <div class="stat-label">Trending Stock</div>
+        <div class="stat-sub stat-up">In {pop_count} watchlists</div>
     </div>
     <div class="stat-card" style="--accent:#0a84ff;">
         <div class="stat-icon">⚡</div>
@@ -286,10 +350,10 @@ st.markdown(f"""
         <div class="stat-sub" style="color:#4a7090;">Logged interactions</div>
     </div>
     <div class="stat-card" style="--accent:#bf5af2;">
-        <div class="stat-icon">🏦</div>
-        <div class="stat-value">NSE</div>
-        <div class="stat-label">Primary Exchange</div>
-        <div class="stat-sub" style="color:#4a5070;">NIFTYBEES benchmark</div>
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value">{watchlist_entries}</div>
+        <div class="stat-label">Total Saves</div>
+        <div class="stat-sub" style="color:#4a5070;">Across all users</div>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -297,7 +361,40 @@ st.markdown(f"""
 # =====================================================
 # MAIN TABS
 # =====================================================
-tab1, tab3, tab4 = st.tabs(["👥  User Management", "🔑  Reset Password", "📋  System Info"])
+tab1, tab_activity, tab3, tab4 = st.tabs(["👥  User Management", "📡  Activity Feed", "🔑  Reset Password", "📋  System Info"])
+
+# ─────────────────────────────
+# TAB 2: ACTIVITY FEED
+# ─────────────────────────────
+with tab_activity:
+    st.markdown('<div class="section-hdr">Live Activity Log</div>', unsafe_allow_html=True)
+    activity = get_activity_feed()
+    if activity:
+        # Create a formatted list of activities
+        for act in activity:
+            user_id = str(act.get("user_id", "Unknown"))
+            action_type = act.get("action", "unknown").upper()
+            val = act.get("value", "—")
+            
+            # Simple color mapping for actions
+            color = "#6366f1" # Default Indigo
+            if action_type == "SEARCH": color = "#0a84ff"
+            elif action_type == "WATCHLIST": color = "#34c759"
+            
+            st.markdown(f"""
+            <div class="panel-card" style="padding: 1rem 1.5rem; margin-bottom: 0.8rem; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="background: {color}; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px;">{action_type}</div>
+                    <div>
+                        <div style="font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700; color: #0f172a;">{val}</div>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #64748b;">USER: {user_id}</div>
+                    </div>
+                </div>
+                <div style="font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: #94a3b8;">Recently</div>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.info("No activity recorded yet.")
 
 # ─────────────────────────────
 # TAB 1: USER MANAGEMENT
@@ -329,54 +426,61 @@ with tab1:
 
         st.markdown(f"<div style='font-family:DM Sans,sans-serif;font-size:0.78rem;color:#1e293b;margin-bottom:12px;'>Showing {len(filtered)} of {len(all_users)} users</div>", unsafe_allow_html=True)
 
-        # Render user rows
-        for user in filtered:
-            uid = str(user.get("_id", ""))
-            uname = user.get("username", "—")
-            uemail = user.get("email", "—")
-            umobile = user.get("mobile", "—")
-            upass = user.get("password", "—")
-            avatar_letter = uname[0].upper() if uname else "?"
+        # Render user grid
+        cols_per_row = 3
+        rows = [filtered[i:i + cols_per_row] for i in range(0, len(filtered), cols_per_row)]
+        
+        for row_count, user_batch in enumerate(rows):
+            grid_cols = st.columns(cols_per_row)
+            for i, user in enumerate(user_batch):
+                uid = str(user.get("_id", ""))
+                uname = user.get("username", "—")
+                uemail = user.get("email", "—")
+                umobile = user.get("mobile", "—")
+                upass = user.get("password", "—")
+                avatar_letter = uname[0].upper() if uname else "?"
 
-            col_info, col_actions = st.columns([4.2, 1])
-            with col_info:
-                st.markdown(f"""
-                <div class="user-row">
-                    <div class="user-avatar">{avatar_letter}</div>
-                    <div class="user-info">
-                        <div class="user-name">{uname}</div>
-                        <div class="user-meta">
-                            <div class="meta-label"><span>✉</span> {uemail}</div>
-                            <div class="meta-label"><span>📱</span> {umobile}</div>
+                with grid_cols[i]:
+                    st.markdown(f"""
+                    <div class="user-card">
+                        <div class="card-banner">
+                            <div class="card-avatar-wrap">
+                                <div class="card-avatar">{avatar_letter}</div>
+                            </div>
                         </div>
-                        <div class="user-mono">IDENTITY_SEQUENCE: {uid[:24]}</div>
-                    </div>
-                    <div class="credential-tag">
-                        <span>TOKEN</span> {upass[:16]}
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-            with col_actions:
-                st.markdown('<div class="del-btn-wrapper">', unsafe_allow_html=True)
-                st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-                if st.button("🗑 DELETE", key=f"del_{uid}", use_container_width=True):
-                    st.session_state[f"confirm_del_{uid}"] = True
-                st.markdown('</div>', unsafe_allow_html=True)
+                        <div class="card-content">
+                            <div class="card-name">{uname}</div>
+                            <div class="card-email">{uemail}</div>
+                            <div class="card-meta-grid">
+                                <div class="card-meta-item"><span>📱</span> {umobile}</div>
+                                <div class="card-meta-item"><span>🔑</span> {upass[:12]}{'…' if len(upass) > 12 else ''}</div>
+                            </div>
+                            <div class="user-mono">ID: {uid[:20]}…</div>
+                        </div>
+                        <div class="card-actions">
+                            <div class="del-btn-wrapper">
+                                <div class="stButton">""" # Marker for styling
+                    , unsafe_allow_html=True)
+                    
+                    if st.button("🗑 DELETE SESSION", key=f"del_grid_{uid}", use_container_width=True):
+                        st.session_state[f"confirm_del_{uid}"] = True
+                    
+                    st.markdown("""</div></div></div>""", unsafe_allow_html=True)
 
-            if st.session_state.get(f"confirm_del_{uid}"):
-                st.warning(f"⚠ Delete **{uname}**? This cannot be undone.")
-                c1, c2 = st.columns(2)
-                with c1:
-                    if st.button("Confirm Delete", key=f"confirm_yes_{uid}"):
-                        users_col.delete_one({"_id": user["_id"]})
-                        st.success(f"User '{uname}' deleted.")
-                        st.session_state.pop(f"confirm_del_{uid}", None)
-                        st.cache_data.clear()
-                        st.rerun()
-                with c2:
-                    if st.button("✗ Cancel", key=f"confirm_no_{uid}"):
-                        st.session_state.pop(f"confirm_del_{uid}", None)
-                        st.rerun()
+                if st.session_state.get(f"confirm_del_{uid}"):
+                    with st.container():
+                        st.warning(f"⚠ Delete **{uname}**? (ID: {uid[:8]})")
+                        c1, c2 = st.columns(2)
+                        with c1:
+                            if st.button("Confirm", key=f"confirm_yes_{uid}"):
+                                users_col.delete_one({"_id": user["_id"]})
+                                st.success(f"Deleted {uname}")
+                                st.session_state.pop(f"confirm_del_{uid}", None)
+                                st.rerun()
+                        with c2:
+                            if st.button("Cancel", key=f"confirm_no_{uid}"):
+                                st.session_state.pop(f"confirm_del_{uid}", None)
+                                st.rerun()
 
         # Downloadable CSV
         st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
@@ -534,3 +638,30 @@ with tab4:
             </div>
         </div>
         """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="panel-card" style="border-top: 4px solid #3b82f6; margin-top: 20px;">
+        <div style="font-family:'DM Sans',sans-serif;font-size:0.75rem;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:18px;">System Broadcast</div>
+        <p style="font-size: 0.8rem; color: #475569; margin-bottom: 1.5rem;">Set a global announcement for all user dashboards.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    current_msg = get_broadcast_message()
+    broadcast_text = st.text_area("Broadcast Message", value=current_msg, height=100, placeholder="Enter announcement text...", label_visibility="collapsed")
+    
+    bc_c1, bc_c2 = st.columns([1, 1])
+    with bc_c1:
+        if st.button("📢 Update Broadcast", use_container_width=True, key="update_bc"):
+            if set_broadcast_message(broadcast_text, active=True):
+                st.success("Broadcast updated!")
+                import time
+                time.sleep(1)
+                st.rerun()
+    with bc_c2:
+        if st.button("❌ Stop Broadcast", use_container_width=True, key="stop_bc"):
+            if set_broadcast_message("", active=False):
+                st.warning("Broadcast stopped.")
+                import time
+                time.sleep(1)
+                st.rerun()
+
