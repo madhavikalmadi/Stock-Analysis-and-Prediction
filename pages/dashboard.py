@@ -11,6 +11,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pandas as pd
 import yfinance as yf
 import pytz
+import requests
+import xml.etree.ElementTree as ET
 from datetime import datetime
 from mongo_db import db
 
@@ -709,31 +711,70 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# QUICK INSIGHT
-market_insights = [
-    "Diversification isn't just about owning many stocks—it's about owning different <i>types</i> of stocks (Sectors, Caps) to reduce risk.",
-    "Time in the market beats timing the market. Consistency is the key to wealth creation.",
-    "High returns usually come with high risks. Always check the risk-adjusted metrics to see if the reward is worth it.",
-    "Don't put all your eggs in one basket. Allocate between Large Cap stability and Mid/Small Cap growth.",
-    "A company's past performance reflects its management, but its future depends on its adaptability.",
-    "Volatility is the price you pay for long-term returns. Stay calm during market corrections.",
-    "Dividends are great, but reinvesting them is what triggers the true power of compounding.",
-    "Never invest in a business you cannot understand. Knowledge is your best safety net.",
-    "Stop-loss is not just a tool; it's a discipline to protect your capital from emotional decisions.",
-    "The best time to start investing was 20 years ago. The second best time is today.",
-    "Focus on the process, not the result. A sound strategy leads to sustainable long-term gains.",
-    "Bear markets are where wealth is built; bull markets are where that wealth is realized.",
-    "Price is what you pay, value is what you get. Look for quality stocks at reasonable prices.",
-    "Don't chase 'hot' stocks. By the time it's mainstream news, the initial growth phase is often over."
-]
+# =============================================================
+# DAILY MARKET ADVICE (ONLINE SOURCE WITH FALLBACK)
+# =============================================================
 
-# Rotate advice daily using the day of the year
-day_of_year = datetime.now().timetuple().tm_yday
-selected_insight = market_insights[day_of_year % len(market_insights)]
+@st.cache_data(ttl=3600, show_spinner=False)
+def fetch_online_insight():
+    """Fetches the latest market report from Moneycontrol RSS."""
+    try:
+        url = "https://www.moneycontrol.com/rss/marketreports.xml"
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+        response = requests.get(url, headers=headers, timeout=5)
+        if response.status_code == 200:
+            root = ET.fromstring(response.text)
+            item = root.find('.//item')
+            if item is not None:
+                title_elem = item.find('title')
+                if title_elem is not None and title_elem.text:
+                    title = title_elem.text
+                    # Clean up "Taking Stock: " prefix if present for cleaner look
+                    if title.startswith("Taking Stock: "):
+                        title = title.replace("Taking Stock: ", "")
+                    return title
+    except Exception:
+        pass
+    return None
+
+def get_market_advice():
+    # Hardcoded Fallback List
+    market_insights = [
+        "Diversification isn't just about owning many stocks—it's about owning different <i>types</i> of stocks (Sectors, Caps) to reduce risk.",
+        "Time in the market beats timing the market. Consistency is the key to wealth creation.",
+        "High returns usually come with high risks. Always check the risk-adjusted metrics to see if the reward is worth it.",
+        "Don't put all your eggs in one basket. Allocate between Large Cap stability and Mid/Small Cap growth.",
+        "A company's past performance reflects its management, but its future depends on its adaptability.",
+        "Volatility is the price you pay for long-term returns. Stay calm during market corrections.",
+        "Dividends are great, but reinvesting them is what triggers the true power of compounding.",
+        "Never invest in a business you cannot understand. Knowledge is your best safety net.",
+        "Stop-loss is not just a tool; it's a discipline to protect your capital from emotional decisions.",
+        "The best time to start investing was 20 years ago. The second best time is today.",
+        "Focus on the process, not the result. A sound strategy leads to sustainable long-term gains.",
+        "Bear markets are where wealth is built; bull markets are where that wealth is realized.",
+        "Price is what you pay, value is what you get. Look for quality stocks at reasonable prices.",
+        "Don't chase 'hot' stocks. By the time it's mainstream news, the initial growth phase is often over."
+    ]
+    
+    # Try online source first
+    online_insight = fetch_online_insight()
+    if online_insight:
+        return f"Latest Market Update: {online_insight}", "Online Report"
+    
+    # Fallback to daily rotation
+    day_of_year = datetime.now().timetuple().tm_yday
+    selected_insight = market_insights[day_of_year % len(market_insights)]
+    return selected_insight, "Daily Wisdom"
+
+selected_insight_text, source_tag = get_market_advice()
 
 st.markdown(f"""
 <div class="insight-box">
-    💡 <b>Daily Market Advice:</b> {selected_insight}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+        <span style="font-size: 1rem;">💡 <b>Daily Market Advice</b></span>
+        <span style="font-size: 0.65rem; background: rgba(16, 185, 129, 0.1); color: #065f46; padding: 2px 8px; border-radius: 20px; font-weight: 700;">{source_tag}</span>
+    </div>
+    <div style="font-size: 0.95rem; line-height: 1.5; color: #1f2937;">{selected_insight_text}</div>
 </div>
 """, unsafe_allow_html=True)
 
