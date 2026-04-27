@@ -729,7 +729,16 @@ def fetch_online_insight():
             if item is not None:
                 title_elem = item.find('title')
                 if title_elem is not None and title_elem.text:
-                    title = str(html.unescape(title_elem.text))
+                    title = str(title_elem.text)
+                    # Robust unescaping (handles multiple escapes)
+                    while "&" in title and ";" in title:
+                        new_title = html.unescape(title)
+                        if new_title == title:
+                            break
+                        title = new_title
+                    # Manual fallback for common entities that might lose their ampersand
+                    title = title.replace("#39;", "'").replace("&39;", "'")
+                    
                     # Clean up "Taking Stock: " prefix
                     if title.lower().startswith("taking stock:"):
                         title = title[13:].strip()
