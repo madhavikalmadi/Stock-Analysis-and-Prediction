@@ -710,9 +710,30 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # QUICK INSIGHT
-st.markdown("""
+market_insights = [
+    "Diversification isn't just about owning many stocks—it's about owning different <i>types</i> of stocks (Sectors, Caps) to reduce risk.",
+    "Time in the market beats timing the market. Consistency is the key to wealth creation.",
+    "High returns usually come with high risks. Always check the risk-adjusted metrics to see if the reward is worth it.",
+    "Don't put all your eggs in one basket. Allocate between Large Cap stability and Mid/Small Cap growth.",
+    "A company's past performance reflects its management, but its future depends on its adaptability.",
+    "Volatility is the price you pay for long-term returns. Stay calm during market corrections.",
+    "Dividends are great, but reinvesting them is what triggers the true power of compounding.",
+    "Never invest in a business you cannot understand. Knowledge is your best safety net.",
+    "Stop-loss is not just a tool; it's a discipline to protect your capital from emotional decisions.",
+    "The best time to start investing was 20 years ago. The second best time is today.",
+    "Focus on the process, not the result. A sound strategy leads to sustainable long-term gains.",
+    "Bear markets are where wealth is built; bull markets are where that wealth is realized.",
+    "Price is what you pay, value is what you get. Look for quality stocks at reasonable prices.",
+    "Don't chase 'hot' stocks. By the time it's mainstream news, the initial growth phase is often over."
+]
+
+# Rotate advice daily using the day of the year
+day_of_year = datetime.now().timetuple().tm_yday
+selected_insight = market_insights[day_of_year % len(market_insights)]
+
+st.markdown(f"""
 <div class="insight-box">
-    💡 <b>Market Insight:</b> Diversification isn't just about owning many stocks—it's about owning different <i>types</i> of stocks (Sectors, Caps) to reduce risk.
+    💡 <b>Daily Market Advice:</b> {selected_insight}
 </div>
 """, unsafe_allow_html=True)
 
