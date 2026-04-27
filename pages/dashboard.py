@@ -12,6 +12,7 @@ import pandas as pd
 import yfinance as yf
 import pytz
 import requests
+import html
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from mongo_db import db
@@ -728,10 +729,10 @@ def fetch_online_insight():
             if item is not None:
                 title_elem = item.find('title')
                 if title_elem is not None and title_elem.text:
-                    title = title_elem.text
-                    # Clean up "Taking Stock: " prefix if present for cleaner look
-                    if title.startswith("Taking Stock: "):
-                        title = title.replace("Taking Stock: ", "")
+                    title = str(html.unescape(title_elem.text))
+                    # Clean up "Taking Stock: " prefix
+                    if title.lower().startswith("taking stock:"):
+                        title = title[13:].strip()
                     return title
     except Exception:
         pass
@@ -759,7 +760,7 @@ def get_market_advice():
     # Try online source first
     online_insight = fetch_online_insight()
     if online_insight:
-        return f"Latest Market Update: {online_insight}", "Online Report"
+        return online_insight, "Market Insight"
     
     # Fallback to daily rotation
     day_of_year = datetime.now().timetuple().tm_yday
