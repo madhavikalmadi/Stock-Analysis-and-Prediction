@@ -194,7 +194,7 @@ st.markdown("""
     display: flex; align-items: center; justify-content: center;
     font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: #0f172a;
 }
-.card-content { padding: 50px 1.5rem 1.5rem 1.5rem; text-align: center; flex: 1; }
+.card-content { padding: 50px 1.5rem 1rem 1.5rem; text-align: center; flex: 1; }
 .card-name { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.4rem; color: #0f172a; margin-bottom: 6px; }
 .card-email { font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: #64748b; margin-bottom: 12px; }
 .card-meta-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 15px 0; padding: 12px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
@@ -204,17 +204,21 @@ st.markdown("""
 
 /* ── Danger Button (Soft) ── */
 .del-btn-wrapper .stButton > button {
-    background: rgba(239, 68, 68, 0.04) !important;
-    color: #ef4444 !important;
-    border: 1px solid rgba(239, 68, 68, 0.15) !important;
-    box-shadow: none !important;
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1) !important;
     font-weight: 800 !important;
     letter-spacing: 0.5px !important;
-    font-size: 0.75rem !important;
+    font-size: 0.72rem !important;
+    margin: 1.2rem 0 0.5rem 0 !important;
+    height: 42px !important;
 }
+.del-btn-wrapper .stButton { display: flex; justify-content: center; }
 .del-btn-wrapper .stButton > button:hover {
-    background: rgba(239, 68, 68, 0.1) !important;
-    border-color: rgba(239, 68, 68, 0.3) !important;
+    background: #ef4444 !important;
+    color: #fff !important;
     transform: none !important;
 }
 
@@ -287,30 +291,6 @@ def get_active_users_count():
         return 0
     except:
         return 0
-
-def get_broadcast_message():
-    try:
-        # Using a new collection 'admin_settings' for global config
-        settings_col = db["admin_settings"]
-        doc = settings_col.find_one({"key": "broadcast_message"})
-        if doc and doc.get("active"):
-            return doc.get("message", "")
-        return ""
-    except:
-        return ""
-
-def set_broadcast_message(msg, active=True):
-    try:
-        settings_col = db["admin_settings"]
-        settings_col.update_one(
-            {"key": "broadcast_message"},
-            {"$set": {"message": msg, "active": active}},
-            upsert=True
-        )
-        return True
-    except:
-        return False
-
 
 
 def get_stats():
@@ -466,8 +446,6 @@ with tab1:
                                 <div class="card-meta-item"><span>🔑</span> {upass[:12]}{'…' if len(upass) > 12 else ''}</div>
                             </div>
                             <div class="user-mono">ID: {uid[:20]}…</div>
-                        </div>
-                        <div class="card-actions">
                             <div class="del-btn-wrapper">
                                 <div class="stButton">""" # Marker for styling
                     , unsafe_allow_html=True)
@@ -475,7 +453,7 @@ with tab1:
                     if st.button("🗑 DELETE SESSION", key=f"del_grid_{uid}", use_container_width=True):
                         st.session_state[f"confirm_del_{uid}"] = True
                     
-                    st.markdown("""</div></div></div>""", unsafe_allow_html=True)
+                    st.markdown("""</div></div></div></div>""", unsafe_allow_html=True)
 
                 if st.session_state.get(f"confirm_del_{uid}"):
                     with st.container():
@@ -649,29 +627,4 @@ with tab4:
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown("""
-    <div class="panel-card" style="border-top: 4px solid #3b82f6; margin-top: 20px;">
-        <div style="font-family:'DM Sans',sans-serif;font-size:0.75rem;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:18px;">System Broadcast</div>
-        <p style="font-size: 0.8rem; color: #475569; margin-bottom: 1.5rem;">Set a global announcement for all user dashboards.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    current_msg = get_broadcast_message()
-    broadcast_text = st.text_area("Broadcast Message", value=current_msg, height=100, placeholder="Enter announcement text...", label_visibility="collapsed")
-    
-    bc_c1, bc_c2 = st.columns([1, 1])
-    with bc_c1:
-        if st.button("📢 Update Broadcast", use_container_width=True, key="update_bc"):
-            if set_broadcast_message(broadcast_text, active=True):
-                st.success("Broadcast updated!")
-                import time
-                time.sleep(1)
-                st.rerun()
-    with bc_c2:
-        if st.button("❌ Stop Broadcast", use_container_width=True, key="stop_bc"):
-            if set_broadcast_message("", active=False):
-                st.warning("Broadcast stopped.")
-                import time
-                time.sleep(1)
-                st.rerun()
 
