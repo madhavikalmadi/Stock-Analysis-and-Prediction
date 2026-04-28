@@ -327,18 +327,6 @@ st.markdown(f"""
         <div class="stat-label">Total Users</div>
         <div class="stat-sub stat-up">{active_users} active in session</div>
     </div>
-    <div class="stat-card" style="--accent:#34c759;">
-        <div class="stat-icon">🔥</div>
-        <div class="stat-value">{pop_stock}</div>
-        <div class="stat-label">Trending Stock</div>
-        <div class="stat-sub stat-up">In {pop_count} watchlists</div>
-    </div>
-    <div class="stat-card" style="--accent:#0a84ff;">
-        <div class="stat-icon">⚡</div>
-        <div class="stat-value">{action_count}</div>
-        <div class="stat-label">User Actions</div>
-        <div class="stat-sub" style="color:#4a7090;">Logged interactions</div>
-    </div>
     <div class="stat-card" style="--accent:#bf5af2;">
         <div class="stat-icon">⭐</div>
         <div class="stat-value">{watchlist_entries}</div>
