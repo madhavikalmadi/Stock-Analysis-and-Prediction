@@ -246,12 +246,11 @@ def add_to_watchlist(ticker, bound_user_id=None):
         "ticker": ticker
     })
 
-    # 🔥 Also update session state so UI refreshes immediately
+    # 🔥 Also update session state so UI refreshes correctly
     if ticker not in st.session_state.watchlist:
         st.session_state.watchlist.append(ticker)
 
     st.toast(f"✅ Added {ticker} to Watchlist")
-    st.rerun()   # 🔥 IMPORTANT: Force UI refresh
 
 # --------------------------------------------------
 # UI
