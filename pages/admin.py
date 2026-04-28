@@ -452,7 +452,6 @@ with tab1:
                                 <div class="card-meta-item"><span>📱</span> {umobile}</div>
                                 <div class="card-meta-item"><span>🔑</span> {upass[:12]}{'…' if len(upass) > 12 else ''}</div>
                             </div>
-                            <div class="card-user-mono">ID: {uid[:20]}…</div>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
