@@ -193,7 +193,9 @@ if watchlist:
         if not full_data.empty:
             metrics = metric_calculator.compute_metrics(full_data, "^NSEI")
             for item in watchlist:
-                m = metrics[metrics["Ticker"] == item['ticker']]
+                # Tickers in metrics are appended with .NS by fetch_stock_data
+                processed_ticker = item['ticker'] if item['ticker'].endswith(".NS") or item['ticker'].startswith("^") else f"{item['ticker']}.NS"
+                m = metrics[metrics["Ticker"] == processed_ticker]
                 if not m.empty:
                     row = m.iloc[0]
                     res = get_recommendation_text(row['CAGR'], row['Sharpe'])
