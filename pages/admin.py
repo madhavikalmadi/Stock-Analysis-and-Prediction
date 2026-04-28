@@ -201,6 +201,7 @@ st.markdown("""
 .card-meta-item { display: flex; align-items: center; justify-content: center; gap: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: #475569; font-weight: 600; background: #f8fafc; padding: 8px; border-radius: 10px; }
 .card-meta-item span { opacity: 0.8; font-size: 0.95rem; }
 .card-footer { padding: 0 1.5rem 1.5rem 1.5rem; }
+.card-button-wrapper { padding: 1.5rem 1.5rem 1.5rem 1.5rem; margin-top: auto; }
 .card-user-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #64748b; margin-bottom: 16px; text-align: center; }
 
 /* ── Danger Button (Modern) ── */
@@ -208,7 +209,8 @@ st.markdown("""
     margin: 0 !important;
 }
 
-.card-button-wrapper + div .stButton > button {
+/* Pull button inside card with negative margin */
+[data-testid="column"] > .stColumn > div > .stButton > button {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
     color: #ffffff !important;
     border: none !important;
@@ -217,20 +219,21 @@ st.markdown("""
     font-weight: 700 !important;
     letter-spacing: 0.5px !important;
     font-size: 0.75rem !important;
-    margin: 0 !important;
+    margin: -60px 1.5rem 1.5rem 1.5rem !important;
     height: 44px !important;
     width: calc(100% - 3rem) !important;
+    position: relative;
+    z-index: 10;
 }
 
-.card-button-wrapper + div .stButton {
+[data-testid="column"] > .stColumn > div > .stButton {
     display: flex;
     justify-content: center;
     margin: 0 !important;
-    padding: 0 1.5rem !important;
-    width: 100% !important;
+    padding: 0 !important;
 }
 
-.card-button-wrapper + div .stButton > button:hover {
+[data-testid="column"] > .stColumn > div > .stButton > button:hover {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
     color: #fff !important;
     box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3) !important;
