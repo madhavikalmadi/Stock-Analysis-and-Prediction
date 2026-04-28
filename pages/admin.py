@@ -333,6 +333,18 @@ st.markdown(f"""
         <div class="stat-label">Total Saves</div>
         <div class="stat-sub" style="color:#4a5070;">Across all users</div>
     </div>
+    <div class="stat-card" style="--accent:#34c759;">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value">{action_count}</div>
+        <div class="stat-label">Total Actions</div>
+        <div class="stat-sub" style="color:#4a5070;">Searches & activities</div>
+    </div>
+    <div class="stat-card" style="--accent:#0a84ff;">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-value">{pop_stock}</div>
+        <div class="stat-label">Most Popular Stock</div>
+        <div class="stat-sub" style="color:#4a5070;">{pop_count} views</div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
