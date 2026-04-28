@@ -419,7 +419,7 @@ with tab1:
         st.markdown(f"<div style='font-family:DM Sans,sans-serif;font-size:0.78rem;color:#1e293b;margin-bottom:12px;'>Showing {len(filtered)} of {len(all_users)} users</div>", unsafe_allow_html=True)
 
         # Render user grid
-        cols_per_row = 3
+        cols_per_row = 4
         rows = [filtered[i:i + cols_per_row] for i in range(0, len(filtered), cols_per_row)]
         
         for row_count, user_batch in enumerate(rows):
@@ -448,27 +448,25 @@ with tab1:
                                 <div class="card-meta-item"><span>🔑</span> {upass[:12]}{'…' if len(upass) > 12 else ''}</div>
                             </div>
                             <div class="user-mono">ID: {uid[:20]}…</div>
-                            <div class="del-btn-wrapper">
-                                <div class="stButton">""" # Marker for styling
-                    , unsafe_allow_html=True)
+                        </div>
+                    </div>""", unsafe_allow_html=True)
                     
+                    # Delete button inside card
                     if st.button("🗑 DELETE SESSION", key=f"del_grid_{uid}", use_container_width=True):
                         st.session_state[f"confirm_del_{uid}"] = True
                     
-                    st.markdown("""</div></div></div></div>""", unsafe_allow_html=True)
-
-                if st.session_state.get(f"confirm_del_{uid}"):
-                    with st.container():
-                        st.warning(f"⚠ Delete **{uname}**? (ID: {uid[:8]})")
-                        c1, c2 = st.columns(2)
-                        with c1:
-                            if st.button("Confirm", key=f"confirm_yes_{uid}"):
+                    # Confirmation dialog inside card
+                    if st.session_state.get(f"confirm_del_{uid}"):
+                        st.warning(f"Delete **{uname}**?", icon="⚠")
+                        cb1, cb2 = st.columns(2)
+                        with cb1:
+                            if st.button("✓ Yes", key=f"confirm_yes_{uid}", use_container_width=True):
                                 users_col.delete_one({"_id": user["_id"]})
                                 st.success(f"Deleted {uname}")
                                 st.session_state.pop(f"confirm_del_{uid}", None)
                                 st.rerun()
-                        with c2:
-                            if st.button("Cancel", key=f"confirm_no_{uid}"):
+                        with cb2:
+                            if st.button("✗ No", key=f"confirm_no_{uid}", use_container_width=True):
                                 st.session_state.pop(f"confirm_del_{uid}", None)
                                 st.rerun()
 
