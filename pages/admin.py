@@ -201,15 +201,14 @@ st.markdown("""
 .card-meta-item { display: flex; align-items: center; justify-content: center; gap: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: #475569; font-weight: 600; background: #f8fafc; padding: 8px; border-radius: 10px; }
 .card-meta-item span { opacity: 0.8; font-size: 0.95rem; }
 .card-footer { padding: 0 1.5rem 1.5rem 1.5rem; }
-.card-user-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #64748b; margin-bottom: 12px; text-align: center; }
+.card-user-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #64748b; margin-bottom: 16px; text-align: center; }
 
 /* ── Danger Button (Modern) ── */
 .stColumn button {
     margin: 0 !important;
 }
 
-.stColumn:has(+ .stColumn) .stButton > button,
-.stColumn .stButton > button {
+.card-button-wrapper + div .stButton > button {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
     color: #ffffff !important;
     border: none !important;
@@ -218,20 +217,20 @@ st.markdown("""
     font-weight: 700 !important;
     letter-spacing: 0.5px !important;
     font-size: 0.75rem !important;
-    margin: 12px 0 0 0 !important;
+    margin: 0 !important;
     height: 44px !important;
-    width: 100% !important;
+    width: calc(100% - 3rem) !important;
 }
 
-.stColumn .stButton {
+.card-button-wrapper + div .stButton {
     display: flex;
     justify-content: center;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 0 1.5rem !important;
     width: 100% !important;
 }
 
-.stColumn .stButton > button:hover {
+.card-button-wrapper + div .stButton > button:hover {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
     color: #fff !important;
     box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3) !important;
@@ -461,13 +460,15 @@ with tab1:
                                 <div class="card-meta-item"><span>🔑</span> {upass[:12]}{'…' if len(upass) > 12 else ''}</div>
                             </div>
                             <div class="card-user-mono">ID: {uid[:20]}…</div>
-                        </div>
+                            <div class="card-button-wrapper" id="btn_{uid}">
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    # Delete button - inside the card
+                    # Delete button - rendered inside the card wrapper
                     if st.button("🗑 DELETE SESSION", key=f"del_grid_{uid}", use_container_width=True):
                         st.session_state[f"confirm_del_{uid}"] = True
+                    
+                    st.markdown("""</div></div>""", unsafe_allow_html=True)
                     
                     # Confirmation dialog
                     if st.session_state.get(f"confirm_del_{uid}"):
