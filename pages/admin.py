@@ -194,7 +194,7 @@ st.markdown("""
     display: flex; align-items: center; justify-content: center;
     font-family: 'DM Serif Display', serif; font-size: 2.5rem; color: #ffffff; font-weight: 900;
 }
-.card-content { padding: 60px 1.5rem 1.2rem 1.5rem; text-align: center; flex: 1; }
+.card-content { padding: 60px 1.5rem 1.5rem 1.5rem; text-align: center; flex: 1; display: flex; flex-direction: column; }
 .card-name { font-family: 'DM Sans', sans-serif; font-size: 1.15rem; color: #0f172a; margin-bottom: 4px; font-weight: 800; }
 .card-email { font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: #64748b; margin-bottom: 14px; }
 .card-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; padding: 12px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
@@ -449,11 +449,14 @@ with tab1:
                             </div>
                             <div class="user-mono">ID: {uid[:20]}…</div>
                         </div>
-                    </div>""", unsafe_allow_html=True)
+                    </div>
+                    """, unsafe_allow_html=True)
                     
-                    # Delete button inside card
+                    # Delete button - inside the column but styled to look part of card
+                    st.markdown('<div style="margin-top: -8px;">', unsafe_allow_html=True)
                     if st.button("🗑 DELETE SESSION", key=f"del_grid_{uid}", use_container_width=True):
                         st.session_state[f"confirm_del_{uid}"] = True
+                    st.markdown('</div>', unsafe_allow_html=True)
                     
                     # Confirmation dialog inside card
                     if st.session_state.get(f"confirm_del_{uid}"):
