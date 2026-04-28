@@ -45,7 +45,6 @@ if "watchlist" not in st.session_state:
 
 if "search_query" not in st.session_state:
     st.session_state.search_query = ""
-
 # =============================================================
 # CSS
 # =============================================================
@@ -161,24 +160,53 @@ def fetch_stock_data(symbol):
     
     row = metrics[metrics["Ticker"] == symbol].iloc[0]
     
-    # Get 5d history for current price info (already in full_data but let's keep logic simple)
-    # yfinance provides easy access
-    stock = yf.Ticker(symbol)
-    hist = stock.history(period="5d")
-    latest = hist.iloc[-1]
-    price = latest["Close"]
-    prev = hist["Close"].iloc[-2] if len(hist) > 1 else price
-    change = ((price - prev) / prev) * 100 if prev else 0
+    # --- Robust price fetch (3-tier priority) ---
+    # 1. ticker.info (live during market hours)
+    # 2. regularMarketPrice (near-real-time fallback)
+    # 3. 5d history last Close (works when market is closed / holidays)
+    stock_ticker = yf.Ticker(symbol)
+
+    price = None
+    change = 0.0
+    open_p = high_p = low_p = None
+    volume = 0
+
+    try:
+        info  = stock_ticker.info
+        price = info.get("currentPrice") or info.get("regularMarketPrice")
+        if price:
+            price = float(price)
+    except Exception:
+        price = None
+
+    # Fallback: 5-day history
+    hist = stock_ticker.history(period="5d")
+    if not hist.empty:
+        hist = hist.dropna(subset=["Close"])
+        if not hist.empty:
+            latest = hist.iloc[-1]
+            hist_price = float(latest["Close"])
+
+            # Only override if info gave nothing
+            if not price:
+                price = hist_price
+
+            prev   = float(hist["Close"].iloc[-2]) if len(hist) > 1 else hist_price
+            change = ((hist_price - prev) / prev) * 100 if prev else 0.0
+            open_p = float(latest["Open"])   if "Open"   in latest else None
+            high_p = float(latest["High"])   if "High"   in latest else None
+            low_p  = float(latest["Low"])    if "Low"    in latest else None
+            volume = int(latest["Volume"])   if "Volume" in latest else 0
 
     return {
         "ticker": symbol,
-        "price": price,
+        "price":  price,
         "change": change,
-        "open": latest["Open"],
-        "high": latest["High"],
-        "low": latest["Low"],
-        "volume": latest["Volume"],
-        "cagr": row["CAGR"],
+        "open":   open_p,
+        "high":   high_p,
+        "low":    low_p,
+        "volume": volume,
+        "cagr":   row["CAGR"],
         "sharpe": row["Sharpe"]
     }, None
 
@@ -207,16 +235,23 @@ def add_to_watchlist(ticker, bound_user_id=None):
         st.toast("⚠ Login required to use watchlist")
         return
 
+    # Check if already in watchlist (MongoDB)
     if watchlist_col.find_one({"user_id": user_id, "ticker": ticker}):
         st.toast("⭐ Already in watchlist")
         return
 
+    # Save to MongoDB
     watchlist_col.insert_one({
         "user_id": user_id,
         "ticker": ticker
     })
 
-    st.toast(f"⭐ Saved {ticker}")
+    # 🔥 Also update session state so UI refreshes immediately
+    if ticker not in st.session_state.watchlist:
+        st.session_state.watchlist.append(ticker)
+
+    st.toast(f"✅ Added {ticker} to Watchlist")
+    st.rerun()   # 🔥 IMPORTANT: Force UI refresh
 
 # --------------------------------------------------
 # UI
@@ -282,7 +317,11 @@ if st.session_state.search_query:
 
         st.markdown("---")
         m1, m2, m3, m4 = st.columns(4)
-        with m1: st.metric("Price", f"₹ {stock_data['price']:.2f}", f"{stock_data['change']:+.2f}%")
+        with m1:
+            if stock_data['price'] is not None:
+                st.metric("Price", f"₹ {stock_data['price']:.2f}", f"{stock_data['change']:+.2f}%")
+            else:
+                st.warning("Price not available (Market Closed / No Data)")
         with m2: st.metric("Yearly Growth", f"{stock_data['cagr']*100:.1f}%")
         with m3: st.metric("Efficiency", f"{stock_data['sharpe']:.2f}")
         with m4: st.metric("Volume", f"{stock_data['volume']:,.0f}")

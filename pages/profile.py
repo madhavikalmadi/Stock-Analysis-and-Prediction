@@ -170,45 +170,47 @@ user_id = st.session_state.get("user_id")
 username = st.session_state.get("username")
 
 # --------------------------------------------------
-# FETCH WATCHLIST
+# FETCH WATCHLIST (always fresh — no caching)
 # --------------------------------------------------
-# --------------------------------------------------
-# FETCH WATCHLIST
-# --------------------------------------------------
-watchlist = []
+def fetch_watchlist(uid):
+    """Read the latest watchlist for this user directly from MongoDB."""
+    try:
+        return list(watchlist_col.find({"user_id": uid}))
+    except Exception as e:
+        st.error(f"⚠️ Error loading watchlist: {e}")
+        return []
+
+watchlist = fetch_watchlist(user_id) if user_id else []
 analyzed_watchlist = []
 avg_cagr = 0
 avg_sharpe = 0
 
-if user_id:
+if watchlist:
     try:
-        watchlist = list(watchlist_col.find({"user_id": user_id}))
-        if watchlist:
-            tickers = [item['ticker'] for item in watchlist]
-            # Fetch 10y data for all watchlist stocks + Sensex for reference
-            full_data = data_fetch.fetch_stock_data(tickers + ["^NSEI"])
-            if not full_data.empty:
-                metrics = metric_calculator.compute_metrics(full_data, "^NSEI")
-                for item in watchlist:
-                    m = metrics[metrics["Ticker"] == item['ticker']]
-                    if not m.empty:
-                        row = m.iloc[0]
-                        res = get_recommendation_text(row['CAGR'], row['Sharpe'])
-                        analyzed_watchlist.append({
-                            "ticker": item['ticker'],
-                            "cagr": row['CAGR'],
-                            "sharpe": row['Sharpe'],
-                            "verdict": res['verdict'],
-                            "color": res['color'],
-                            "bg": res['bg']
-                        })
-                
-                if analyzed_watchlist:
-                    avg_cagr = sum(a['cagr'] for a in analyzed_watchlist) / len(analyzed_watchlist)
-                    avg_sharpe = sum(a['sharpe'] for a in analyzed_watchlist) / len(analyzed_watchlist)
+        tickers = [item['ticker'] for item in watchlist]
+        # Fetch 10y data for all watchlist stocks + Nifty 50 for reference
+        full_data = data_fetch.fetch_stock_data(tickers + ["^NSEI"])
+        if not full_data.empty:
+            metrics = metric_calculator.compute_metrics(full_data, "^NSEI")
+            for item in watchlist:
+                m = metrics[metrics["Ticker"] == item['ticker']]
+                if not m.empty:
+                    row = m.iloc[0]
+                    res = get_recommendation_text(row['CAGR'], row['Sharpe'])
+                    analyzed_watchlist.append({
+                        "ticker": item['ticker'],
+                        "cagr": row['CAGR'],
+                        "sharpe": row['Sharpe'],
+                        "verdict": res['verdict'],
+                        "color": res['color'],
+                        "bg": res['bg']
+                    })
 
+            if analyzed_watchlist:
+                avg_cagr = sum(a['cagr'] for a in analyzed_watchlist) / len(analyzed_watchlist)
+                avg_sharpe = sum(a['sharpe'] for a in analyzed_watchlist) / len(analyzed_watchlist)
     except Exception as e:
-        st.error(f"⚠️ Error loading profile data: {e}")
+        st.error(f"⚠️ Error analyzing watchlist: {e}")
 
 # --------------------------------------------------
 # LAYOUT
