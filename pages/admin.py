@@ -200,6 +200,7 @@ st.markdown("""
 .card-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; padding: 12px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
 .card-meta-item { display: flex; align-items: center; justify-content: center; gap: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: #475569; font-weight: 600; background: #f8fafc; padding: 8px; border-radius: 10px; }
 .card-meta-item span { opacity: 0.8; font-size: 0.95rem; }
+.card-footer-content { padding: 1rem 0 0 0; }
 .card-footer { padding: 0 1.5rem 1.5rem 1.5rem; }
 .card-user-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #64748b; margin-bottom: 16px; text-align: center; }
 
@@ -452,17 +453,19 @@ with tab1:
                                 <div class="card-meta-item"><span>📱</span> {umobile}</div>
                                 <div class="card-meta-item"><span>🔑</span> {upass[:12]}{'…' if len(upass) > 12 else ''}</div>
                             </div>
-                        </div>
+                            <div class="card-footer-content">
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    # Button INSIDE card visually
-                    st.markdown('<div class="card-footer">', unsafe_allow_html=True)
-                    
+                    # Button INSIDE card profile
                     if st.button("🗑 DELETE SESSION", key=f"del_grid_{uid}", use_container_width=True):
                         st.session_state[f"confirm_del_{uid}"] = True
                     
-                    st.markdown('</div>', unsafe_allow_html=True)
+                    st.markdown("""
+                            </div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
                     
                     # Confirmation dialog
                     if st.session_state.get(f"confirm_del_{uid}"):
