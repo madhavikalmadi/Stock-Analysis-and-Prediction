@@ -178,47 +178,49 @@ st.markdown("""
 .stTabs [data-baseweb="tab"] { background: transparent !important; color: #475569 !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.9rem !important; font-weight: 600 !important; padding: 8px 0 !important; border: none !important; transition: all 0.2s !important; border-bottom: 2px solid transparent !important; }
 .stTabs [aria-selected="true"] { color: #0f172a !important; font-weight: 800 !important; border-bottom: 2px solid #0f172a !important; }
 
-/* ── User ID Card (Portrait) ── */
+/* ── User ID Card (Modern Horizontal Layout) ── */
 .user-card {
-    background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 24px; padding: 0; margin-bottom: 25px;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+    border: 2px solid #e2e8f0; border-radius: 16px; padding: 0; margin-bottom: 16px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
     overflow: hidden; display: flex; flex-direction: column; height: 100%;
 }
-.user-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1); border-color: #cbd5e1; }
-.card-banner { height: 80px; background: linear-gradient(135deg, #0f172a, #1e293b); position: relative; }
-.card-avatar-wrap { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); }
+.user-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12); border-color: #0f172a; }
+.card-banner { height: 100px; background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 50%, #0f172a 100%); position: relative; }
+.card-avatar-wrap { position: absolute; top: 35px; left: 50%; transform: translateX(-50%); }
 .card-avatar {
-    width: 80px; height: 80px; border-radius: 22px; background: #ffffff;
-    border: 4px solid #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    width: 90px; height: 90px; border-radius: 18px; background: linear-gradient(135deg, #f0c040, #f59e0b);
+    border: 5px solid #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     display: flex; align-items: center; justify-content: center;
-    font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: #0f172a;
+    font-family: 'DM Serif Display', serif; font-size: 2.5rem; color: #ffffff; font-weight: 900;
 }
-.card-content { padding: 50px 1.5rem 1rem 1.5rem; text-align: center; flex: 1; }
-.card-name { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.4rem; color: #0f172a; margin-bottom: 6px; }
-.card-email { font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: #64748b; margin-bottom: 12px; }
-.card-meta-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 15px 0; padding: 12px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
-.card-meta-item { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: #475569; font-weight: 500; }
-.card-meta-item span { opacity: 0.6; font-size: 0.9rem; }
+.card-content { padding: 60px 1.5rem 1.2rem 1.5rem; text-align: center; flex: 1; }
+.card-name { font-family: 'DM Sans', sans-serif; font-size: 1.15rem; color: #0f172a; margin-bottom: 4px; font-weight: 800; }
+.card-email { font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: #64748b; margin-bottom: 14px; }
+.card-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; padding: 12px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+.card-meta-item { display: flex; align-items: center; justify-content: center; gap: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: #475569; font-weight: 600; background: #f8fafc; padding: 8px; border-radius: 10px; }
+.card-meta-item span { opacity: 0.8; font-size: 0.95rem; }
 .card-actions { padding: 1rem 1.5rem 1.8rem 1.5rem; }
 
-/* ── Danger Button (Soft) ── */
+/* ── Danger Button (Modern) ── */
 .del-btn-wrapper .stButton > button {
-    background: #0f172a !important;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
     color: #ffffff !important;
-    border: none !important;
+    border: 2px solid #cbd5e1 !important;
     border-radius: 12px !important;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1) !important;
-    font-weight: 800 !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12) !important;
+    font-weight: 700 !important;
     letter-spacing: 0.5px !important;
-    font-size: 0.72rem !important;
-    margin: 1.2rem 0 0.5rem 0 !important;
-    height: 42px !important;
+    font-size: 0.75rem !important;
+    margin: 1rem 0 0.5rem 0 !important;
+    height: 44px !important;
 }
 .del-btn-wrapper .stButton { display: flex; justify-content: center; }
 .del-btn-wrapper .stButton > button:hover {
-    background: #ef4444 !important;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
     color: #fff !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3) !important;
     transform: none !important;
 }
 
