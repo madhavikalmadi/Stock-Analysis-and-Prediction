@@ -208,7 +208,8 @@ st.markdown("""
     margin: 0 !important;
 }
 
-.card-footer .stButton > button {
+.stColumn:has(+ .stColumn) .stButton > button,
+.stColumn .stButton > button {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
     color: #ffffff !important;
     border: none !important;
@@ -217,18 +218,20 @@ st.markdown("""
     font-weight: 700 !important;
     letter-spacing: 0.5px !important;
     font-size: 0.75rem !important;
-    margin: 0 !important;
+    margin: 12px 0 0 0 !important;
     height: 44px !important;
     width: 100% !important;
 }
-.card-footer .stButton {
+
+.stColumn .stButton {
     display: flex;
     justify-content: center;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
 }
-.card-footer .stButton > button:hover {
+
+.stColumn .stButton > button:hover {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
     color: #fff !important;
     box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3) !important;
@@ -459,15 +462,12 @@ with tab1:
                             </div>
                             <div class="card-user-mono">ID: {uid[:20]}…</div>
                         </div>
-                        <div class="card-footer">
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    # Delete button - inside the card footer
+                    # Delete button - inside the card
                     if st.button("🗑 DELETE SESSION", key=f"del_grid_{uid}", use_container_width=True):
                         st.session_state[f"confirm_del_{uid}"] = True
-                    
-                    st.markdown("""</div></div>""", unsafe_allow_html=True)
                     
                     # Confirmation dialog
                     if st.session_state.get(f"confirm_del_{uid}"):
