@@ -201,39 +201,28 @@ st.markdown("""
 .card-meta-item { display: flex; align-items: center; justify-content: center; gap: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: #475569; font-weight: 600; background: #f8fafc; padding: 8px; border-radius: 10px; }
 .card-meta-item span { opacity: 0.8; font-size: 0.95rem; }
 .card-footer { padding: 0 1.5rem 1.5rem 1.5rem; }
-.card-button-wrapper { padding: 1.5rem 1.5rem 1.5rem 1.5rem; margin-top: auto; }
 .card-user-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #64748b; margin-bottom: 16px; text-align: center; }
 
 /* ── Danger Button (Modern) ── */
-.stColumn button {
-    margin: 0 !important;
+.card-footer {
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
 }
 
-/* Pull button inside card with negative margin */
-[data-testid="column"] > .stColumn > div > .stButton > button {
+.stButton > button {
+    width: 100%;
+    height: 44px;
+    border-radius: 10px;
+    font-size: 0.8rem;
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
     color: #ffffff !important;
     border: none !important;
-    border-radius: 10px !important;
     box-shadow: none !important;
     font-weight: 700 !important;
     letter-spacing: 0.5px !important;
-    font-size: 0.75rem !important;
-    margin: -60px 1.5rem 1.5rem 1.5rem !important;
-    height: 44px !important;
-    width: calc(100% - 3rem) !important;
-    position: relative;
-    z-index: 10;
-}
-
-[data-testid="column"] > .stColumn > div > .stButton {
-    display: flex;
-    justify-content: center;
     margin: 0 !important;
-    padding: 0 !important;
 }
 
-[data-testid="column"] > .stColumn > div > .stButton > button:hover {
+.stButton > button:hover {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
     color: #fff !important;
     box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3) !important;
@@ -448,6 +437,7 @@ with tab1:
                 avatar_letter = uname[0].upper() if uname else "?"
 
                 with grid_cols[i]:
+                    # Card UI
                     st.markdown(f"""
                     <div class="user-card">
                         <div class="card-banner">
@@ -463,15 +453,17 @@ with tab1:
                                 <div class="card-meta-item"><span>🔑</span> {upass[:12]}{'…' if len(upass) > 12 else ''}</div>
                             </div>
                             <div class="card-user-mono">ID: {uid[:20]}…</div>
-                            <div class="card-button-wrapper" id="btn_{uid}">
+                        </div>
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    # Delete button - rendered inside the card wrapper
+                    # Button INSIDE card visually
+                    st.markdown('<div class="card-footer">', unsafe_allow_html=True)
+                    
                     if st.button("🗑 DELETE SESSION", key=f"del_grid_{uid}", use_container_width=True):
                         st.session_state[f"confirm_del_{uid}"] = True
                     
-                    st.markdown("""</div></div>""", unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
                     
                     # Confirmation dialog
                     if st.session_state.get(f"confirm_del_{uid}"):
