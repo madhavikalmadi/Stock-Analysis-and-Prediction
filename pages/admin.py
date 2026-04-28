@@ -181,7 +181,7 @@ st.markdown("""
 /* ── User ID Card (Modern Horizontal Layout) ── */
 .user-card {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
-    border: 2px solid #e2e8f0; border-radius: 16px; padding: 0; margin-bottom: 16px;
+    border: 2px solid #e2e8f0; border-radius: 16px; padding: 0; margin-bottom: 0;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
     overflow: hidden; display: flex; flex-direction: column; height: 100%;
 }
@@ -194,34 +194,44 @@ st.markdown("""
     display: flex; align-items: center; justify-content: center;
     font-family: 'DM Serif Display', serif; font-size: 2.5rem; color: #ffffff; font-weight: 900;
 }
-.card-content { padding: 60px 1.5rem 1.5rem 1.5rem; text-align: center; flex: 1; display: flex; flex-direction: column; }
+.card-content { padding: 60px 1.5rem 1.2rem 1.5rem; text-align: center; flex: 1; display: flex; flex-direction: column; }
 .card-name { font-family: 'DM Sans', sans-serif; font-size: 1.15rem; color: #0f172a; margin-bottom: 4px; font-weight: 800; }
 .card-email { font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: #64748b; margin-bottom: 14px; }
 .card-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; padding: 12px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
 .card-meta-item { display: flex; align-items: center; justify-content: center; gap: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: #475569; font-weight: 600; background: #f8fafc; padding: 8px; border-radius: 10px; }
 .card-meta-item span { opacity: 0.8; font-size: 0.95rem; }
-.card-actions { padding: 1rem 1.5rem 1.8rem 1.5rem; }
+.card-footer { padding: 0 1.5rem 1.5rem 1.5rem; }
+.card-user-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #64748b; margin-bottom: 12px; text-align: center; }
 
 /* ── Danger Button (Modern) ── */
-.del-btn-wrapper .stButton > button {
+.stColumn button {
+    margin: 0 !important;
+}
+
+.card-footer .stButton > button {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
     color: #ffffff !important;
-    border: 2px solid #cbd5e1 !important;
-    border-radius: 12px !important;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
     font-weight: 700 !important;
     letter-spacing: 0.5px !important;
     font-size: 0.75rem !important;
-    margin: 1rem 0 0.5rem 0 !important;
+    margin: 0 !important;
     height: 44px !important;
+    width: 100% !important;
 }
-.del-btn-wrapper .stButton { display: flex; justify-content: center; }
-.del-btn-wrapper .stButton > button:hover {
+.card-footer .stButton {
+    display: flex;
+    justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+.card-footer .stButton > button:hover {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
     color: #fff !important;
-    border-color: #ef4444 !important;
     box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3) !important;
-    transform: none !important;
 }
 
 /* ── Credential tag ── */
@@ -447,18 +457,19 @@ with tab1:
                                 <div class="card-meta-item"><span>📱</span> {umobile}</div>
                                 <div class="card-meta-item"><span>🔑</span> {upass[:12]}{'…' if len(upass) > 12 else ''}</div>
                             </div>
-                            <div class="user-mono">ID: {uid[:20]}…</div>
+                            <div class="card-user-mono">ID: {uid[:20]}…</div>
                         </div>
+                        <div class="card-footer">
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    # Delete button - inside the column but styled to look part of card
-                    st.markdown('<div style="margin-top: -8px;">', unsafe_allow_html=True)
+                    # Delete button - inside the card footer
                     if st.button("🗑 DELETE SESSION", key=f"del_grid_{uid}", use_container_width=True):
                         st.session_state[f"confirm_del_{uid}"] = True
-                    st.markdown('</div>', unsafe_allow_html=True)
                     
-                    # Confirmation dialog inside card
+                    st.markdown("""</div></div>""", unsafe_allow_html=True)
+                    
+                    # Confirmation dialog
                     if st.session_state.get(f"confirm_del_{uid}"):
                         st.warning(f"Delete **{uname}**?", icon="⚠")
                         cb1, cb2 = st.columns(2)
