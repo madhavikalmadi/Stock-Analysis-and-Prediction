@@ -438,7 +438,7 @@ with tab1:
                 avatar_letter = uname[0].upper() if uname else "?"
 
                 with grid_cols[i]:
-                    # Card UI
+                    # Card UI with button inside
                     st.markdown(f"""
                     <div class="user-card">
                         <div class="card-banner">
@@ -453,20 +453,15 @@ with tab1:
                                 <div class="card-meta-item"><span>📱</span> {umobile}</div>
                                 <div class="card-meta-item"><span>🔑</span> {upass[:12]}{'…' if len(upass) > 12 else ''}</div>
                             </div>
-                            <div class="card-footer-content">
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    # Button INSIDE card - rendered between HTML divs
-                    if st.button("🗑 DELETE SESSION", key=f"del_grid_{uid}", use_container_width=True):
-                        st.session_state[f"confirm_del_{uid}"] = True
-                    
-                    # Close the card footer and content divs
-                    st.markdown("""
-                            </div>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
+                    
+                    # Delete button with wrapper to visually place it inside the card
+                    st.markdown('<div style="margin-top: -42px; position: relative; z-index: 10; padding: 0 1.5rem 1.5rem 1.5rem; background: #f8fafc; border-left: 2px solid #e2e8f0; border-right: 2px solid #e2e8f0; border-bottom: 2px solid #e2e8f0; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">', unsafe_allow_html=True)
+                    if st.button("🗑 DELETE SESSION", key=f"del_grid_{uid}", use_container_width=True):
+                        st.session_state[f"confirm_del_{uid}"] = True
+                    st.markdown('</div>', unsafe_allow_html=True)
                     
                     # Confirmation dialog
                     if st.session_state.get(f"confirm_del_{uid}"):
