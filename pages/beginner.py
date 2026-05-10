@@ -128,10 +128,10 @@ div.stButton, div[data-testid="stButton"] {
     width: 100% !important;
 }
 div.stButton > button, div[data-testid="stButton"] > button {
-    padding: 0.4rem 1rem !important;
-    font-size: 0.8rem !important;
+    padding: 0.5rem 1.5rem !important;
+    font-size: 0.85rem !important;
     border-radius: 50px !important;
-    background: rgba(24, 40, 72, 0.8) !important;
+    background: rgba(24, 40, 72, 0.85) !important;
     color: white !important;
     border: none !important;
 }
