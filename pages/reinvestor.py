@@ -118,13 +118,13 @@ body, [data-testid="stAppViewContainer"] {
     transform: rotateY(180deg);
 }
 
-div.stButton {
+div.stButton, div[data-testid="stButton"] {
     text-align: center !important;
     display: flex !important;
     justify-content: center !important;
     width: 100% !important;
 }
-div.stButton > button {
+div.stButton > button, div[data-testid="stButton"] > button {
     padding: 0.4rem 1rem !important;
     font-size: 0.8rem !important;
     border-radius: 50px !important;
@@ -132,10 +132,10 @@ div.stButton > button {
     color: white !important;
     border: none !important;
 }
-div.stButton > button * {
+div.stButton > button *, div[data-testid="stButton"] > button * {
     color: white !important;
 }
-div.stButton > button:hover {
+div.stButton > button:hover, div[data-testid="stButton"] > button:hover {
     background: #2563eb !important;
     transform: translateY(-2px);
 }
@@ -216,3 +216,5 @@ with col2:
 st.markdown("---")
 if st.button("⬅ Back to Dashboard"):
     st.switch_page("pages/dashboard.py")
+
+st.markdown("<div style='text-align:center; color:gray; font-size:0.7rem;'>v2.0 - Centered UI</div>", unsafe_allow_html=True)
