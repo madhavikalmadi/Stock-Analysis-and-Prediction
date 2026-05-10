@@ -543,24 +543,24 @@ def load_css():
     .streamlit-expanderHeader { background-color: rgba(255, 255, 255, 0.6) !important; border-radius: 12px !important; font-weight: 600 !important; color: #1f2a44 !important; border: 1px solid rgba(255,255,255,0.5) !important; margin-bottom: 0.2rem !important; }
     .streamlit-expanderContent { background-color: rgba(255, 255, 255, 0.4) !important; border-radius: 0 0 12px 12px !important; padding: 0.5rem !important; border-top: none; }
     
-    div.stButton {
+    div.stButton, div[data-testid="stButton"] {
     text-align: center !important;
     display: flex !important;
     justify-content: center !important;
     width: 100% !important;
 }
-div.stButton > button {
-    padding: 0.4rem 1rem !important;
-    font-size: 0.8rem !important;
+div.stButton > button, div[data-testid="stButton"] > button {
+    padding: 0.5rem 1.5rem !important;
+    font-size: 0.85rem !important;
     border-radius: 50px !important;
-    background: rgba(24, 40, 72, 0.8) !important;
+    background: rgba(24, 40, 72, 0.85) !important;
     color: white !important;
     border: none !important;
 }
-div.stButton > button * {
+div.stButton > button *, div[data-testid="stButton"] > button * {
     color: white !important;
 }
-div.stButton > button:hover {
+div.stButton > button:hover, div[data-testid="stButton"] > button:hover {
     background: #2563eb !important;
     transform: translateY(-2px);
 }
