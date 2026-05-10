@@ -175,7 +175,7 @@ with col2:
             <div class="glass-card">
                 <div class="card-icon">🏢</div>
                 <h2>Company Advisor</h2>
-                <p>Analyze stock growth power and wealth-building efficiency</p>
+                <p>Company insights. Smarter analysis. Better investments.</p>
             </div>
         </a>
         """, unsafe_allow_html=True)
@@ -190,7 +190,7 @@ with col2:
             <div class="glass-card">
                 <div class="card-icon">📈</div>
                 <h2>Index Advisor</h2>
-                <p>Find indices with the best growth-to-safety balance</p>
+                <p>Compare indices like Nifty 50, Sensex, and Bank Nifty to find balanced long-term investment options.</p>
             </div>
         </a>
         """, unsafe_allow_html=True)

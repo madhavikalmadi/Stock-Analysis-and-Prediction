@@ -180,7 +180,7 @@ with col2:
                 <div class="card-icon">💎</div>
                 <div class="card-heading">Blue-Chip Advisor</div>
                 <div class="card-text">
-                    High-quality leaders built for consistent wealth and long-term growth.
+                    High-quality companies built for consistent returns, lower risk, and long-term financial growth.
                 </div>
             </div>
         </a>
@@ -198,7 +198,7 @@ with col2:
                 <div class="card-icon">🏗️</div>
                 <div class="card-heading">Sector View</div>
                 <div class="card-text">
-                    Explore high-growth sectors like IT, Banking, and Auto to find winners.
+                    Explore market sectors to uncover growth trends, strong performers, and long-term investment potential.
                 </div>
             </div>
         </a>
