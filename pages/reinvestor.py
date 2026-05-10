@@ -118,12 +118,26 @@ body, [data-testid="stAppViewContainer"] {
     transform: rotateY(180deg);
 }
 
+div.stButton {
+    text-align: center !important;
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
 div.stButton > button {
-    background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
-    color: white;
-    border-radius: 12px;
-    padding: 0.8rem 1.5rem;
-    font-weight: 600;
+    padding: 0.4rem 1rem !important;
+    font-size: 0.8rem !important;
+    border-radius: 50px !important;
+    background: rgba(24, 40, 72, 0.8) !important;
+    color: white !important;
+    border: none !important;
+}
+div.stButton > button * {
+    color: white !important;
+}
+div.stButton > button:hover {
+    background: #2563eb !important;
+    transform: translateY(-2px);
 }
 </style>
 
@@ -199,12 +213,6 @@ with col2:
         if st.button("🚀 Start Index Analysis"):
             st.switch_page("pages/index.py")
 
-# -----------------------------------------------------------------------------
-# NAVIGATION
-# -----------------------------------------------------------------------------
 st.markdown("---")
-
-_, c_mid, _ = st.columns([4, 2, 4])
-with c_mid:
-    if st.button("⬅ Dashboard"):
-        st.switch_page("pages/dashboard.py")
+if st.button("⬅ Back to Dashboard"):
+    st.switch_page("pages/dashboard.py")

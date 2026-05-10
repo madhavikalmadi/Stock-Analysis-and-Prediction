@@ -313,6 +313,7 @@ div.stButton {
     text-align: center !important;
     display: flex !important;
     justify-content: center !important;
+    width: 100% !important;
 }
 div.stButton > button {
     padding: 0.4rem 1rem !important;

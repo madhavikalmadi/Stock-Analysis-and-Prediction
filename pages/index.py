@@ -60,13 +60,22 @@ st.markdown("""
 .small { color:#64748b; font-size:0.8rem; }
 .metric { font-weight:700; }
 
+div.stButton {
+    text-align: center !important;
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
 div.stButton > button {
     padding: 0.4rem 1rem !important;
-    font-size: 0.85rem !important;
+    font-size: 0.8rem !important;
     border-radius: 50px !important;
-    background: rgba(24, 40, 72, 0.85) !important;
+    background: rgba(24, 40, 72, 0.8) !important;
     color: white !important;
-    white-space: nowrap !important;
+    border: none !important;
+}
+div.stButton > button * {
+    color: white !important;
 }
 div.stButton > button:hover {
     background: #2563eb !important;

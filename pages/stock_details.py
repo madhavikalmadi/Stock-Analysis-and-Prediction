@@ -486,12 +486,9 @@ def main():
         elif st.session_state.active_tab == "pro":
             render_reinvestor_zone(assets)
 
-    # 7. Bottom Navigation
     st.write("")
-    _, mid, _ = st.columns([5, 1.5, 5])
-    with mid:
-        if st.button("⬅ Dashboard", key="btm_nav", use_container_width=True):
-            st.switch_page("pages/dashboard.py")
+    if st.button("⬅ Back to Dashboard"):
+        st.switch_page("pages/dashboard.py")
 
     st.markdown("<p class='footer-text'>© 2025 Smart Investor Assistant</p>", unsafe_allow_html=True)
 
@@ -546,10 +543,27 @@ def load_css():
     .streamlit-expanderHeader { background-color: rgba(255, 255, 255, 0.6) !important; border-radius: 12px !important; font-weight: 600 !important; color: #1f2a44 !important; border: 1px solid rgba(255,255,255,0.5) !important; margin-bottom: 0.2rem !important; }
     .streamlit-expanderContent { background-color: rgba(255, 255, 255, 0.4) !important; border-radius: 0 0 12px 12px !important; padding: 0.5rem !important; border-top: none; }
     
-    /* Bottom Nav */
-    div.stButton:last-of-type > button { padding: 0.4rem 1rem !important; font-size: 0.8rem !important; border-radius: 50px !important; background: rgba(24, 40, 72, 0.8) !important; color: white !important; box-shadow: none !important; position: relative; z-index: 2; }
-    div.stButton:last-of-type > button:hover { background: #2563eb !important; transform: translateY(-2px); }
-    .footer-text { text-align: center; font-size: 0.85rem; opacity: 0.8; margin-top: 2rem; margin-bottom: 1rem; color: #64748b; font-weight: 500; position: relative; z-index: 2;}
+    div.stButton {
+    text-align: center !important;
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+div.stButton > button {
+    padding: 0.4rem 1rem !important;
+    font-size: 0.8rem !important;
+    border-radius: 50px !important;
+    background: rgba(24, 40, 72, 0.8) !important;
+    color: white !important;
+    border: none !important;
+}
+div.stButton > button * {
+    color: white !important;
+}
+div.stButton > button:hover {
+    background: #2563eb !important;
+    transform: translateY(-2px);
+}
     </style>
     
     <div class="area" ><ul class="circles"><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ul></div>
