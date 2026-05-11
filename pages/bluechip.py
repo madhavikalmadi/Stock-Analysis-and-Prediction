@@ -9,9 +9,15 @@ import os
 # --------------------------------------------------
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import data_fetch
-import metric_calculator
-import scoring_system
+# Diagnostic flag
+import_error_message = None
+
+try:
+    import data_fetch
+    import metric_calculator
+    import scoring_system
+except Exception as e:
+    import_error_message = str(e)
 
 # --------------------------------------------------
 # PAGE CONFIG
@@ -148,6 +154,11 @@ st.markdown("---")
 # ==================================================
 # DATA PIPELINE
 # ==================================================
+if import_error_message:
+    st.error(f"Critical System Error: {import_error_message}")
+    st.info("This is likely a missing dependency or a dictionary key error in the data module.")
+    st.stop()
+
 try:
     tickers = data_fetch.BLUECHIP_TICKERS.copy()
     benchmark = "^NSEI"
