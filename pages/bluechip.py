@@ -161,12 +161,21 @@ try:
 
     ranked_df = ranked_df[ranked_df["Ticker"] != benchmark]
     top10 = ranked_df.head(10)
+
+    def investor_type(row):
+        if hasattr(row, 'Volatility') and hasattr(row, 'MaxDrawdown'):
+            if row.Volatility > 0.35 or row.MaxDrawdown < -0.6:
+                return "Aggressive"
+            elif hasattr(row, 'Sharpe') and row.Sharpe > 0.7 and row.Volatility < 0.3:
+                return "Conservative"
+        return "Moderate"
     for i in range(0, len(top10), 5):
         cols = st.columns(5)
         batch = top10.iloc[i:i+5]
 
         for idx, row in enumerate(batch.itertuples()):
             ticker = row.Ticker.replace(".NS", "")
+            inv_type = investor_type(row)
             with cols[idx]:
                 st.markdown(f"""
 <div class="stock-card">
@@ -178,6 +187,7 @@ try:
 <div><span class="small" style="font-weight:700;">Yearly Growth</span><div style="font-weight:600;">{row.CAGR*100:.1f}%</div></div>
 <div><span class="small" style="font-weight:700;">Efficiency</span><div style="font-weight:600;">{row.Sharpe:.2f}</div></div>
 </div>
+<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:5px; border-radius:6px;">Profile: <span style="color:#2563eb;">{inv_type}</span></div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -198,6 +208,7 @@ with st.expander("Click to learn more about the metrics used above", expanded=Fa
     * **Growth Score:** A simplified rating from 0 to 100. It picks stocks that grow wealth consistently without extreme risk.
     * **Yearly Growth:** The average speed at which the stock price has climbed each year over the last decade.
     * **Efficiency:** Measures if the stock is generating smart returns for the risk taken. Higher is better.
+    * **Profile:** Categorizes stocks based on their personality (Conservative/Safety vs Aggressive/Risk).
     """)
 
 st.markdown("---")
