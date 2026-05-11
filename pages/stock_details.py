@@ -82,7 +82,7 @@ def render_beginner_zone(lotties):
             If the pizza shop starts using better cheese and selling more pizzas (higher profits), everyone wants a slice, so the price goes **UP**. If they burn the pizza (losses), nobody wants it, and the price goes **DOWN**.
             """)
         with cc:
-             st.markdown("🍕 *Imagine a delicious pizza here*")
+             st.image("images/pizza.png", caption="Stock Market is like a Pizza 🍕", use_container_width=True)
 
     # 2. SHARE MARKET
     with st.expander("🏛️ What is the Share Market? (The Supermarket)"):
