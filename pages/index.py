@@ -73,6 +73,8 @@ div.stButton > button, div[data-testid="stButton"] > button {
     background: rgba(24, 40, 72, 0.85) !important;
     color: white !important;
     border: none !important;
+    margin: 0 auto !important;
+    width: fit-content !important;
 }
 div.stButton > button *, div[data-testid="stButton"] > button * {
     color: white !important;
@@ -245,18 +247,9 @@ if st.button("🚀 Analyze Market Indices"):
 
 
 # =====================================================
-# 🔻 BOTTOM NAVIGATION (VISIBLE FROM START)
+# 🔻 BOTTOM NAVIGATION
 # =====================================================
 st.write("")
 st.markdown("---")
-st.write("")
-
-c_back, _, c_dash = st.columns([1, 6, 1])
-
-with c_back:
-    if st.button("⬅ Back to Menu", key="btn_index_back"):
-        st.switch_page("pages/reinvestor.py")
-
-with c_dash:
-    if st.button("⬅ Dashboard", key="btn_index_dashboard"):
-        st.switch_page("pages/dashboard.py")
+if st.button("⬅ Back to Dashboard"):
+    st.switch_page("pages/dashboard.py")

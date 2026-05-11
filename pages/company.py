@@ -75,6 +75,8 @@ div.stButton > button, div[data-testid="stButton"] > button {
     background: rgba(24, 40, 72, 0.85) !important;
     color: white !important;
     border: none !important;
+    margin: 0 auto !important;
+    width: fit-content !important;
 }
 div.stButton > button *, div[data-testid="stButton"] > button * {
     color: white !important;
