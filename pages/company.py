@@ -289,5 +289,5 @@ with st.expander("Click to learn more about the metrics used above", expanded=Fa
     """)
 
 st.markdown("---")
-if st.button("⬅ Back to Dashboard"):
-    st.switch_page("pages/dashboard.py")
+if st.button("⬅ Back to Menu"):
+    st.switch_page("pages/reinvestor.py")
