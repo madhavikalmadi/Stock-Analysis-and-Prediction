@@ -9,15 +9,9 @@ import os
 # --------------------------------------------------
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# Diagnostic flag
-import_error_message = None
-
-try:
-    import data_fetch
-    import metric_calculator
-    import scoring_system
-except Exception as e:
-    import_error_message = str(e)
+import data_fetch
+import metric_calculator
+import scoring_system
 
 # --------------------------------------------------
 # PAGE CONFIG
@@ -154,11 +148,6 @@ st.markdown("---")
 # ==================================================
 # DATA PIPELINE
 # ==================================================
-if import_error_message:
-    st.error(f"Critical System Error: {import_error_message}")
-    st.info("This is likely a missing dependency or a dictionary key error in the data module.")
-    st.stop()
-
 try:
     tickers = data_fetch.BLUECHIP_TICKERS.copy()
     benchmark = "^NSEI"
@@ -172,38 +161,23 @@ try:
 
     ranked_df = ranked_df[ranked_df["Ticker"] != benchmark]
     top10 = ranked_df.head(10)
-
-    def investor_type(row):
-        if row.Volatility > 0.35 or row.MaxDrawdown < -0.6:
-            return "Aggressive"
-        elif row.Sharpe > 0.7 and row.Volatility < 0.3:
-            return "Conservative"
-        return "Moderate"
-
     for i in range(0, len(top10), 5):
         cols = st.columns(5)
         batch = top10.iloc[i:i+5]
 
         for idx, row in enumerate(batch.itertuples()):
             ticker = row.Ticker.replace(".NS", "")
-            company = COMPANY_NAME_MAP.get(ticker, ticker)
-
-            inv_type = investor_type(row)
-
             with cols[idx]:
                 st.markdown(f"""
 <div class="stock-card">
 <div class="metric" style="font-size:1.2rem; font-weight:800; color:#1e293b; margin-bottom:2px;">{ticker}</div>
-<div class="small" style="font-size:0.85rem; color:#64748b; margin-bottom:10px; min-height:30px; display:flex; align-items:center; justify-content:center; line-height:1.2;">{company}</div>
-<div class="small" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin-bottom:2px;">Risk-Adjusted Score</div>
+<div class="small" style="font-size:0.85rem; color:#64748b; margin-bottom:10px; min-height:40px; display:flex; align-items:center; justify-content:center; line-height:1.2;">Leader #{idx + 1 + i} in Blue-Chips</div>
+<div class="small" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin-bottom:2px;">Growth Score</div>
 <div class="big" style="margin-bottom:15px; color:#059669;">{row.FinalScore*100:.1f}<span style="font-size:1rem; color:#94a3b8;">/100</span></div>
 <div class="metrics-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; padding-top:15px; border-top:1px solid #eee;">
-<div><span class="small" style="font-weight:700;">CAGR</span><div style="font-weight:600;">{row.CAGR*100:.1f}%</div></div>
-<div><span class="small" style="font-weight:700;">Sharpe</span><div style="font-weight:600;">{row.Sharpe:.2f}</div></div>
-<div><span class="small" style="font-weight:700;">Vol</span><div style="font-weight:600;">{row.Volatility*100:.1f}%</div></div>
-<div><span class="small" style="font-weight:700;">Drawdown</span><div style="font-weight:600; color:#ef4444;">{row.MaxDrawdown*100:.1f}%</div></div>
+<div><span class="small" style="font-weight:700;">Yearly Growth</span><div style="font-weight:600;">{row.CAGR*100:.1f}%</div></div>
+<div><span class="small" style="font-weight:700;">Efficiency</span><div style="font-weight:600;">{row.Sharpe:.2f}</div></div>
 </div>
-<div class="small" style="margin-top:10px; font-weight:600; color:#475569; font-size:0.85rem; background:#f1f5f9; padding:5px; border-radius:6px;">Profile: <span style="color:#2563eb;">{inv_type}</span></div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -221,15 +195,9 @@ st.write("")
 st.markdown("### 📚 Explanation of Key Terms")
 with st.expander("Click to learn more about the metrics used above", expanded=False):
     st.markdown("""
-    * **Risk-Adjusted Score:** Think of this as a "Safety + Growth" score. Higher is better. It finds stocks that give good returns without being too risky.
-    * **CAGR (Yearly Growth):** How much your money grows on average each year. Higher is better.
-    * **Sharpe (Investment Efficiency):** Shows if the stock is generating smart returns for the risk taken. Higher is better.
-    * **Vol (Price Fluctuations):** How much the price jumps up and down. Lower is better because it means a smoother ride.
-    * **Drawdown (Worst Drop):** The worst fall the stock has seen. Small falls mean it recovers better from crashes.
-    * **Profile (Investor Type):**
-        * **Conservative:** Safety First. Low risk, steady returns.
-        * **Aggressive:** Risk Taker. High possible gains, but big drops possible.
-        * **Moderate:** Balanced. A mix of safety and growth.
+    * **Growth Score:** A simplified rating from 0 to 100. It picks stocks that grow wealth consistently without extreme risk.
+    * **Yearly Growth:** The average speed at which the stock price has climbed each year over the last decade.
+    * **Efficiency:** Measures if the stock is generating smart returns for the risk taken. Higher is better.
     """)
 
 st.markdown("---")
