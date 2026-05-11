@@ -497,77 +497,77 @@ def main():
 # ==============================================================================
 def load_css():
     st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap');
-    
-    /* Global Cleanup - ADJUSTED PADDING FOR MORE TOP SPACE */
-    .block-container {
-        padding-top: 3.5rem !important; /* Increased to 3.5rem */
-        padding-bottom: 2rem !important;
-    }
-    
-    [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"], footer, #MainMenu { display: none; }
-    
-    body, [data-testid="stAppViewContainer"] {
-        background: linear-gradient(120deg, #eef2f3 0%, #8e9eab 100%);
-        font-family: 'Outfit', sans-serif !important;
-        overflow-x: hidden;
-    }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap');
 
-    /* Animation Area - Fixed Background */
-    .area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; }
-    .circles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; margin: 0; padding: 0; }
-    .circles li { position: absolute; display: block; list-style: none; width: 20px; height: 20px; background: rgba(255, 255, 255, 0.4); animation: animate 25s linear infinite; bottom: -150px; border-radius: 20%; }
-    .circles li:nth-child(1){ left: 25%; width: 80px; height: 80px; animation-delay: 0s; }
-    .circles li:nth-child(2){ left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
-    .circles li:nth-child(3){ left: 70%; width: 20px; height: 20px; animation-delay: 4s; }
-    .circles li:nth-child(4){ left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
-    @keyframes animate { 0%{ transform: translateY(0) rotate(0deg); opacity: 1; border-radius: 0; } 100%{ transform: translateY(-1000px) rotate(720deg); opacity: 0; border-radius: 50%; } }
+/* Global Cleanup - ADJUSTED PADDING FOR MORE TOP SPACE */
+.block-container {
+    padding-top: 3.5rem !important; /* Increased to 3.5rem */
+    padding-bottom: 2rem !important;
+}
 
-    /* Hero - REDUCED PADDING */
-    .hero-container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; padding: 1rem 0; position: relative; z-index: 2; }
-    .hero-title { font-size: 3rem; font-weight: 900; margin-bottom: 0.2rem; background: linear-gradient(to right, #30CFD0 0%, #330867 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero-subtitle { font-size: 1.1rem; color: #475569; font-weight: 600; margin-bottom: 0.3rem; }
-    .hero-desc { color: #64748b; font-size: 0.9rem; font-style: italic; max-width: 600px; }
+[data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"], footer, #MainMenu { display: none; }
 
-    /* Tabs */
-    .tab-btn button, .tab-btn-active button { width: 100% !important; border-radius: 12px !important; padding: 0.6rem 1rem !important; font-weight: 700 !important; border: none !important; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important; z-index: 2; position: relative; }
-    .tab-btn button { background: linear-gradient(135deg, #475569 0%, #1e293b 100%) !important; color: white !important; opacity: 0.85; }
-    .tab-btn button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2) !important; }
-    
-    /* Content Boxes - REDUCED PADDING/MARGIN */
-    .glass-container { background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(16px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 20px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.05); z-index: 1; position: relative; }
-    .sub-header { font-size: 1.3rem; font-weight: 800; color: #1e293b; margin-top: 0.5rem; margin-bottom: 0.5rem; display: inline-block; }
-    
-    /* Expanders */
-    .streamlit-expanderHeader { background-color: rgba(255, 255, 255, 0.6) !important; border-radius: 12px !important; font-weight: 600 !important; color: #1f2a44 !important; border: 1px solid rgba(255,255,255,0.5) !important; margin-bottom: 0.2rem !important; }
-    .streamlit-expanderContent { background-color: rgba(255, 255, 255, 0.4) !important; border-radius: 0 0 12px 12px !important; padding: 0.5rem !important; border-top: none; }
-    
-    div.stButton, div[data-testid="stButton"] {
-    text-align: center !important;
-    display: flex !important;
-    justify-content: center !important;
-    width: 100% !important;
+body, [data-testid="stAppViewContainer"] {
+    background: linear-gradient(120deg, #eef2f3 0%, #8e9eab 100%);
+    font-family: 'Outfit', sans-serif !important;
+    overflow-x: hidden;
+}
+
+/* Animation Area - Fixed Background */
+.area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; }
+.circles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; margin: 0; padding: 0; }
+.circles li { position: absolute; display: block; list-style: none; width: 20px; height: 20px; background: rgba(255, 255, 255, 0.4); animation: animate 25s linear infinite; bottom: -150px; border-radius: 20%; }
+.circles li:nth-child(1){ left: 25%; width: 80px; height: 80px; animation-delay: 0s; }
+.circles li:nth-child(2){ left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
+.circles li:nth-child(3){ left: 70%; width: 20px; height: 20px; animation-delay: 4s; }
+.circles li:nth-child(4){ left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
+@keyframes animate { 0%{ transform: translateY(0) rotate(0deg); opacity: 1; border-radius: 0; } 100%{ transform: translateY(-1000px) rotate(720deg); opacity: 0; border-radius: 50%; } }
+
+/* Hero - REDUCED PADDING */
+.hero-container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; padding: 1rem 0; position: relative; z-index: 2; }
+.hero-title { font-size: 3rem; font-weight: 900; margin-bottom: 0.2rem; background: linear-gradient(to right, #30CFD0 0%, #330867 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-subtitle { font-size: 1.1rem; color: #475569; font-weight: 600; margin-bottom: 0.3rem; }
+.hero-desc { color: #64748b; font-size: 0.9rem; font-style: italic; max-width: 600px; }
+
+/* Tabs */
+.tab-btn button, .tab-btn-active button { width: 100% !important; border-radius: 12px !important; padding: 0.6rem 1rem !important; font-weight: 700 !important; border: none !important; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important; z-index: 2; position: relative; }
+.tab-btn button { background: linear-gradient(135deg, #475569 0%, #1e293b 100%) !important; color: white !important; opacity: 0.85; }
+.tab-btn button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2) !important; }
+
+/* Content Boxes - REDUCED PADDING/MARGIN */
+.glass-container { background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(16px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 20px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.05); z-index: 1; position: relative; }
+.sub-header { font-size: 1.3rem; font-weight: 800; color: #1e293b; margin-top: 0.5rem; margin-bottom: 0.5rem; display: inline-block; }
+
+/* Expanders */
+.streamlit-expanderHeader { background-color: rgba(255, 255, 255, 0.6) !important; border-radius: 12px !important; font-weight: 600 !important; color: #1f2a44 !important; border: 1px solid rgba(255,255,255,0.5) !important; margin-bottom: 0.2rem !important; }
+.streamlit-expanderContent { background-color: rgba(255, 255, 255, 0.4) !important; border-radius: 0 0 12px 12px !important; padding: 0.5rem !important; border-top: none; }
+
+div.stButton, div[data-testid="stButton"] {
+text-align: center !important;
+display: flex !important;
+justify-content: center !important;
+width: 100% !important;
 }
 div.stButton > button, div[data-testid="stButton"] > button {
-    padding: 0.5rem 1.5rem !important;
-    font-size: 0.85rem !important;
-    border-radius: 50px !important;
-    background: rgba(24, 40, 72, 0.85) !important;
-    color: white !important;
-    border: none !important;
+padding: 0.5rem 1.5rem !important;
+font-size: 0.85rem !important;
+border-radius: 50px !important;
+background: rgba(24, 40, 72, 0.85) !important;
+color: white !important;
+border: none !important;
 }
 div.stButton > button *, div[data-testid="stButton"] > button * {
-    color: white !important;
+color: white !important;
 }
 div.stButton > button:hover, div[data-testid="stButton"] > button:hover {
-    background: #2563eb !important;
-    transform: translateY(-2px);
+background: #2563eb !important;
+transform: translateY(-2px);
 }
-    </style>
-    
-    <div class="area" ><ul class="circles"><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ul></div>
-    """, unsafe_allow_html=True)
+</style>
+
+<div class="area" ><ul class="circles"><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ul></div>
+""", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
