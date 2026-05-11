@@ -121,22 +121,28 @@ body, [data-testid="stAppViewContainer"] {
     line-height: 1.6;
 }
 
-.card-btn {
-    background: rgba(24, 40, 72, 0.85);
-    color: white !important;
-    padding: 0.6rem 1.8rem;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    display: inline-block;
-    margin-top: 1.2rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
+div.stButton, div[data-testid="stButton"] {
+    text-align: center !important;
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
 }
-.glass-card:hover .card-btn {
-    background: #2563eb;
+div.stButton > button, div[data-testid="stButton"] > button {
+    padding: 0.5rem 1.5rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 50px !important;
+    background: rgba(24, 40, 72, 0.85) !important;
+    color: white !important;
+    border: none !important;
+    margin: 0 auto !important;
+    width: fit-content !important;
+}
+div.stButton > button *, div[data-testid="stButton"] > button * {
+    color: white !important;
+}
+div.stButton > button:hover, div[data-testid="stButton"] > button:hover {
+    background: #2563eb !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
 }
 </style>
 
@@ -192,10 +198,13 @@ with col2:
                 <div class="card-text">
                     High-quality companies built for consistent returns, lower risk, and long-term financial growth.
                 </div>
-                <div class="card-btn">🚀 Explore Blue-Chips</div>
             </div>
         </a>
         """, unsafe_allow_html=True)
+
+        st.write("") # SPACER
+        if st.button("🚀 Explore Blue-Chips"):
+            st.switch_page("pages/bluechip.py")
 
     # ---------------- SECTOR ----------------
     with c2:
@@ -207,10 +216,13 @@ with col2:
                 <div class="card-text">
                     Explore market sectors to uncover growth trends, strong performers, and long-term investment potential.
                 </div>
-                <div class="card-btn">🚀 Explore Sectors</div>
             </div>
         </a>
         """, unsafe_allow_html=True)
+
+        st.write("") # SPACER
+        if st.button("🚀 Explore Sectors"):
+            st.switch_page("pages/sector.py")
 
 st.markdown("---")
 if st.button("⬅ Back to Dashboard"):
